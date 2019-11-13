@@ -65,7 +65,6 @@ def load_gui():
     d = utils.driver()
     d.get(url)  
     if not get('user-logged-in'):
-        pdb.set_trace()
         selection = input('please log in then press any key to continue, or q to quit').lower()
         if selection == 'q':
             utils.quit()
