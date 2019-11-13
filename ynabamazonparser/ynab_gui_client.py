@@ -65,8 +65,7 @@ def load_gui():
         pdb.set_trace()
         selection = input('please log in then press any key to continue, or q to quit').lower()
         if selection == 'q':
-            utils.driver().quit()
-            return
+            utils.quit()
         load_gui()
 
 def enter_fields(fields, values):

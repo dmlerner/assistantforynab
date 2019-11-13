@@ -1,0 +1,9 @@
+/ynabamazonparser/log
+/ynabamazonparser/data
+/ynabamazonparser/__pycache__
+/include
+/bin
+/lib
+/log
+*.swp
+*.csv

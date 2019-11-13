@@ -74,3 +74,10 @@ def is_alive(d):
         return False
     return False
     '''
+
+def quit():
+    log('Quitting')
+    driver().quit()
+    log_file.close()
+    sys.exit()
+

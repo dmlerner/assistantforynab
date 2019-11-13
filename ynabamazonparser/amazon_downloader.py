@@ -75,6 +75,8 @@ def load(data_type):
         utils.log('Type q then enter to quit, or anything else to try again.')
         if input('One more try?').lower() != 'q':
             load(data_type)
+        else:
+            utils.quit()
 
 
 def load_all():
