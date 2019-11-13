@@ -12,8 +12,6 @@ Currently depends on [an unofficial python api](https://github.com/andreroggeri/
 	cp transactions.py ~/.local/lib/python3.8/site-packages/ynab_sdk/api/
 Hopefully I'll remove this dependency soon.
 
-I'm sure you'll have to pip install some things. I'll hopefuly add instructions soon.
-
 The thing that is most fragile is definitely entering in the gui itself. That would not even be necessary, except that the API [doesn't support split transactions.](https://support.youneedabudget.com/t/m251v5/posting-split-transactions) 
 
 .............................
