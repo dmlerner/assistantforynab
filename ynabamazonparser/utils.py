@@ -16,7 +16,6 @@ from selenium import webdriver
 import socket
 from selenium.webdriver.remote.command import Command
 
-
 def float_from_amazon_price(p):
     try:
         return float(p[1:])

@@ -3,6 +3,8 @@ import os
 import sys
 import pdb
 import time
+import shutil
+import private_settings
 
 start_time = datetime.datetime.now()
 log_verbosity = 0
@@ -22,9 +24,16 @@ for p in log_path, data_path:
     if not os.path.exists(p):
         os.mkdir(p)
 
-budget_id = '7b027e9b-4ed8-495e-97bd-f0339357adf0'
-account_name = 'Chase Amazon'
-api_key = 'd8603f5c0e704f36bd0774e162c1651c8416974b181ff0dc45de427f75bbb20e'
+private_settings_path = os.join(script_path, 'private_settings.py')
+private_settings_template_path = os.join(script_path, 'private_settings_template.py')
+if not os.path.exists(private_settings_path):
+    utils.log('ERROR: no private settings found, using defaults. Please edit %s' % private_settings_path)
+    utils.log('Will not be able to access YNAB')
+    shutil.copy(private_settings_template_path, private_settings_path)
+
+budget_id = private_settings.budget_id
+account_name = private_settings.account_name
+api_key = private_settings.api_key
 
 fail_on_ambiguous_transaction = False
 ' NOTE: you probalby want to make a category named as below '
