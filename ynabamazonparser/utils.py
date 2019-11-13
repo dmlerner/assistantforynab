@@ -77,7 +77,8 @@ def is_alive(d):
 
 def quit():
     log('Quitting')
-    driver().quit()
+    if settings.close_browser_on_finish:
+        driver().quit()
     log_file.close()
     sys.exit()
 

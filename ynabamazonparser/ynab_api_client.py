@@ -33,8 +33,10 @@ def update_all(transactions, orders_by_transaction_id):
 
 def get_transactions_to_update():
     all_transactions = get_all_transactions()
-    predicates = has_blank_or_WIP_memo, matches_account, is_purchase
-    return [t for t in all_transactions if all(p(t) for p in predicates)]
+    predicates = newer_than, has_blank_or_WIP_memo, matches_account, is_purchase 
+    eligible = [t for t in all_transactions if all(p(t) for p in predicates)]
+    utils.log('Found %s transactions to attempt to match with Amazon orders' % len(eligible))
+    return eligible
 
 def has_blank_memo(t):
     return not t.memo
@@ -50,3 +52,7 @@ def matches_account(t):
 
 def is_purchase(t):
     return t.amount < 0
+
+def newer_than(t, days_ago=30):
+    cutoff = datetime.datetime.now() - datetime.timedelta(days=days_ago)
+    return utils.datetime_from_ynab_date(t.date) > cutoff

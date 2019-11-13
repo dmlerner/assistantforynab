@@ -22,25 +22,16 @@ for p in log_path, data_path:
     if not os.path.exists(p):
         os.mkdir(p)
 
-' just go to your ynab; the url is app.youneedabudget.com/BUDGET_ID/budget '
-' looks like 8-4-4-4-12 alpha numerics '
-budget_id = ' your budget id here '
-
-' the name of the one account to check for amazon transactions '
-' TODO: work with multiple acounts '
+budget_id = '7b027e9b-4ed8-495e-97bd-f0339357adf0'
 account_name = 'Chase Amazon'
-
-' api.youneedabudget.com '
-' you want a "personal access token" '
-' TODO: oauth '
-api_key = 'your personal access token here'
+api_key = 'd8603f5c0e704f36bd0774e162c1651c8416974b181ff0dc45de427f75bbb20e'
 
 fail_on_ambiguous_transaction = False
 ' NOTE: you probalby want to make a category named as below '
 default_category = 'ERROR'
 close_browser_on_finish = False
 
-' if true, Always redownload csvs '
+' Always redownload csvs '
 force_download_amazon = False
 
 ' TODO: variable controlling if transactions stay checked in the UI when done; currently they do '

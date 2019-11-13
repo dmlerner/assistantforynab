@@ -1,4 +1,5 @@
 import datetime
+import traceback
 import os
 import sys
 import pdb
@@ -69,6 +70,7 @@ def load(data_type):
             os.rename(path, target_path)
 
         data[data_type] = parse(target_path)
+        utils.log('Found %s %s' % (len(data[data_type]), data_type))
         return data[data_type]
     except:
         utils.log('Probably this failed because you need to log in...')
@@ -76,8 +78,8 @@ def load(data_type):
         if input('One more try?').lower() != 'q':
             load(data_type)
         else:
+            utils.log(traceback.format_exc())
             utils.quit()
-
 
 def load_all():
     for t in data_types:

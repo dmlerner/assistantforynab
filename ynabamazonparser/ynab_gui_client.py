@@ -1,4 +1,5 @@
 import datetime
+import traceback
 import os
 import sys
 import pdb
@@ -23,11 +24,13 @@ def get(class_name, count=None, require=True, predicate=None, wait=10):
                     EC.presence_of_element_located((By.CLASS_NAME, class_name))
             )
         except:
-            e = sys.exc_info()[0]
             if require:
-                raise e
+                utils.log('element not found', class_name)
+                utils.log(traceback.format_exc())
                 if input('%s elements not found, keep waiting? [y/N]' % class_name).lower() == 'y':
                     get(class_name, predicate, count, wait)
+                else:
+                    utils.quit()
 
     class_elements = utils.driver().find_elements_by_class_name(class_name)
     matches = list(filter(predicate, class_elements))
@@ -148,7 +151,7 @@ def enter_all_transactions(transactions, orders_by_transaction_id):
         utils.log('order', order)
         items = items_by_order_id[order['Order ID']]
         utils.log('items', items)
-        if len(items) > 3:
+        if len(items) > 300:
             utils.log('Skipping puchase with items for speed reasons during alpha test. Feel free to remove this check.')
             ' theta(len(items)^2) time, very tolerable at any reasonable n, but for testing, this is helpful'
             continue
@@ -157,6 +160,7 @@ def enter_all_transactions(transactions, orders_by_transaction_id):
         except:
             ' Likely because there were multiple search results '
             utils.log('Error on transaction', t, items)
+            utils.log(traceback.format_exc())
             search = get('transaction-search-input')
             search.clear()
     if settings.close_browser_on_finish:
