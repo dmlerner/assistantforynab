@@ -24,8 +24,8 @@ for p in log_path, data_path:
     if not os.path.exists(p):
         os.mkdir(p)
 
-private_settings_path = os.join(script_path, 'private_settings.py')
-private_settings_template_path = os.join(script_path, 'private_settings_template.py')
+private_settings_path = os.path.join(script_path, 'private_settings.py')
+private_settings_template_path = os.path.join(script_path, 'private_settings_template.py')
 if not os.path.exists(private_settings_path):
     utils.log('ERROR: no private settings found, using defaults. Please edit %s' % private_settings_path)
     utils.log('Will not be able to access YNAB')
