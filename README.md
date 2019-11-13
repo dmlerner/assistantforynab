@@ -14,11 +14,10 @@ git clone http://www.github.com/dmlerner/ynabamazonparser.git
 virtualenv -p $(which python3) .
 source ./bin/activate
 pip3 install selenium ynab_sdk
+deactivate
 cd ynabamazonparser
 cp transactions.py ../lib/python3.8/site-packages/ynab_sdk/api
 cp default_client.py ../lib/python3.8/site-packages/ynab_sdk/utils/clients
-python3 driver.py
-deactivate
 ```
 
 
