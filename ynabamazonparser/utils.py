@@ -16,17 +16,6 @@ from selenium import webdriver
 import socket
 from selenium.webdriver.remote.command import Command
 
-def float_from_amazon_price(p):
-    try:
-        return float(p[1:])
-    except:
-        return None
-
-def float_from_ynab_price(p):
-    try:
-        return abs(p/1000)
-    except:
-        return None
 
 def equalish(a, b):
     try:
@@ -45,11 +34,7 @@ def log(*x, verbosity=0, sep=' | ', end=os.linesep*2):
     if verbosity >= settings.print_verbosity:
         print(*x, sep=sep, end=end)
 
-def datetime_from_amazon_date(d, fmt='%m/%d/%y'):
-    return datetime.datetime.strptime(d, fmt)
 
-def datetime_from_ynab_date(d, fmt='%Y-%m-%d'):
-    return datetime.datetime.strptime(d, fmt)
 
 _driver = None
 def driver():
