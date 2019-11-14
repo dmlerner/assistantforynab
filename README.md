@@ -2,7 +2,8 @@
 **This is an alpha version. Use at your own risk. I suggest backing up your budget first.**
 # What's this?
 [YNAB](ynab.com) is excellent budgeting software, but it does a lousy job of importing Amazon transactions. `ynabamazonimporter` downloads some data from your Amazon account and uses it to annotate the transactions in YNAB. 
-It adds the item title and amount to each YNAB transaction. For multi-item orders, typically YNAB will have one transaction. This script splits the transaction and has the name/price for eacha item.
+
+It adds the item title and amount to each YNAB transaction. For multi-item orders, typically YNAB will have one transaction. This script splits the transaction and has the name/price for each item.
 
 ![Demo GIF](demo.gif)
 
