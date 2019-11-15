@@ -49,7 +49,7 @@ class Transaction(_Transaction):
             self._date = d
 
     def to_parent(self):
-        d = self.__dict__
+        d = self.__dict__.copy()
         d['amount'] = self._amount
         d['date'] = self._date
         del d['_amount']

@@ -5,10 +5,10 @@ from ynabamazonparser.config import settings
 
 
 def load_gui():
-    url = 'https://app.youneedabudgui.get.com/%s/accounts' % settings.budget_id
-    d = utils.driver()
-    d.gui.get(url)
-    if not gui.gui.get('user-logged-in'):
+    url = 'https://app.youneedabudget.com/%s/accounts' % settings.budget_id
+    d = gui.driver()
+    d.get(url)
+    if not gui.get('user-logged-in'):
         selection = input(
             'please log in then press any key to continue, or q to quit').lower()
         if selection == 'q':
@@ -40,26 +40,24 @@ def enter_item(transaction, item, payee_element, category_element, memo_element,
     'TODO: category based on item'
     'TODO/BUG: "Return: Amazon" category is equivalent to "AnythingElse: Amazon"'
     'TODO: proportional split of shipping, discounts or similar'
-    category = gui.get_category(transaction, item)
+    category = get_category(transaction, item)
     enter_fields((payee_element, category_element, memo_element, outflow_element),
-                 (transaction.payee_name, category, item['Title'], item['Item Total']))
+                 (transaction.payee_name, category, item.title, item.item_total))
 
 
 def enter_transaction(transaction, items):
     assert transaction and items
-    transaction_total = utils.float_from_ynab_price(transaction.amount)
-    item_total = sum(utils.float_from_amazon_price(
-        i['Item Total']) for i in items)
-    assert utils.equalish(transaction_total, item_total)
+    item_total = sum(i.item_total for i in items)
+    assert utils.equalish(transaction.amount, item_total)
 
-    search = gui.gui.get('transaction-search-input')
+    search = gui.get('transaction-search-input')
     search.clear()
     search.send_keys('Memo: %s, Account: %s' %
                      (transaction.memo, settings.account_name))
     search.send_keys(gui.Keys.ENTER)
-    memo = gui.gui.get_by_text('user-entered-text', transaction.memo, count=1)
-    gui.gui.click(memo, 2)
-    removes = gui.gui.get('ynab-grid-sub-remove', require=False, wait=1)
+    memo = gui.get_by_text('user-entered-text', transaction.memo, count=1)
+    gui.click(memo, 2)
+    removes = gui.get('ynab-grid-sub-remove', require=False, wait=1)
     while removes:
         gui.click(removes)
         removes = gui.get('ynab-grid-sub-remove', require=False, wait=.5)
@@ -85,7 +83,7 @@ def enter_transaction(transaction, items):
             utils.log('Warning, approving...')
         gui.click(approve)
     else:
-        memos[0].send_keys(', '.join(i['Title'] for i in items))
+        memos[0].send_keys(', '.join(i.title for i in items))
         for i, item in enumerate(items):
             '+1 because index 0 is for overall purchase'
             enter_item(transaction, item,
@@ -95,7 +93,7 @@ def enter_transaction(transaction, items):
 
 def enter_all_transactions(transactions, orders_by_transaction_id):
     load_gui()
-    items_by_order_id = amazon.downloader.gui.get_items_by_order_id()
+    items_by_order_id = amazon.downloader.get_items_by_order_id()
     for t in transactions:
         if t.id not in orders_by_transaction_id:
             continue
@@ -103,7 +101,7 @@ def enter_all_transactions(transactions, orders_by_transaction_id):
                   orders_by_transaction_id[t.id])
         order = orders_by_transaction_id[t.id]
         utils.log('order', order)
-        items = items_by_order_id[order['Order ID']]
+        items = items_by_order_id[order.order_id]
         utils.log('items', items)
         if len(items) > 300:
             utils.log(
@@ -119,4 +117,4 @@ def enter_all_transactions(transactions, orders_by_transaction_id):
             search = gui.get('transaction-search-input')
             search.clear()
     if settings.close_browser_on_finish:
-        utils.driver().quit()
+        gui.driver().quit()

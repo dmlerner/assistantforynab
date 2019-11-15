@@ -6,6 +6,7 @@ import time
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
@@ -56,7 +57,7 @@ def click(element, n=1, pause=1):
     if type(element) in (tuple, list):
         element = element[0]
     for i in range(n):
-        utils.driver().execute_script('arguments[0].click();', element)
+        driver().execute_script('arguments[0].click();', element)
         if i != n - 1:
             time.sleep(pause)
 
