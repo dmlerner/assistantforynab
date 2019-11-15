@@ -1,31 +1,22 @@
+from ynabamazonparser import settings, selenium
 import datetime
+import pdb
 import os
 import sys
-import pdb
-import time
-
-import settings
-import amazon_downloader
-import match
-import ynab_api_client
-import ynab_gui_client
-
-from selenium.webdriver.chrome.options import Options
-from selenium import webdriver  
-#import httplib
-import socket
-from selenium.webdriver.remote.command import Command
 
 
 def equalish(a, b):
-    try:
-        return round(a, 4) == round(b, 4)
-    except:
-        return None
+    return round(a, 4) == round(b, 4)
 
-def get_log_name():
-    return os.path.join(settings.log_path, str(settings.start_time) + '-log.txt')
-log_file = open(get_log_name(), 'a+')
+
+def get_log_path():
+    pdb.set_trace()
+    log_name = str(settings.start_time) + '-log.txt'
+    return os.path.join(settings.log_path, log_name)
+
+
+log_file = open(get_log_path(), 'a+')
+
 
 def log(*x, verbosity=0, sep=' | ', end=os.linesep*2):
     if verbosity >= settings.log_verbosity:
@@ -35,34 +26,9 @@ def log(*x, verbosity=0, sep=' | ', end=os.linesep*2):
         print(*x, sep=sep, end=end)
 
 
-
-_driver = None
-def driver():
-    global _driver
-    ' TODO: make a selenium utils module with this and getters etc '
-    if is_alive(_driver):
-        return _driver
-    options = Options()  
-    options.add_argument("user-data-dir={}".format(settings.chrome_data_dir))
-    options.add_argument("--disable-extensions")
-    _driver = webdriver.Chrome(options=options)  
-    return _driver
-
-def is_alive(d):
-    return d is not None
-    '''
-    try:
-        d.execute(Command.STATUS)
-        return True
-    except (socket.error, httplib.CannotSendRequest):
-        return False
-    return False
-    '''
-
 def quit():
     log('Quitting')
     if settings.close_browser_on_finish:
-        driver().quit()
+        selenium.quit()
     log_file.close()
     sys.exit()
-

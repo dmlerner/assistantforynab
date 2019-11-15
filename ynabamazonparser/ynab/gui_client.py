@@ -11,54 +11,6 @@ import amazon_downloader
 import match
 import ynab_api_client
 
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
-def get(class_name, count=None, require=True, predicate=None, wait=10):
-    predicate = predicate or bool
-    if wait:
-        try:
-            WebDriverWait(utils.driver(), wait).until(
-                    EC.presence_of_element_located((By.CLASS_NAME, class_name))
-            )
-        except:
-            if require:
-                utils.log('element not found', class_name)
-                utils.log(traceback.format_exc())
-                if input('%s elements not found, keep waiting? [y/N]' % class_name).lower() == 'y':
-                    get(class_name, predicate, count, wait)
-                else:
-                    utils.quit()
-
-    class_elements = utils.driver().find_elements_by_class_name(class_name)
-    matches = list(filter(predicate, class_elements))
-    if require:
-        assert matches
-        if count is not None:
-            assert len(matches) == count
-    if len(matches) == 1:
-        return matches[0]
-    return matches
-
-def get_by_placeholder(class_name, p, count=None, require=True):
-    if type(p) is str:
-        p = (p,)
-    return get(class_name,  count, require, lambda e: e.get_attribute('placeholder') in p)
-
-def get_by_text(class_name, t, count=None, require=True):
-    if type(t) is str:
-        t = (t,)
-    return get(class_name, count, require, lambda e: e.text in t)
-
-def click(element, n=1, pause=1):
-    if type(element) in (tuple, list):
-        element = element[0]
-    for i in range(n):
-        utils.driver().execute_script("arguments[0].click();", element)
-        if i != n - 1:
-            time.sleep(pause)
 
 def load_gui():
     url = 'https://app.youneedabudget.com/%s/accounts' % settings.budget_id

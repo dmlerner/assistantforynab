@@ -24,8 +24,9 @@ class TransactionsApi:
 
     def update_transaction(self, budget_id: str, transaction: Transaction) -> TransactionsResponse:
         payload = {
-                'transaction': dataclasses.asdict(transaction)
+            'transaction': dataclasses.asdict(transaction)
         }
         transaction_id = transaction.id
-        response = self.client.put(f'/budgets/{budget_id}/transactions/{transaction_id}', payload)
+        response = self.client.put(
+            f'/budgets/{budget_id}/transactions/{transaction_id}', payload)
         return response

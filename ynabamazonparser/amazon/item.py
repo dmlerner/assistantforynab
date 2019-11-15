@@ -1,6 +1,7 @@
 import datetime
 import dataclasses
 
+
 @dataclasses.dataclass
 class Item:
     ''' Contains all fields for an item as downloaded in the csv '''
@@ -54,7 +55,8 @@ class Item:
         return to_float(self._item_total)
 
     def __str__(self):
-        return 'Item: ' + ' | '.join(map(str, (self._title, self._order_date, self._item_total)))
+        str_fields = self._title, self._order_date, self._item_total
+        return 'Item: ' + ' | '.join(map(str, str_fields))
 
     def __lt__(self, other):
         assert type(other) is Item
@@ -66,9 +68,12 @@ class Item:
 
 
 def to_float(price):
-    ''' $123.45::str -> 123.45::float ''' 
+    ''' $123.45::str -> 123.45::float '''
     return float(price[1:])
 
+
 date_format = '%m/%d/%y'
+
+
 def to_datetime(d):
     return datetime.datetime.strptime(d, date_format)
