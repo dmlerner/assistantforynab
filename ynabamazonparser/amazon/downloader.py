@@ -2,7 +2,7 @@ import traceback
 import os
 import time
 
-from ynabamazonparser import utils, match
+from ynabamazonparser import utils, gui
 from ynabamazonparser.config import settings
 
 import glob
@@ -14,7 +14,7 @@ def get_downloaded_csv_filenames(): return set(
     glob.glob(os.path.join(settings.downloads_path, '*.csv')))
 
 
-def wait_for_download(name, timeout=30):
+def wait_for_download(timeout=30):
     filenames_before = get_downloaded_csv_filenames()
     for i in range(timeout):
         filenames = get_downloaded_csv_filenames()
@@ -23,13 +23,7 @@ def wait_for_download(name, timeout=30):
             assert len(new_filenames) == 1
             break
         time.sleep(1)
-    generated_filename = new_filenames.pop()
-    if name:
-        path = settings.downloads_path + name
-        if not os.path.exists(name):
-            os.rename(generated_filename, path)
-            return path
-    return generated_filename
+    return new_filenames.pop()
 
 
 ' TODO: get refunds, returns '
@@ -53,7 +47,7 @@ def load(data_type):
     target_path = csv_paths[data_type]
     try:
         if settings.force_download_amazon or missing_csv(data_type):
-            d = utils.driver()
+            d = gui.driver()
             url = 'https://smile.amazon.com/gp/b2b/reports'
             if d.current_url != url:
                 d.get(url)
