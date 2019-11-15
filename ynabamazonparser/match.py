@@ -1,6 +1,7 @@
 from ynabamazonparser import utils
 from ynabamazonparser.amazon import downloader
 from ynabamazonparser.config import settings
+import pdb
 
 ' TODO rename this module '
 
@@ -9,21 +10,23 @@ def get_order(transaction, orders):
     ''' Gets an order corresponding to the ynab transaction '''
     possible_orders = []
     for order in orders:
-        order_price = utils.float_from_amazon_price(order['Total Charged'])
-        transaction_price = utils.float_from_ynab_price(transaction.amount)
+        order_price = order.total_charged
+        transaction_price = transaction.amount
         if utils.equalish(order_price, transaction_price):
             possible_orders.append(order)
     if len(possible_orders) == 0:
         return None
     if len(possible_orders) == 1:
         order = possible_orders[0]
+        #pdb.set_trace()
+        utils.log('match!', order, transaction.id)
     else:
         utils.log('ambiguous transaction has %s matches' %
                   len(possible_orders), transaction, possible_orders)
         if settings.fail_on_ambiguous_transaction:
             utils.log('skipping ambiguous transaction')
             return None
-        utils.log('choosing the one closest to the shipping date')
+        utils.log('choosing the one closest to the order date')
         possible_orders.sort(key=lambda o: time_difference(transaction, o))
         order = possible_orders[0]
     orders.remove(order)
@@ -31,32 +34,25 @@ def get_order(transaction, orders):
 
 
 def time_difference(transaction, order):
-    t_transaction = utils.datetime_from_ynab_date(transaction.date)
-    t_order = utils.datetime_from_amazon_date(order['Shipment Date'])
-    return abs(t_transaction - t_order)
+    return abs(transaction.date - order.shipment_date)
 
 
 def get_items(order):
     if not order:
         return None
-    return amazon.items_by_order[order['Order ID']]
+    return downloader.items_by_order[order.order_id]
 
 
 def adjust_items(t, order, items):
     ' TODO: improve this; shipping, discounts...'
-    item_total = sum(utils.float_from_amazon_price(
-        i['Item Total']) for i in items)
-    transaction_total = utils.float_from_ynab_price(t.amount)
+    item_total = sum(i.item_total for i in items)
+    transaction_total = t.amount
     if utils.equalish(transaction_total,  item_total):
         return
     adjustment_ratio = transaction_total / item_total
     for i in items:
-        ' TODO clearly we need my own item/order/transaction objects'
-        i['Item Total'] = '$' + \
-            str(utils.float_from_amazon_price(
-                i['Item Total']) * adjustment_ratio)
-    new_item_total = sum(utils.float_from_amazon_price(
-        i['Item Total']) for i in items)
+        i.item_total *= adjustment_ratio
+    new_item_total = sum(i.item_total for i in items)
     assert utils.equalish(transaction_total, new_item_total)
 
 
@@ -66,20 +62,24 @@ def adjust_all_items(transactions, orders_by_transaction_id):
         if t.id not in orders_by_transaction_id:
             continue
         order = orders_by_transaction_id[t.id]
-        items = items_by_order_id[order['Order ID']]
+        items = items_by_order_id[order.order_id]
         adjust_items(t, order, items)
 
 
 def match_all(transactions, orders):
+    utils.log('match_all', downloader.data, len(orders))
     orders_by_transaction_id = {}
     for i, t in enumerate(transactions):
         order = get_order(t, orders)
         if not order:
-            # utils.log('No order found for transaction\n', t)
+            utils.log('No order found for transaction\n', t.amount)
             continue
-        t.memo = order['Order ID']
+        t.memo = order.order_id
         orders_by_transaction_id[t.id] = order
+    utils.log('built', orders_by_transaction_id)
+    utils.log(downloader.data)
     adjust_all_items(transactions, orders_by_transaction_id)
+    utils.log('adjusted', orders_by_transaction_id)
     return orders_by_transaction_id
 
 
@@ -87,7 +87,8 @@ def match_all(transactions, orders):
 Mostly, the amounts map over and are unique
 first assume they do
 break uniques by date proximity
-    do the dates on one of ynab/amazon tend to be before/after the other consistently?
+    do the dates on one of ynab/amazon
+    tend to be before/after the other consistently?
 napsack the rest
     optimizing for most dollars matched?
 '''

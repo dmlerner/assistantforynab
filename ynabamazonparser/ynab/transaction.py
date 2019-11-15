@@ -27,7 +27,7 @@ class Transaction(_Transaction):
 
     @amount.setter
     def amount(self, a):
-        self._amount = abs(a*1000) * (1 if self._amount > 0 else -1)
+        self._amount = abs(a) * (1 if self._amount > 0 else -1)
 
     def is_outflow(self):
         return self._amount < 0
@@ -47,3 +47,11 @@ class Transaction(_Transaction):
             # make sure it's a valid format
             datetime.datetime.strptime(d, Transaction.date_format)
             self._date = d
+
+    def to_parent(self):
+        d = self.__dict__
+        d['amount'] = self._amount
+        d['date'] = self._date
+        del d['_amount']
+        del d['_date']
+        return _Transaction(**d)

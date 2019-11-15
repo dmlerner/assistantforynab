@@ -7,39 +7,42 @@ from ynabamazonparser import amazon
 class Order:
     ''' Contains all fields for an order as downloaded in the csv '''
     _order_date: str
-    _order_id: str
-    _payment_instrument_type: str
-    _website: str
-    _purchase_order_number: str
-    _ordering_customer_email: str
-    _shipment_date: str
-    _shipping_address_name: str
-    _shipping_address_street_1: str
-    _shipping_address_street_2: str
-    _shipping_address_city: str
-    _shipping_address_state: str
-    _shipping_address_zip: str
-    _order_status: str
-    _carrier_name_and_tracking_number: str
-    _subtotal: str
-    _shipping_charge: str
-    _tax_before_promotions: str
-    _total_promotions: str
-    _tax_charged: str
+    order_id: str
+    payment_instrument_type: str
+    website: str
+    purchase_order_number: str
+    ordering_customer_email: str
+    shipment_date: str
+    shipping_address_name: str
+    shipping_address_street_1: str
+    shipping_address_street_2: str
+    shipping_address_city: str
+    shipping_address_state: str
+    shipping_address_zip: str
+    order_status: str
+    carrier_name_and_tracking_number: str
+    subtotal: str
+    shipping_charge: str
+    tax_before_promotions: str
+    total_promotions: str
+    tax_charged: str
     _total_charged: str
-    _buyer_name: str
-    _group_name: str
+    buyer_name: str
+    group_name: str
+
+    def from_dict(d):
+        return Order(*d.values())
 
     @property
     def order_date(self):
         return to_datetime(self._order_date)
 
     @property
-    def item_total(self):
-        return to_float(self._item_total)
+    def total_charged(self):
+        return to_float(self._total_charged)
 
     def __str__(self):
-        str_fields = self._title, self._order_date, self._item_total
+        str_fields = self.order_id, self._order_date, self._total_charged
         return 'Item: ' + ' | '.join(map(str, str_fields))
 
     def __lt__(self, other):

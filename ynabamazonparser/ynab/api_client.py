@@ -1,5 +1,6 @@
 import datetime
 import re
+import pdb
 
 from ynabamazonparser import utils, amazon, match, ynab
 from ynab.transaction import Transaction
@@ -21,7 +22,7 @@ def get_all_transactions():
 
 
 def update(transaction):
-    return api.transactions.update_transaction(settings.budget_id, transaction)
+    return api.transactions.update_transaction(settings.budget_id, transaction.to_parent())
 
 
 def update_all(transactions, orders_by_transaction_id):
@@ -38,6 +39,7 @@ def get_transactions_to_update():
     #closeness = [sum(p(t) for p in predicates) for t in all_transactions]
     #utils.log(closeness)
     eligible = [t for t in all_transactions if all(p(t) for p in predicates)]
+    #pdb.set_trace()
     utils.log(
         'Found %s transactions to attempt to match with Amazon orders' % len(eligible))
     if not eligible:
