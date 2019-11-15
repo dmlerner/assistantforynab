@@ -1,4 +1,5 @@
-from ynabamazonparser import utils, amazon
+from ynabamazonparser import utils
+from ynabamazonparser.amazon import downloader
 from ynabamazonparser.config import settings
 
 ' TODO rename this module '
@@ -60,7 +61,7 @@ def adjust_items(t, order, items):
 
 
 def adjust_all_items(transactions, orders_by_transaction_id):
-    items_by_order_id = amazon.downloader.get_items_by_order_id()
+    items_by_order_id = downloader.get_items_by_order_id()
     for t in transactions:
         if t.id not in orders_by_transaction_id:
             continue

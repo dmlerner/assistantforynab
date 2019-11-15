@@ -2,6 +2,7 @@ import datetime
 import re
 
 from ynabamazonparser import utils, amazon, match, ynab
+from ynab.transaction import Transaction
 from ynabamazonparser.config import settings
 
 from ynab_sdk import YNAB
@@ -10,12 +11,12 @@ api = YNAB(settings.api_key)
 
 
 def get_all_transactions():
-    transactions = api.transactions.get_transactions(
-        settings.budget_id).data.transactions
+    transactions = list(map(Transaction, api.transactions.get_transactions(
+        settings.budget_id).data.transactions))
     utils.log('Found %s transactions' %
               len(transactions) if transactions else 0)
     transactions.sort(
-        key=lambda t: utils.datetime_from_ynab_date(t.date), reverse=True)
+        key=lambda t: t.date, reverse=True)
     return transactions
 
 
@@ -31,10 +32,17 @@ def update_all(transactions, orders_by_transaction_id):
 
 def get_transactions_to_update():
     all_transactions = get_all_transactions()
-    predicates = newer_than, has_blank_or_WIP_memo, matches_account, is_purchase
+    predicates = newer_than, has_blank_or_WIP_memo, matches_account, Transaction.is_outflow
+    #for i, t in enumerate(all_transactions[:200]):
+        #utils.log(i, *[p(t) for p in predicates], t.date, t.amount)
+    #closeness = [sum(p(t) for p in predicates) for t in all_transactions]
+    #utils.log(closeness)
     eligible = [t for t in all_transactions if all(p(t) for p in predicates)]
     utils.log(
         'Found %s transactions to attempt to match with Amazon orders' % len(eligible))
+    if not eligible:
+        utils.log('No transactions matching predicates')
+        utils.quit()
     return eligible
 
 
@@ -43,7 +51,7 @@ def has_blank_memo(t):
 
 
 def has_order_number_memo(t):
-    return re.match('^\d{3}-\d{7}-\d{7}$', t.memo)
+    return bool(re.match('^\d{3}-\d{7}-\d{7}$', t.memo))
 
 
 def has_blank_or_WIP_memo(t):
@@ -54,10 +62,6 @@ def matches_account(t):
     return t.account_name.lower() == settings.account_name.lower()
 
 
-def is_purchase(t):
-    return t.amount < 0
-
-
 def newer_than(t, days_ago=30):
     cutoff = datetime.datetime.now() - datetime.timedelta(days=days_ago)
-    return utils.datetime_from_ynab_date(t.date) > cutoff
+    return t.date > cutoff

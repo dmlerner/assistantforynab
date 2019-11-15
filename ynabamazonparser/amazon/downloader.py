@@ -79,6 +79,7 @@ def load_all():
 
 
 def get_items_by_order_id(items=None):
+    print(data)
     if items is None:
         items = data['items']
     assert items
