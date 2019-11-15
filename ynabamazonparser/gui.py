@@ -1,4 +1,5 @@
-from ynabamazonparser import utils, settings
+from ynabamazonparser import utils
+from ynabamazonparser.config import settings
 
 import traceback
 import time

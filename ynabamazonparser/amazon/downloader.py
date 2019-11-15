@@ -2,7 +2,8 @@ import traceback
 import os
 import time
 
-from ynabamazonparser import settings, utils, match, ynab
+from ynabamazonparser import utils, match
+from ynabamazonparser.config import settings
 
 import glob
 import csv

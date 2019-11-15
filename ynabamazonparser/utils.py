@@ -1,4 +1,5 @@
-from ynabamazonparser import settings, selenium
+from ynabamazonparser import gui
+from ynabamazonparser.config import settings
 import datetime
 import pdb
 import os
@@ -10,7 +11,6 @@ def equalish(a, b):
 
 
 def get_log_path():
-    pdb.set_trace()
     log_name = str(settings.start_time) + '-log.txt'
     return os.path.join(settings.log_path, log_name)
 
@@ -29,6 +29,6 @@ def log(*x, verbosity=0, sep=' | ', end=os.linesep*2):
 def quit():
     log('Quitting')
     if settings.close_browser_on_finish:
-        selenium.quit()
+        gui.quit()
     log_file.close()
     sys.exit()

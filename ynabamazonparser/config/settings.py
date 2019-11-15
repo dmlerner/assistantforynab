@@ -2,7 +2,6 @@ import datetime
 import os
 import shutil
 from ynabamazonparser import utils
-from ynabamazonparser.config import private_settings
 
 start_time = datetime.datetime.now()
 log_verbosity = 0
@@ -23,18 +22,19 @@ for p in log_path, data_path:
     if not os.path.exists(p):
         os.mkdir(p)
 
-private_settings_path = os.path.join(script_path, 'private_settings.py')
+private_settings_path = os.path.join(script_path, 'private.py')
 if not os.path.exists(private_settings_path):
     utils.log('ERROR: no private settings found, using defaults. Please edit %s' %
               private_settings_path)
     utils.log('Will not be able to access YNAB')
     private_settings_template_path = os.path.join(
-        script_path, 'private_settings_template.py')
+        script_path, 'private_template.py')
     shutil.copy(private_settings_template_path, private_settings_path)
 
-budget_id = private_settings.budget_id
-account_name = private_settings.account_name
-api_key = private_settings.api_key
+from ynabamazonparser.config import private
+budget_id = private.budget_id
+account_name = private.account_name
+api_key = private.api_key
 
 fail_on_ambiguous_transaction = False
 ' NOTE: you probalby want to make a category named as below '

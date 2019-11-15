@@ -1,4 +1,5 @@
-from ynabamazonparser import settings, utils, amazon
+from ynabamazonparser import utils, amazon
+from ynabamazonparser.config import settings
 
 ' TODO rename this module '
 
