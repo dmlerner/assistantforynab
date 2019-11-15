@@ -1,0 +1,5 @@
+automatic apportioning of to be budgeted
+alerts
+bank2ynab integration/general splits utility
+multi account support
+cloud app
