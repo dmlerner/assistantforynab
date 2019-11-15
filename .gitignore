@@ -8,7 +8,7 @@
 *.swp
 *.csv
 *.txt
-private_settings.py
+/config/private.py
 MANIFEST
 dist
 .*
