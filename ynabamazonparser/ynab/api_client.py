@@ -1,20 +1,19 @@
-from ynabamazonparser import utils
-from ynab.transaction import Transaction
-from ynabamazonparser.config import settings
-
 from ynab_sdk import YNAB
 
-api = YNAB(settings.api_key)
+import ynabamazonparser as yap
+
+api = YNAB(yap.settings.api_key)
 
 
 def get_all_transactions():
-    transactions = list(map(Transaction, api.transactions.get_transactions(
-        settings.budget_id).data.transactions))
-    utils.log('Found %s transactions' %
-              len(transactions) if transactions else 0)
+    raw = api.transactions.get_transactions(yap.settings.budget_id).data.transactions
+    transactions = list(map(yap.ynab.transaction.Transaction, raw))
+    yap.utils.log('Found %s transactions' %
+                  len(transactions) if transactions else 0)
     transactions.sort(
         key=lambda t: t.date, reverse=True)
-    return utils.by(transactions, lambda t: t.id)
+    yap.utils.log('about to gruop trans', transactions[:10])
+    return yap.utils.by(transactions, lambda t: t.id)
 
 
 def update_all(transactions):
@@ -23,4 +22,7 @@ def update_all(transactions):
 
 
 def update(t):
-    api.transactions.update_transaction(settings.budget_id, t.to_parent())
+    s = t.subtransactions
+    t.subtransactions = []
+    api.transactions.update_transaction(yap.settings.budget_id, t.to_parent())
+    t.subtransactions = s

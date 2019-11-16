@@ -1,8 +1,9 @@
-from ynabamazonparser.config import private
 import datetime
 import os
 import shutil
-from ynabamazonparser import utils
+
+import ynabamazonparser as yap
+from ynabamazonparser.config import private
 
 start_time = datetime.datetime.now()
 log_verbosity = 0
@@ -26,9 +27,9 @@ for p in log_dir, data_dir:
 
 private_settings_path = os.path.join(config_dir, 'private.py')
 if not os.path.exists(private_settings_path):
-    utils.log('ERROR: no private settings found, using defaults. Please edit %s' %
-              private_settings_path)
-    utils.log('Will not be able to access YNAB')
+    yap.utils.log('ERROR: no private settings found, using defaults. Please edit %s' %
+                  private_settings_path)
+    yap.utils.log('Will not be able to access YNAB')
     private_settings_template_path = os.path.join(
         config_dir, 'private_template.py')
     shutil.copy(private_settings_template_path, private_settings_path)

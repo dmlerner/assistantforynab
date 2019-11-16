@@ -1,4 +1,5 @@
 from ynab_sdk.api.models.responses.transactions import Transaction as _Transaction
+import ynabamazonparser as yap
 import datetime
 from dataclasses import dataclass
 
@@ -8,9 +9,11 @@ class Transaction(_Transaction):
     date_format = '%Y-%m-%d'
 
     def __init__(self, t):
+        d = t.__dict__
+        self._amount = d['amount'] # hacky
+        d['amount'] /= 1000
+        super().__init__(**d)
         self._date = t.date
-        self._amount = t.amount
-        super().__init__(**t.__dict__)
 
     @property
     def amount(self):
@@ -27,7 +30,7 @@ class Transaction(_Transaction):
 
     @amount.setter
     def amount(self, a):
-        self._amount = abs(a) * (1 if self._amount > 0 else -1)
+        self._amount = abs(1000*a) * (1 if self._amount > 0 else -1)
 
     def is_outflow(self):
         return self._amount < 0
@@ -42,7 +45,7 @@ class Transaction(_Transaction):
     @date.setter
     def date(self, d):
         if isinstance(d, datetime.datetime):
-            self._date = datetime.strftime(d, Transaction.date_format)
+            self._date = datetime.datetime.strftime(d, Transaction.date_format)
         else:
             # make sure it's a valid format
             datetime.datetime.strptime(d, Transaction.date_format)
@@ -57,5 +60,7 @@ class Transaction(_Transaction):
         return _Transaction(**d)
 
     def __repr__(self):
-        str_fields = self.id, self._date, '$' + str(self.amount)
-        return ' | '.join(map(str, str_fields))
+        if not self.subtransactions:
+            str_fields = self.id, self._date, '$' + str(self.amount), self._amount
+            return ' | '.join(map(str, str_fields))
+        return '[' + ', '.join(map(str, self.subtransactions)) + ']'

@@ -1,18 +1,17 @@
 import traceback
 
-from ynabamazonparser import utils, gui
-from ynabamazonparser.config import settings
+import ynabamazonparser as yap
 
 
 def load_gui():
-    url = 'https://app.youneedabudget.com/%s/accounts' % settings.budget_id
-    d = gui.driver()
+    url = 'https://app.youneedabudget.com/%s/accounts' % yap.settings.budget_id
+    d = yap.gui.driver()
     d.get(url)
-    if not gui.get('user-logged-in'):
+    if not yap.gui.get('user-logged-in'):
         selection = input(
             'please log in then press any key to continue, or q to quit').lower()
         if selection == 'q':
-            utils.quit()
+            yap.utils.quit()
         load_gui()
 
 
@@ -22,18 +21,18 @@ def enter_fields(fields, values):
         f.clear()
         f.send_keys(str(v))
         if i != len(fields) - 1:
-            f.send_keys(gui.Keys.TAB)
+            f.send_keys(yap.gui.Keys.TAB)
 
 
 def get_category(transaction):
     if not transaction.category_name or 'Split (Multiple' in transaction.category_name:
-        utils.log('Warning: invalid category %s' % transaction.category_name)
+        yap.utils.log('Warning: invalid category %s' % transaction.category_name)
         ' ynab would fail to download with ynab_api_client if `transaction` is a split transaction '
         ' even though you can hit save in the ui '
         ' hence using a default '
-        assert settings.default_category
-        utils.log('Using default: %s' % settings.default_category)
-        return settings.default_category
+        assert yap.settings.default_category
+        yap.utils.log('Using default: %s' % yap.settings.default_category)
+        return yap.settings.default_category
     return transaction.category_name
 
 
@@ -46,59 +45,59 @@ def enter_item(transaction, payee_element, category_element, memo_element, outfl
 
 
 def locate_transaction(t):
-    search = gui.get('transaction-search-input')
+    search = yap.gui.get('transaction-search-input')
     search.clear()
     search.send_keys('Memo: %s' % t.id)
-    search.send_keys(gui.Keys.ENTER)
+    search.send_keys(yap.gui.Keys.ENTER)
 
 
 def add_subtransaction_rows(t):
-    memo = gui.get_by_partial_text('user-entered-text', t.id, count=1)
-    gui.click(memo, 2)
-    removes = gui.get('ynab-grid-sub-remove', require=False, wait=1)
+    memo = yap.gui.get_by_text('user-entered-text', t.id, count=1, partial=True)
+    yap.gui.click(memo, 2)
+    removes = yap.gui.get('ynab-grid-sub-remove', require=False, wait=1)
     while removes:
-        gui.click(removes)
-        removes = gui.get('ynab-grid-sub-remove', require=False, wait=.5)
+        yap.gui.click(removes)
+        removes = yap.gui.get('ynab-grid-sub-remove', require=False, wait=.5)
     n = len(t.subtransactions)
     if n > 1:
-        category_dropdown = gui.get_by_placeholder('dropdown-text-field', 'category')
+        category_dropdown = yap.gui.get_by_placeholder('dropdown-text-field', 'category')
         category_dropdown.send_keys(' ')
-        split = gui.get('modal-account-categories-split-transaction')
-        gui.click(split)
-        'gui.clicking split means we already have two'
+        split = yap.gui.get('modal-account-categories-split-transaction')
+        yap.gui.click(split)
+        'yap.gui.clicking split means we already have two'
         for i in range(n - 2):
-            gui.click(gui.get('ynab-grid-split-add-sub-transaction'))
+            yap.gui.click(yap.gui.get('ynab-grid-split-add-sub-transaction'))
 
 
 def enter_transaction(t):
-    locate_transaction()
+    locate_transaction(t)
     add_subtransaction_rows(t)
-    account, date, payees, categories, memos = map(lambda p: gui.get_by_placeholder('accounts-text-field', p),
+    account, date, payees, categories, memos = map(lambda p: yap.gui.get_by_placeholder('accounts-text-field', p),
                                                    ('account', 'date', 'payee', 'category', 'memo'))
     date.send_keys(t._date)
-    outflows, inflows = map(lambda p: gui.get_by_placeholder(
+    outflows, inflows = map(lambda p: yap.gui.get_by_placeholder(
         'ember-text-field', p), ('outflow', 'inflow'))
     n = len(t.subtransactions)
     if n == 1:
         enter_item(t, payees, categories, memos, outflows)
         ' TODO: do not approve, only save '
         ' Maybe it is only approving things that are already approved? '
-        approve = gui.get_by_text('button-primary', ['Approve', 'Save'])
+        approve = yap.gui.get_by_text('button-primary', ['Approve', 'Save'])
         if approve.text == 'Approve':
-            utils.log('Warning, approving...')
-        gui.click(approve)
+            yap.utils.log('Warning, approving...')
+        yap.gui.click(approve)
     else:
         memos[0].send_keys(', '.join(s.memo for s in t.subtransactions))
         for i, s in enumerate(t.subtransactions):
             '+1 because index 0 is for overall purchase'
             enter_item(s, payees[i + 1], categories[i + 1], memos[i + 1], outflows[i + 1])
-        outflows[-1].send_keys(gui.Keys.ENTER)
+        outflows[-1].send_keys(yap.gui.Keys.ENTER)
 
 
 def enter_all_transactions(transactions):
     for t in transactions:
         if len(t.subtransactions) > 3:
-            utils.log(
+            yap.utils.log(
                 'Skipping puchase with items for speed reasons during alpha test. Feel free to remove this check.')
             ' theta(len(items)^2) time, very tolerable at any reasonable n, but for testing, this is helpful'
             continue
@@ -106,9 +105,9 @@ def enter_all_transactions(transactions):
             enter_transaction(t)
         except BaseException:
             ' Likely because there were multiple search results '
-            utils.log('Error on transaction', t)
-            utils.log(traceback.format_exc())
-            search = gui.get('transaction-search-input')
+            yap.utils.log('Error on transaction', t)
+            yap.utils.log(traceback.format_exc())
+            search = yap.gui.get('transaction-search-input')
             search.clear()
-    if settings.close_browser_on_finish:
-        gui.driver().quit()
+    if yap.settings.close_browser_on_finish:
+        yap.gui.driver().quit()

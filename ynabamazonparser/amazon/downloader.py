@@ -1,18 +1,14 @@
 import os
 import time
-
-from ynabamazonparser import utils, gui
-from ynabamazonparser.config import settings
-from ynabamazonparser.amazon.item import Item
-from ynabamazonparser.amazon.order import Order
-
 import glob
 import csv
+
+import ynabamazonparser as yap
 
 
 def get_downloaded_csv_filenames():
     return set(
-        glob.glob(os.path.join(settings.downloads_dir, '*.csv')))
+        glob.glob(os.path.join(yap.settings.downloads_dir, '*.csv')))
 
 
 def wait_for_download(timeout=30):
@@ -28,18 +24,18 @@ def wait_for_download(timeout=30):
 
 
 def parse_items(item_dicts):
-    return utils.by(map(Item.from_dict, item_dicts), lambda i: i.order_id)
+    return yap.utils.group_by(map(yap.amazon.item.Item.from_dict, item_dicts), lambda i: i.order_id)
 
 
 def parse_orders(order_dicts):
-    orders = list(map(Order.from_dict, order_dicts))
+    orders = list(map(yap.amazon.order.Order.from_dict, order_dicts))
     combined = combine_orders(orders)
-    return utils.by(combined, lambda o: o.order_id)
+    return yap.utils.by(combined, lambda o: o.order_id)
 
 
 data_parsers = {'items': parse_items, 'orders': parse_orders}
 ' TODO: get refunds, returns '
-csv_paths = {k: os.path.join(settings.data_dir, k + '.csv')
+csv_paths = {k: os.path.join(yap.settings.data_dir, k + '.csv')
              for k in data_parsers}
 
 
@@ -67,8 +63,8 @@ def load(data_type):
     assert data_type in data_parsers
     target_path = csv_paths[data_type]
     try:
-        if settings.force_download_amazon or missing_csv(data_type):
-            d = gui.driver()
+        if yap.settings.force_download_amazon or missing_csv(data_type):
+            d = yap.gui.driver()
             url = 'https://smile.amazon.com/gp/b2b/reports'
             if d.current_url != url:
                 d.get(url)
@@ -84,6 +80,6 @@ def load(data_type):
         if input('One more try?').lower() != 'q':
             load(data_type)
         else:
-            utils.quit()
+            yap.utils.quit()
 
     return data_parsers[data_type](read(target_path))

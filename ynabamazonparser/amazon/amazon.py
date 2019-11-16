@@ -1,13 +1,11 @@
 import re
 from copy import deepcopy
 
-from ynabamazonparser.ynab.transaction import Transaction
-from ynabamazonparser import utils
-from ynabamazonparser.config import settings
+import ynabamazonparser as yap
 
 
 def annotate(t, order, items):
-    t.date = order._order_date
+    t.date = order.order_date
     if len(items) == 1:
         annotate_with_item(t, items[0])
         t.memo += ' ' + order.order_id
@@ -16,27 +14,32 @@ def annotate(t, order, items):
         t.subtransactions = [deepcopy(t) for i in items]
         for i, s in zip(items, t.subtransactions):
             annotate_with_item(s, i)
+        assert len(t.subtransactions) == len(items)
 
 
 def annotate_with_item(t, i):
     t.payee_name = i.seller
     t.memo = i.title
     t.amount = i.item_total
-    t.category = get_category(i)
+    t.category_name = get_category(i)
 
 
 def get_category(item):
-    return settings.default_category
+    return yap.settings.default_category
 
 
 def get_eligible_transactions(transactions):
-    predicates = newer_than, has_blank_or_WIP_memo, matches_account, Transaction.is_outflow
-    eligible = [t for t in transactions if all(p(t) for p in predicates)]
-    utils.log(
+    predicates = newer_than, has_blank_or_WIP_memo, matches_account, yap.ynab.transaction.Transaction.is_outflow
+    eligible = yap.utils.by(
+        filter(
+            lambda t: all(p(t) for p in predicates),
+            transactions.values()),
+        lambda t: t.id)
+    yap.utils.log(
         'Found %s transactions to attempt to match with Amazon orders' % len(eligible))
     if not eligible:
-        utils.log('No transactions matching predicates')
-        utils.quit()
+        yap.utils.log('No transactions matching predicates')
+        yap.utils.quit()
     return eligible
 
 
@@ -53,8 +56,8 @@ def has_blank_or_WIP_memo(t):
 
 
 def matches_account(t):
-    return t.account_name.lower() == settings.account_name.lower()
+    return t.account_name.lower() == yap.settings.account_name.lower()
 
 
 def newer_than(t, days_ago=30):
-    return utils.newer_than(t.date, days_ago)
+    return yap.utils.newer_than(t.date, days_ago)

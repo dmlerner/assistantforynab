@@ -1,6 +1,7 @@
 import datetime
 import dataclasses
-from ynabamazonparser import amazon
+
+import ynabamazonparser as yap
 
 
 @dataclasses.dataclass
@@ -46,11 +47,11 @@ class Order:
         return ' | '.join(map(str, fields))
 
     def __lt__(self, other):
-        assert isinstance(other, amazon.Item)
+        assert isinstance(other, yap.amazon.Item)
         return self.order_date < other.order_date
 
     def __in__(self, order):
-        assert isinstance(order, order.Order)
+        assert isinstance(order, yap.order.Order)
         return self._order_id == order._order_id
 
     def __add__(self, other):
