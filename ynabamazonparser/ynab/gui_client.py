@@ -25,7 +25,7 @@ def enter_fields(fields, values):
             f.send_keys(gui.Keys.TAB)
 
 
-def get_category(transaction, item):
+def get_category(transaction):
     if not transaction.category_name or 'Split (Multiple' in transaction.category_name:
         utils.log('Warning: invalid category %s' % transaction.category_name)
         ' ynab would fail to download with ynab_api_client if `transaction` is a split transaction '
@@ -37,47 +37,50 @@ def get_category(transaction, item):
     return transaction.category_name
 
 
-def enter_item(transaction, item, payee_element, category_element, memo_element, outflow_element):
-    'TODO: payee based on item'
-    'TODO: category based on item'
+def enter_item(transaction, payee_element, category_element, memo_element, outflow_element):
     'TODO/BUG: "Return: Amazon" category is equivalent to "AnythingElse: Amazon"'
-    'TODO: proportional split of shipping, discounts or similar'
-    category = get_category(transaction, item)
+    # TODO rename
+    category = get_category(transaction)
     enter_fields((payee_element, category_element, memo_element, outflow_element),
-                 (transaction.payee_name, category, item.title, item.item_total))
+                 (transaction.payee_name, category, transaction.memo, transaction.amount))
 
 
-def enter_transaction(transaction, items):
-    assert transaction and items
-    item_total = sum(i.item_total for i in items)
-    assert utils.equalish(transaction.amount, item_total)
-
+def locate_transaction(t):
     search = gui.get('transaction-search-input')
     search.clear()
-    search.send_keys('Memo: %s, Account: %s' %
-                     (transaction.memo, settings.account_name))
+    search.send_keys('Memo: %s' % t.id)
     search.send_keys(gui.Keys.ENTER)
-    memo = gui.get_by_text('user-entered-text', transaction.memo, count=1)
+
+
+def add_subtransaction_rows(t):
+    memo = gui.get_by_partial_text('user-entered-text', t.id, count=1)
     gui.click(memo, 2)
     removes = gui.get('ynab-grid-sub-remove', require=False, wait=1)
     while removes:
         gui.click(removes)
         removes = gui.get('ynab-grid-sub-remove', require=False, wait=.5)
-    if len(items) > 1:
-        category_dropdown = gui.get_by_placeholder(
-            'dropdown-text-field', 'category')
+    n = len(t.subtransactions)
+    if n > 1:
+        category_dropdown = gui.get_by_placeholder('dropdown-text-field', 'category')
         category_dropdown.send_keys(' ')
         split = gui.get('modal-account-categories-split-transaction')
         gui.click(split)
         'gui.clicking split means we already have two'
-        for i in range(len(items) - 2):
+        for i in range(n - 2):
             gui.click(gui.get('ynab-grid-split-add-sub-transaction'))
+
+
+def enter_transaction(t):
+    locate_transaction()
+    add_subtransaction_rows(t)
     account, date, payees, categories, memos = map(lambda p: gui.get_by_placeholder('accounts-text-field', p),
                                                    ('account', 'date', 'payee', 'category', 'memo'))
+    date.send_keys(t._date)
     outflows, inflows = map(lambda p: gui.get_by_placeholder(
         'ember-text-field', p), ('outflow', 'inflow'))
-    if len(items) == 1:
-        enter_item(transaction, items[0], payees, categories, memos, outflows)
+    n = len(t.subtransactions)
+    if n == 1:
+        enter_item(t, payees, categories, memos, outflows)
         ' TODO: do not approve, only save '
         ' Maybe it is only approving things that are already approved? '
         approve = gui.get_by_text('button-primary', ['Approve', 'Save'])
@@ -85,35 +88,25 @@ def enter_transaction(transaction, items):
             utils.log('Warning, approving...')
         gui.click(approve)
     else:
-        memos[0].send_keys(', '.join(i.title for i in items))
-        for i, item in enumerate(items):
+        memos[0].send_keys(', '.join(s.memo for s in t.subtransactions))
+        for i, s in enumerate(t.subtransactions):
             '+1 because index 0 is for overall purchase'
-            enter_item(transaction, item,
-                       payees[i + 1], categories[i + 1], memos[i + 1], outflows[i + 1])
+            enter_item(s, payees[i + 1], categories[i + 1], memos[i + 1], outflows[i + 1])
         outflows[-1].send_keys(gui.Keys.ENTER)
 
 
-def enter_all_transactions(transactions, orders_by_transaction_id, items_by_order_id):
-    load_gui()
+def enter_all_transactions(transactions):
     for t in transactions:
-        if t.id not in orders_by_transaction_id:
-            continue
-        utils.log('Entering items for transaction',
-                  orders_by_transaction_id[t.id])
-        order = orders_by_transaction_id[t.id]
-        utils.log('order', order)
-        items = items_by_order_id[order.order_id]
-        utils.log('items', items)
-        if len(items) > 300:
+        if len(t.subtransactions) > 3:
             utils.log(
                 'Skipping puchase with items for speed reasons during alpha test. Feel free to remove this check.')
             ' theta(len(items)^2) time, very tolerable at any reasonable n, but for testing, this is helpful'
             continue
         try:
-            enter_transaction(t, items)
+            enter_transaction(t)
         except BaseException:
             ' Likely because there were multiple search results '
-            utils.log('Error on transaction', t, items)
+            utils.log('Error on transaction', t)
             utils.log(traceback.format_exc())
             search = gui.get('transaction-search-input')
             search.clear()

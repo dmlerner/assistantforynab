@@ -7,10 +7,8 @@ from ynabamazonparser.config import settings
 def get_order(transaction, orders):
     ''' Gets an order corresponding to the ynab transaction '''
     possible_orders = []
-    for order in orders:
-        order_price = order.total_charged
-        transaction_price = transaction.amount
-        if utils.equalish(order_price, transaction_price):
+    for order in orders.values():
+        if utils.equalish(order.total_charged, transaction.amount):
             possible_orders.append(order)
     if len(possible_orders) == 0:
         return None
@@ -38,19 +36,16 @@ def time_difference(transaction, order):
     return abs(transaction.date - order.shipment_date)
 
 
-def match_all(transactions, orders, items):
+def match_all(transactions, orders):
     orders_by_transaction_id = {}
-    for i, t in enumerate(transactions):
+    for t_id, t in transactions.items():
         order = get_order(t, orders)
         if not order:
             utils.log('No matching order for transaction')
             utils.log(t)
             continue
-        t.memo = order.order_id
-        orders_by_transaction_id[t.id] = order
-    items_by_order_id = utils.group_by(items, lambda i: i.order_id)
-#    adjust_all_items(transactions, orders_by_transaction_id, items_by_order_id)
-    return orders_by_transaction_id, items_by_order_id
+        orders_by_transaction_id[t_id] = order
+    return orders_by_transaction_id
 
 # TODO: consider having a separation of concerns between matching and modifying transactions
 # as a separate step between them in driver

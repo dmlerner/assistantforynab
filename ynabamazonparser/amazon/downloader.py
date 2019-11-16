@@ -1,5 +1,3 @@
-import traceback
-import pdb
 import os
 import time
 
@@ -10,7 +8,6 @@ from ynabamazonparser.amazon.order import Order
 
 import glob
 import csv
-import collections
 
 
 def get_downloaded_csv_filenames():
@@ -31,12 +28,13 @@ def wait_for_download(timeout=30):
 
 
 def parse_items(item_dicts):
-    return list(map(Item.from_dict, item_dicts))
+    return utils.by(map(Item.from_dict, item_dicts), lambda i: i.order_id)
 
 
 def parse_orders(order_dicts):
     orders = list(map(Order.from_dict, order_dicts))
-    return combine_orders(orders)
+    combined = combine_orders(orders)
+    return utils.by(combined, lambda o: o.order_id)
 
 
 data_parsers = {'items': parse_items, 'orders': parse_orders}
@@ -53,7 +51,6 @@ def read(p):
     with open(p, newline='\n') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
         return list(reader)
-
 
 
 def combine_orders(orders):

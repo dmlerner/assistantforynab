@@ -1,45 +1,30 @@
 from ynabamazonparser import amazon, ynab, utils, match
-from ynabamazonparser.config import settings
-
-
-separator = '\n' + '.' * 100 + '\n'
+from ynabamazonparser.amazon import downloader, amazon
 
 
 class Assistant:
+
     def load_amazon_data(self):
         utils.log('Loading Amazon')
-        self.orders = amazon.downloader.load('orders')
-        self.items = amazon.downloader.load('items')
-        utils.log(separator)
+        self.orders = downloader.load('orders')  # { order_id: order }
+        self.items = downloader.load('items')  # { order_id: order }
+        utils.log(utils.separator)
 
     def load_ynab_data(self):
         utils.log('Downloading YNAB')
-        self.transactions = ynab.api_client.get_transactions_to_update()
-        utils.log(separator)
+        self.transactions = ynab.api_client.get_all_transactions()  # { (transaction)id: transaction }
+        utils.log(utils.separator)
 
-    def match_amazon(self):
+    def update_amazon_transactions(self):
         utils.log('Matching')
-        self.orders_by_transaction_id, self.items_by_order_id = \
-            match.match_all(self.transactions, self.orders, self.items)
-        if not orders_by_transaction_id:
-            utils.log('No matching orders')
-        utils.log(separator)
-
-    def data(self):
-        return self.transactions, self.orders, self.items
-
-    def update_ynab():
-        ynab.ynab.
-        ynab.api_client.update_all(nonsplits)
-        ynab.api_client.annotate_split_transactions
-
-    utils.log('Putting order ids as ynab memo to can find them in the gui')
-    api_client.update_all(transactions)
-    utils.log(separator)
-
-    utils.log('Entering all the information in the gui via Selenium/Chrome')
-    gui_client.enter_all_transactions(
-        transactions, orders_by_transaction_id, items_by_order_id)
-    utils.log(separator)
-
-    utils.quit()
+        potential_amazon_transactions = amazon.get_eligible_transactions(self.transactions)
+        self.orders_by_transaction_id = match.match_all(potential_amazon_transactions, self.orders)
+        for t_id, order in self.orders_by_transaction_id.items():
+            t = self.transactions[t_id]
+            items = self.items[order.order_id]
+            assert items
+            amazon.amazon.annotate(t, order, items)
+            update_list = ynab.transactions_to_rest_update if len(items) == 1 else ynab.transactions_to_gui_update
+            update_list.append(t)
+        utils.log(utils.separator)
+        ynab.update()

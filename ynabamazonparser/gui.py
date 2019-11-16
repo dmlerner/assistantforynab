@@ -47,11 +47,12 @@ def get_by_placeholder(class_name, p, count=None, require=True):
     return get(class_name, count, require, lambda e: e.get_attribute('placeholder') in p)
 
 
-def get_by_text(class_name, t, count=None, require=True):
+def get_by_text(class_name, t, count=None, require=True, partial=False):
     if isinstance(t, str):
         t = (t,)
+    if partial:
+        return get(class_name, count, require, lambda e: any(T in e.text for T in t))
     return get(class_name, count, require, lambda e: e.text in t)
-
 
 def click(element, n=1, pause=1):
     if type(element) in (tuple, list):

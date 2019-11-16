@@ -40,3 +40,17 @@ def group_by(collection, key):
     for c in collection:
         grouped[key(c)].append(c)
     return grouped
+
+
+def by(collection, key):
+    d = collections.OrderedDict()
+    for c in collection:
+        d[key(c)] = c
+    return d
+
+
+def newer_than(d, days_ago=30):
+    cutoff = datetime.datetime.now() - datetime.timedelta(days=days_ago)
+    return d > cutoff
+
+separator = '\n' + '.' * 100 + '\n'
