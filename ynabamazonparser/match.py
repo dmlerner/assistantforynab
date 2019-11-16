@@ -23,42 +23,19 @@ def get_order(transaction, orders):
         if settings.fail_on_ambiguous_transaction:
             utils.log('skipping ambiguous transaction')
             return None
-        unused_orders = [o for o in possible_orders if o.order_id not in get_order.assigned_order_ids]
+        unused_orders = [o for o in possible_orders if o.order_id not in assigned_order_ids]
         unused_orders.sort(key=lambda o: time_difference(transaction, o))
         order = unused_orders[0]
-    get_order.assigned_order_ids.add(order.order_id)
-    transaction.memo = order.order_id
+    assigned_order_ids.add(order.order_id)
     return order
 
 
 # Used to avoid reusing an order for multiple transactions
-get_order.assigned_order_ids = set()
+assigned_order_ids = set()
 
 
 def time_difference(transaction, order):
     return abs(transaction.date - order.shipment_date)
-
-
-def adjust_items(t, order, items):
-    ' TODO: improve this; shipping, discounts...'
-    item_total = sum(i.item_total for i in items)
-    transaction_total = t.amount
-    if utils.equalish(transaction_total, item_total):
-        return
-    adjustment_ratio = transaction_total / item_total
-    for i in items:
-        i.item_total *= adjustment_ratio
-    new_item_total = sum(i.item_total for i in items)
-    assert utils.equalish(transaction_total, new_item_total)
-
-
-def adjust_all_items(transactions, orders_by_transaction_id, items_by_order_id):
-    for t in transactions:
-        if t.id not in orders_by_transaction_id:
-            continue
-        order = orders_by_transaction_id[t.id]
-        items = items_by_order_id[order.order_id]
-        adjust_items(t, order, items)
 
 
 def match_all(transactions, orders, items):
@@ -72,7 +49,7 @@ def match_all(transactions, orders, items):
         t.memo = order.order_id
         orders_by_transaction_id[t.id] = order
     items_by_order_id = utils.group_by(items, lambda i: i.order_id)
-    adjust_all_items(transactions, orders_by_transaction_id, items_by_order_id)
+#    adjust_all_items(transactions, orders_by_transaction_id, items_by_order_id)
     return orders_by_transaction_id, items_by_order_id
 
 # TODO: consider having a separation of concerns between matching and modifying transactions

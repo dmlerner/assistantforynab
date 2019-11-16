@@ -1,37 +1,14 @@
-from ynabamazonparser import utils, match
-from ynab import api_client, gui_client
-from amazon import downloader
+from ynabamazonparser import assistant
 
 
 def main():
-    separator = '\n' + '.' * 100 + '\n'
+    a = assistant.Assistant()
+    a.load_amazon_data()
+    a.load_ynab_data()
+    a.match_amazon()
+    a.update_ynab()
 
-    utils.log('Loading Amazon')
-    orders = downloader.load('orders')
-    items = downloader.load('items')
-    utils.log(separator)
 
-    utils.log('Downloading YNAB')
-    transactions = api_client.get_transactions_to_update()
-    utils.log(separator)
-
-    utils.log('Matching')
-    orders_by_transaction_id, items_by_order_id = match.match_all(transactions, orders, items)
-    if not orders_by_transaction_id:
-        utils.log('No matching orders')
-        utils.quit()
-    utils.log(separator)
-
-    utils.log('Putting order ids as ynab memo to can find them in the gui')
-    api_client.update_all(transactions)
-    utils.log(separator)
-
-    utils.log('Entering all the information in the gui via Selenium/Chrome')
-    gui_client.enter_all_transactions(
-        transactions, orders_by_transaction_id, items_by_order_id)
-    utils.log(separator)
-
-    utils.quit()
 
 
 if __name__ == '__main__':
