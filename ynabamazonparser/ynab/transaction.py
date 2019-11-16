@@ -57,5 +57,5 @@ class Transaction(_Transaction):
         return _Transaction(**d)
 
     def __repr__(self):
-        str_fields = self.id, self._date, self._amount
+        str_fields = self.id, self._date, '$' + str(self.amount)
         return ' | '.join(map(str, str_fields))

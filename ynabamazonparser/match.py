@@ -1,5 +1,4 @@
 from ynabamazonparser import utils
-from ynabamazonparser.amazon import downloader
 from ynabamazonparser.config import settings
 
 ' TODO rename this module '
@@ -24,21 +23,20 @@ def get_order(transaction, orders):
         if settings.fail_on_ambiguous_transaction:
             utils.log('skipping ambiguous transaction')
             return None
-        utils.log('choosing the one closest to the order date')
-        possible_orders.sort(key=lambda o: time_difference(transaction, o))
-        order = possible_orders[0]
-    orders.remove(order)
+        unused_orders = [o for o in possible_orders if o.order_id not in get_order.assigned_order_ids]
+        unused_orders.sort(key=lambda o: time_difference(transaction, o))
+        order = unused_orders[0]
+    get_order.assigned_order_ids.add(order.order_id)
+    transaction.memo = order.order_id
     return order
+
+
+# Used to avoid reusing an order for multiple transactions
+get_order.assigned_order_ids = set()
 
 
 def time_difference(transaction, order):
     return abs(transaction.date - order.shipment_date)
-
-
-def get_items(order):
-    if not order:
-        return None
-    return downloader.items_by_order[order.order_id]
 
 
 def adjust_items(t, order, items):
@@ -54,8 +52,7 @@ def adjust_items(t, order, items):
     assert utils.equalish(transaction_total, new_item_total)
 
 
-def adjust_all_items(transactions, orders_by_transaction_id):
-    items_by_order_id = downloader.get_items_by_order_id()
+def adjust_all_items(transactions, orders_by_transaction_id, items_by_order_id):
     for t in transactions:
         if t.id not in orders_by_transaction_id:
             continue
@@ -64,7 +61,7 @@ def adjust_all_items(transactions, orders_by_transaction_id):
         adjust_items(t, order, items)
 
 
-def match_all(transactions, orders):
+def match_all(transactions, orders, items):
     orders_by_transaction_id = {}
     for i, t in enumerate(transactions):
         order = get_order(t, orders)
@@ -74,25 +71,9 @@ def match_all(transactions, orders):
             continue
         t.memo = order.order_id
         orders_by_transaction_id[t.id] = order
-    utils.log(downloader.data)
-    adjust_all_items(transactions, orders_by_transaction_id)
-    return orders_by_transaction_id
+    items_by_order_id = utils.group_by(items, lambda i: i.order_id)
+    adjust_all_items(transactions, orders_by_transaction_id, items_by_order_id)
+    return orders_by_transaction_id, items_by_order_id
 
-
-'''
-Mostly, the amounts map over and are unique
-first assume they do
-break uniques by date proximity
-    do the dates on one of ynab/amazon
-    tend to be before/after the other consistently?
-napsack the rest
-    optimizing for most dollars matched?
-'''
-'''
-y = collections.Counter(ynab.amounts)
-a = collections.Counter(amazon.amounts)
-ya = y - a
-ay = a - y
-utils.log(ya)
-utils.log(ay)
-'''
+# TODO: consider having a separation of concerns between matching and modifying transactions
+# as a separate step between them in driver

@@ -1,6 +1,6 @@
 import traceback
 
-from ynabamazonparser import utils, amazon, gui
+from ynabamazonparser import utils, gui
 from ynabamazonparser.config import settings
 
 
@@ -32,7 +32,7 @@ def get_category(transaction, item):
         ' even though you can hit save in the ui '
         ' hence using a default '
         assert settings.default_category
-        utils.log('Using default: %s' % settings.default.category)
+        utils.log('Using default: %s' % settings.default_category)
         return settings.default_category
     return transaction.category_name
 
@@ -93,9 +93,8 @@ def enter_transaction(transaction, items):
         outflows[-1].send_keys(gui.Keys.ENTER)
 
 
-def enter_all_transactions(transactions, orders_by_transaction_id):
+def enter_all_transactions(transactions, orders_by_transaction_id, items_by_order_id):
     load_gui()
-    items_by_order_id = amazon.downloader.get_items_by_order_id()
     for t in transactions:
         if t.id not in orders_by_transaction_id:
             continue

@@ -7,3 +7,31 @@ cloud app
 	modulu security of storing api keys in cloud/getting them up there
 	maybe less so for 2FA
 upload anything that's not a split without using gui?
+
+
+'''
+Mostly, the amounts map over and are unique
+first assume they do
+break uniques by date proximity
+    do the dates on one of ynab/amazon
+    tend to be before/after the other consistently?
+napsack the rest
+    optimizing for most dollars matched?
+'''
+'''
+y = collections.Counter(ynab.amounts)
+a = collections.Counter(amazon.amounts)
+ya = y - a
+ay = a - y
+'''
+
+
+'''
+order total may not equal sum of item costs
+because order consider coupons and probably also shipping
+but order does have shipping cost field
+and promotions field
+not clear that I can get per-item promotion breakdowns
+
+orders may have an order id repeated, splitting the cost across them
+'''

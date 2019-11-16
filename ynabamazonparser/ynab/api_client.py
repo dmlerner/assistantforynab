@@ -21,14 +21,9 @@ def get_all_transactions():
     return transactions
 
 
-def update(transaction):
-    return api.transactions.update_transaction(settings.budget_id, transaction.to_parent())
-
-
-def update_all(transactions, orders_by_transaction_id):
+def update_all(transactions):
     for t in transactions:
-        if t.id in orders_by_transaction_id:
-            update(t)
+        api.transactions.update_transaction(settings.budget_id, t.to_parent())
 
 
 def get_transactions_to_update():

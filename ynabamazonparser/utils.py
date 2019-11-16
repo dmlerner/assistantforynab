@@ -1,8 +1,10 @@
-from ynabamazonparser import gui
-from ynabamazonparser.config import settings
+import collections
 import datetime
 import os
 import sys
+
+from ynabamazonparser import gui
+from ynabamazonparser.config import settings
 
 
 def equalish(a, b):
@@ -17,7 +19,7 @@ def get_log_path():
 log_file = open(get_log_path(), 'a+')
 
 
-def log(*x, verbosity=0, sep=' | ', end=os.linesep*2):
+def log(*x, verbosity=0, sep=' | ', end=os.linesep * 2):
     if verbosity >= settings.log_verbosity:
         print(datetime.datetime.now(), end=os.linesep, file=log_file)
         print(*x, sep=sep, end=end, file=log_file)
@@ -31,3 +33,10 @@ def quit():
         gui.quit()
     log_file.close()
     sys.exit()
+
+
+def group_by(collection, key):
+    grouped = collections.defaultdict(list)
+    for c in collection:
+        grouped[key(c)].append(c)
+    return grouped

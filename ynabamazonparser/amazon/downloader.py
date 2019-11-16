@@ -30,12 +30,19 @@ def wait_for_download(timeout=30):
     return new_filenames.pop()
 
 
+def parse_items(item_dicts):
+    return list(map(Item.from_dict, item_dicts))
+
+
+def parse_orders(order_dicts):
+    orders = list(map(Order.from_dict, order_dicts))
+    return combine_orders(orders)
+
+
+data_parsers = {'items': parse_items, 'orders': parse_orders}
 ' TODO: get refunds, returns '
-data_types = 'items', 'orders'
 csv_paths = {k: os.path.join(settings.data_dir, k + '.csv')
-             for k in data_types}
-constructors = {'items': Item, 'orders': Order}
-data = {}
+             for k in data_parsers}
 
 
 def missing_csv(data_type):
@@ -48,22 +55,19 @@ def read(p):
         return list(reader)
 
 
-def parse(d, data_type):
-    return constructors[data_type].from_dict(d)
 
-
-def combine_orders():
+def combine_orders(orders):
     combined = {}
-    for order in data['orders']:
+    for order in orders:
         if order.order_id in combined:
             combined[order.order_id] += order
         else:
             combined[order.order_id] = order
-    data['orders'] = list(combined.values())
-    utils.log('Found %s unique orders' % len(data['orders']))
+    return list(combined.values())
 
 
 def load(data_type):
+    assert data_type in data_parsers
     target_path = csv_paths[data_type]
     try:
         if settings.force_download_amazon or missing_csv(data_type):
@@ -79,43 +83,10 @@ def load(data_type):
             path = wait_for_download()
             os.rename(path, target_path)
 
-        list_of_dicts = read(target_path)
-        data[data_type] = [parse(d, data_type) for d in list_of_dicts]
-        utils.log('Found %s %s' % (len(data[data_type]), data_type))
-        return data[data_type]
     except BaseException:
-        utils.log('Probably this failed because you need to log in...')
-        utils.log('Type q then enter to quit, or anything else to try again.')
         if input('One more try?').lower() != 'q':
             load(data_type)
         else:
-            utils.log(traceback.format_exc())
             utils.quit()
 
-
-def load_all():
-    for t in data_types:
-        load(t)
-    combine_orders()
-    return data
-
-
-def get_items_by_order_id():
-    load('items')  # I should not have to reload...
-    items = data['items']
-    assert items
-    items_by_order_id = collections.defaultdict(list)
-    for item in items:
-        items_by_order_id[item.order_id].append(item)
-    return items_by_order_id
-
-
-'''
-order total may not equal sum of item costs
-because order consider coupons and probably also shipping
-but order does have shipping cost field
-and promotions field
-not clear that I can get per-item promotion breakdowns
-
-orders may have an order id repeated, splitting the cost across them
-'''
+    return data_parsers[data_type](read(target_path))

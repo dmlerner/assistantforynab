@@ -20,7 +20,7 @@ def get(class_name, count=None, require=True, predicate=None, wait=10):
             WebDriverWait(driver(), wait).until(
                 EC.presence_of_element_located((By.CLASS_NAME, class_name))
             )
-        except:
+        except BaseException:
             if require:
                 utils.log('element not found', class_name)
                 utils.log(traceback.format_exc())
@@ -42,13 +42,13 @@ def get(class_name, count=None, require=True, predicate=None, wait=10):
 
 
 def get_by_placeholder(class_name, p, count=None, require=True):
-    if type(p) is str:
+    if isinstance(p, str):
         p = (p,)
-    return get(class_name,  count, require, lambda e: e.get_attribute('placeholder') in p)
+    return get(class_name, count, require, lambda e: e.get_attribute('placeholder') in p)
 
 
 def get_by_text(class_name, t, count=None, require=True):
-    if type(t) is str:
+    if isinstance(t, str):
         t = (t,)
     return get(class_name, count, require, lambda e: e.text in t)
 
@@ -74,7 +74,7 @@ def driver():
         options.add_argument('user-data-dir={}'.format(settings.chrome_data_dir))
         options.add_argument('--disable-extensions')
         _driver = webdriver.Chrome(options=options)
-    except:
+    except BaseException:
         error = traceback.format_exc()
         if 'data directory is already in use' in error:
             utils.log('ERROR: selenium controlled chrome still open. Close it and try again.')
@@ -90,5 +90,5 @@ def is_alive(d):
     try:
         d.execute(Command.STATUS)
         return True
-    except:
+    except BaseException:
         return False
