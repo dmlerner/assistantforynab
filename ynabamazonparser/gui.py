@@ -67,12 +67,22 @@ _driver = None
 
 def driver():
     global _driver
-    if is_alive(_driver):
-        return _driver
-    options = Options()
-    options.add_argument('user-data-dir={}'.format(settings.chrome_data_dir))
-    options.add_argument('--disable-extensions')
-    _driver = webdriver.Chrome(options=options)
+    try:
+        if is_alive(_driver):
+            return _driver
+        options = Options()
+        options.add_argument('user-data-dir={}'.format(settings.chrome_data_dir))
+        options.add_argument('--disable-extensions')
+        _driver = webdriver.Chrome(options=options)
+    except:
+        error = traceback.format_exc()
+        if 'data directory is already in use' in error:
+            utils.log('ERROR: selenium controlled chrome still open. Close it and try again.')
+            # TODO: retry?
+            # TODO: general input() based retrier
+        else:
+            utils.log(error)
+        utils.quit()
     return _driver
 
 

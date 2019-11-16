@@ -23,7 +23,7 @@ class Transaction(_Transaction):
     # These allow us to not think about milliunits
     @amount.getter
     def amount(self):
-        return abs(self._amount/1000)
+        return abs(self._amount / 1000)
 
     @amount.setter
     def amount(self, a):
@@ -41,7 +41,7 @@ class Transaction(_Transaction):
 
     @date.setter
     def date(self, d):
-        if type(d) is datetime.datetime:
+        if isinstance(d, datetime.datetime):
             self._date = datetime.strftime(d, Transaction.date_format)
         else:
             # make sure it's a valid format
@@ -55,3 +55,7 @@ class Transaction(_Transaction):
         del d['_amount']
         del d['_date']
         return _Transaction(**d)
+
+    def __repr__(self):
+        str_fields = self.id, self._date, self._amount
+        return ' | '.join(map(str, str_fields))

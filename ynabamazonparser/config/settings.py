@@ -1,3 +1,4 @@
+from ynabamazonparser.config import private
 import datetime
 import os
 import shutil
@@ -15,23 +16,23 @@ chrome_data_dir = os.path.join(
 ' NOTE: must have the chromedriver named chromedriver (not chromedriver.exe), somewhere in your PATH '
 
 downloads_path = os.path.join(home, 'Downloads')
-script_path = os.path.split(os.path.realpath(__file__))[0]
-log_path = os.path.join(script_path, 'log')
-data_path = os.path.join(script_path, 'data')
-for p in log_path, data_path:
+config_dir = os.path.split(os.path.realpath(__file__))[0]
+root_dir = config_dir[:config_dir.rindex(os.path.sep)]
+log_dir = os.path.join(root_dir, 'log')
+data_dir = os.path.join(root_dir, 'data')
+for p in log_dir, data_dir:
     if not os.path.exists(p):
         os.mkdir(p)
 
-private_settings_path = os.path.join(script_path, 'private.py')
+private_settings_path = os.path.join(config_dir, 'private.py')
 if not os.path.exists(private_settings_path):
     utils.log('ERROR: no private settings found, using defaults. Please edit %s' %
               private_settings_path)
     utils.log('Will not be able to access YNAB')
     private_settings_template_path = os.path.join(
-        script_path, 'private_template.py')
+        config_dir, 'private_template.py')
     shutil.copy(private_settings_template_path, private_settings_path)
 
-from ynabamazonparser.config import private
 budget_id = private.budget_id
 account_name = private.account_name
 api_key = private.api_key

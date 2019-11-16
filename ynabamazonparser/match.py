@@ -1,7 +1,6 @@
 from ynabamazonparser import utils
 from ynabamazonparser.amazon import downloader
 from ynabamazonparser.config import settings
-import pdb
 
 ' TODO rename this module '
 
@@ -18,8 +17,7 @@ def get_order(transaction, orders):
         return None
     if len(possible_orders) == 1:
         order = possible_orders[0]
-        #pdb.set_trace()
-        utils.log('match!', order, transaction.id)
+        utils.log('match!', order, transaction)
     else:
         utils.log('ambiguous transaction has %s matches' %
                   len(possible_orders), transaction, possible_orders)
@@ -47,7 +45,7 @@ def adjust_items(t, order, items):
     ' TODO: improve this; shipping, discounts...'
     item_total = sum(i.item_total for i in items)
     transaction_total = t.amount
-    if utils.equalish(transaction_total,  item_total):
+    if utils.equalish(transaction_total, item_total):
         return
     adjustment_ratio = transaction_total / item_total
     for i in items:
@@ -67,19 +65,17 @@ def adjust_all_items(transactions, orders_by_transaction_id):
 
 
 def match_all(transactions, orders):
-    utils.log('match_all', downloader.data, len(orders))
     orders_by_transaction_id = {}
     for i, t in enumerate(transactions):
         order = get_order(t, orders)
         if not order:
-            utils.log('No order found for transaction\n', t.amount)
+            utils.log('No matching order for transaction')
+            utils.log(t)
             continue
         t.memo = order.order_id
         orders_by_transaction_id[t.id] = order
-    utils.log('built', orders_by_transaction_id)
     utils.log(downloader.data)
     adjust_all_items(transactions, orders_by_transaction_id)
-    utils.log('adjusted', orders_by_transaction_id)
     return orders_by_transaction_id
 
 

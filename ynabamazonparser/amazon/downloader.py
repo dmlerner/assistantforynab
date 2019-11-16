@@ -14,13 +14,11 @@ import collections
 
 
 def get_downloaded_csv_filenames():
-    utils.log('get_downloaded_csv_filenames', [(k, len(data[k])) for k in data])
     return set(
-    glob.glob(os.path.join(settings.downloads_path, '*.csv')))
+        glob.glob(os.path.join(settings.downloads_dir, '*.csv')))
 
 
 def wait_for_download(timeout=30):
-    utils.log('wait_for_download', [(k, len(data[k])) for k in data])
     filenames_before = get_downloaded_csv_filenames()
     for i in range(timeout):
         filenames = get_downloaded_csv_filenames()
@@ -34,31 +32,38 @@ def wait_for_download(timeout=30):
 
 ' TODO: get refunds, returns '
 data_types = 'items', 'orders'
-csv_paths = {k: os.path.join(settings.data_path, k + '.csv')
+csv_paths = {k: os.path.join(settings.data_dir, k + '.csv')
              for k in data_types}
 constructors = {'items': Item, 'orders': Order}
 data = {}
 
 
 def missing_csv(data_type):
-    utils.log('missing_csv', [(k, len(data[k])) for k in data])
     return not os.path.exists(csv_paths[data_type])
 
 
 def read(p):
-    utils.log('read', [(k, len(data[k])) for k in data])
     with open(p, newline='\n') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
         return list(reader)
 
 
 def parse(d, data_type):
-    utils.log('parse', [(k, len(data[k])) for k in data])
     return constructors[data_type].from_dict(d)
 
 
+def combine_orders():
+    combined = {}
+    for order in data['orders']:
+        if order.order_id in combined:
+            combined[order.order_id] += order
+        else:
+            combined[order.order_id] = order
+    data['orders'] = list(combined.values())
+    utils.log('Found %s unique orders' % len(data['orders']))
+
+
 def load(data_type):
-    utils.log('load', [(k, len(data[k])) for k in data])
     target_path = csv_paths[data_type]
     try:
         if settings.force_download_amazon or missing_csv(data_type):
@@ -78,7 +83,7 @@ def load(data_type):
         data[data_type] = [parse(d, data_type) for d in list_of_dicts]
         utils.log('Found %s %s' % (len(data[data_type]), data_type))
         return data[data_type]
-    except:
+    except BaseException:
         utils.log('Probably this failed because you need to log in...')
         utils.log('Type q then enter to quit, or anything else to try again.')
         if input('One more try?').lower() != 'q':
@@ -89,15 +94,14 @@ def load(data_type):
 
 
 def load_all():
-    utils.log('load_all', [(k, len(data[k])) for k in data])
     for t in data_types:
         load(t)
+    combine_orders()
     return data
 
 
 def get_items_by_order_id():
-    utils.log('get_items_by_order_id', [(k, len(data[k])) for k in data])
-    load('items')# I should not have to reload...
+    load('items')  # I should not have to reload...
     items = data['items']
     assert items
     items_by_order_id = collections.defaultdict(list)

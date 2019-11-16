@@ -53,9 +53,9 @@ class Item:
     def item_total(self):
         return to_float(self._item_total)
 
-    def __str__(self):
+    def __repr__(self):
         str_fields = self.title, self._order_date, self._item_total
-        return 'Item: ' + ' | '.join(map(str, str_fields))
+        return ' | '.join(map(str, str_fields))
 
     def __lt__(self, other):
         assert type(other) is Item

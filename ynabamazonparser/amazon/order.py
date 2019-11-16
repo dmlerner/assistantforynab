@@ -41,17 +41,31 @@ class Order:
     def total_charged(self):
         return to_float(self._total_charged)
 
-    def __str__(self):
-        str_fields = self.order_id, self._order_date, self._total_charged
-        return 'Item: ' + ' | '.join(map(str, str_fields))
+    def __repr__(self):
+        fields = self.order_id, self._order_date, self._total_charged
+        return ' | '.join(map(str, fields))
 
     def __lt__(self, other):
-        assert type(other) is amazon.Item
+        assert isinstance(other, amazon.Item)
         return self.order_date < other.order_date
 
     def __in__(self, order):
-        assert type(order) is order.Order
+        assert isinstance(order, order.Order)
         return self._order_id == order._order_id
+
+    def __add__(self, other):
+        assert isinstance(other, Order)
+        assert other.order_id == self.order_id
+        combined_dict = self.__dict__.copy()
+        other_dict = other.__dict__.copy()
+        for k in other.__dict__:
+            if other_dict[k] == combined_dict[k]:
+                continue
+            if '$' in other_dict[k] and '$' in combined_dict[k]:
+                combined_dict[k] = '$' + str(to_float(other_dict[k]) + to_float(combined_dict[k]))
+            else:
+                combined_dict[k] += ', ' + other_dict[k]
+        return Order.from_dict(combined_dict)
 
 
 def to_float(price):

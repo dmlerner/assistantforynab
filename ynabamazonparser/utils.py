@@ -1,7 +1,6 @@
 from ynabamazonparser import gui
 from ynabamazonparser.config import settings
 import datetime
-import pdb
 import os
 import sys
 
@@ -12,7 +11,7 @@ def equalish(a, b):
 
 def get_log_path():
     log_name = str(settings.start_time) + '-log.txt'
-    return os.path.join(settings.log_path, log_name)
+    return os.path.join(settings.log_dir, log_name)
 
 
 log_file = open(get_log_path(), 'a+')

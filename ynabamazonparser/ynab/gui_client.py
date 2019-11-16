@@ -1,6 +1,6 @@
 import traceback
 
-from ynabamazonparser import utils, amazon, match, ynab, gui
+from ynabamazonparser import utils, amazon, gui
 from ynabamazonparser.config import settings
 
 
@@ -28,9 +28,11 @@ def enter_fields(fields, values):
 def get_category(transaction, item):
     if not transaction.category_name or 'Split (Multiple' in transaction.category_name:
         utils.log('Warning: invalid category %s' % transaction.category_name)
-        ' ynab will fail to download with ynab_api_client if `transaction` is a split transaction '
+        ' ynab would fail to download with ynab_api_client if `transaction` is a split transaction '
         ' even though you can hit save in the ui '
+        ' hence using a default '
         assert settings.default_category
+        utils.log('Using default: %s' % settings.default.category)
         return settings.default_category
     return transaction.category_name
 
@@ -87,7 +89,7 @@ def enter_transaction(transaction, items):
         for i, item in enumerate(items):
             '+1 because index 0 is for overall purchase'
             enter_item(transaction, item,
-                       payees[i+1], categories[i+1], memos[i+1], outflows[i+1])
+                       payees[i + 1], categories[i + 1], memos[i + 1], outflows[i + 1])
         outflows[-1].send_keys(gui.Keys.ENTER)
 
 
@@ -110,7 +112,7 @@ def enter_all_transactions(transactions, orders_by_transaction_id):
             continue
         try:
             enter_transaction(t, items)
-        except:
+        except BaseException:
             ' Likely because there were multiple search results '
             utils.log('Error on transaction', t, items)
             utils.log(traceback.format_exc())

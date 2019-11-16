@@ -3,3 +3,7 @@ alerts
 bank2ynab integration/general splits utility
 multi account support
 cloud app
+	probably can in fact use selenium
+	modulu security of storing api keys in cloud/getting them up there
+	maybe less so for 2FA
+upload anything that's not a split without using gui?
