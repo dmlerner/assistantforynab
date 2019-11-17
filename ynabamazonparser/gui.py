@@ -3,6 +3,7 @@ import time
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,10 +13,11 @@ from selenium.webdriver.remote.command import Command
 import ynabamazonparser as yap
 
 
-def get(class_name, count=None, require=True, predicate=None, wait=10):
+def get(class_name, count=None, require=True, predicate=None, wait=30):
+    yap.utils.log('get', class_name)
     predicate = predicate or bool  # bool serves as the identity
     if wait:
-        try:
+        try:  # may stop waitin gwhen right class is found, but predicate is still failing...
             WebDriverWait(driver(), wait).until(
                 EC.presence_of_element_located((By.CLASS_NAME, class_name))
             )
@@ -63,6 +65,18 @@ def click(element, n=1, pause=1):
             time.sleep(pause)
 
 
+def right_click(element):
+    if type(element) in (tuple, list):
+        element = element[0]
+    actions = ActionChains(driver())
+    actions.context_click(element).perform()
+
+
+def send_keys(keys):
+    actions = ActionChains(driver())
+    actions.send_keys(keys).perform()
+
+
 _driver = None
 
 
@@ -79,6 +93,7 @@ def driver():
         error = traceback.format_exc()
         if 'data directory is already in use' in error:
             yap.utils.log('ERROR: selenium controlled chrome still open. Close it and try again.')
+
             # TODO: retry?
             # TODO: general input() based retrier
         else:

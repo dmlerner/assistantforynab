@@ -1,4 +1,5 @@
 from ynab_sdk import YNAB
+from ynab_sdk.api.models.requests.transaction import TransactionRequest
 
 import ynabamazonparser as yap
 
@@ -31,3 +32,27 @@ def update(t):
     if 'error' in response:
         yap.utils.log('ERROR:', response)
     t.subtransactions = s
+
+
+def create(transactions):
+    yap.utils.log('create', transactions)
+    transaction_requests = []
+    not_using = set()
+    for t in transactions:
+        p = t.to_parent().__dict__
+        yap.utils.log('parented', p)
+        for k in p:
+            if k not in TransactionRequest.__dataclass_fields__.keys():
+                not_using.add(k)
+        for k in not_using:
+            if k in p:
+                del p[k]
+        yap.utils.log('clena transactoin: ', p)
+        tr = TransactionRequest(**p)
+        yap.utils.log('TR', tr)
+        transaction_requests.append(tr)
+    response = api.transactions.create_transactions(yap.settings.budget_id, transaction_requests)
+    yap.utils.log('response', response)
+    if 'error' in response:
+        yap.utils.log('ERROR:', response)
+    yap.utils.log('not using', not_using)
