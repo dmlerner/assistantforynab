@@ -32,7 +32,7 @@ assigned_order_ids = set()
 
 
 def time_difference(transaction, order):
-    return abs(transaction.date - order.shipment_date)
+    return abs(transaction.date - order.order_date)  # TODO want shipment_date change parser property
 
 
 def match_all(transactions, orders):

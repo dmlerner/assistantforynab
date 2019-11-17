@@ -22,7 +22,12 @@ def update_all(transactions):
 
 
 def update(t):
+    yap.utils.log('update', t)
     s = t.subtransactions
     t.subtransactions = []
-    api.transactions.update_transaction(yap.settings.budget_id, t.to_parent())
+    p = t.to_parent()
+    yap.utils.log('parented', p)
+    response = api.transactions.update_transaction(yap.settings.budget_id, p)
+    if 'error' in response:
+        yap.utils.log('ERROR:', response)
     t.subtransactions = s

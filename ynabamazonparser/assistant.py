@@ -22,9 +22,14 @@ class Assistant:
         for t_id, order in self.orders_by_transaction_id.items():
             t = self.transactions[t_id]
             items = self.items[order.order_id]
-            yap.utils.log(type(items), type(self.orders), type(order))
             assert items
+            yap.utils.log('before amazon annotate t=', t)
+            yap.utils.log('before amazon annotate order=', order)
+            yap.utils.log('before amazon annotate items=', items)
             yap.amazon.amazon.annotate(t, order, items)
+            yap.utils.log('after amazon annotate t=', t)
+            yap.utils.log('after amazon annotate order=', order)
+            yap.utils.log('after amazon annotate items=', items)
             update_list = yap.ynab.ynab.transactions_to_rest_update if len(items) == 1 \
                 else yap.ynab.ynab.transactions_to_gui_update
             update_list.append(t)

@@ -39,24 +39,26 @@ def update_rest():
 
 
 def annotate_for_locating(t):
-    t.memo = t.id + t.memo
-
-
-def remove_locating_annotation(t):
-    assert t.memo.startswith(t.id)
-    t.memo = t.memo[len(t.id):]
+    old_memo = t.memo
+    t.memo = t.id
+    yap.utils.log('wrote memo')
+    yap.utils.log('t=', t)
+    yap.utils.log('memo=', t.memo)
+    yap.utils.log('t.id=', t.id)
+    return old_memo
 
 
 def update_gui():
+    if not transactions_to_gui_update:
+        return
     yap.utils.log('Updating YNAB via GUI')
     for t in transactions_to_gui_update:
         # Ensures that we can find it in the gui
         if len(t.subtransactions) <= 1:
             yap.utils.log('Warning: no good reason to update via gui with <= 1 subtransaction')
-        yap.utils.debug()
-        annotate_for_locating(t)
+        old_memo = annotate_for_locating(t)
         yap.ynab.api_client.update(t)
-        remove_locating_annotation(t)
+        t.memo = old_memo
         add_adjustment_subtransaction(t)
     yap.ynab.gui_client.load_gui()
     yap.ynab.gui_client.enter_all_transactions(transactions_to_gui_update)

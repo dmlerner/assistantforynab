@@ -1,4 +1,3 @@
-import re
 from copy import deepcopy
 
 import ynabamazonparser as yap
@@ -47,12 +46,8 @@ def has_blank_memo(t):
     return not t.memo
 
 
-def has_order_number_memo(t):
-    return bool(re.match(r'^\d{3}-\d{7}-\d{7}$', t.memo))
-
-
 def has_blank_or_WIP_memo(t):
-    return has_blank_memo(t) or has_order_number_memo(t)
+    return has_blank_memo(t) or yap.ynab.transaction.starts_with_id(t.memo)
 
 
 def matches_account(t):

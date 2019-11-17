@@ -1,7 +1,8 @@
-from ynab_sdk.api.models.responses.transactions import Transaction as _Transaction
-import ynabamazonparser as yap
+import re
 import datetime
 from dataclasses import dataclass
+
+from ynab_sdk.api.models.responses.transactions import Transaction as _Transaction
 
 
 @dataclass
@@ -10,7 +11,7 @@ class Transaction(_Transaction):
 
     def __init__(self, t):
         d = t.__dict__
-        self._amount = d['amount'] # hacky
+        self._amount = d['amount']  # hacky
         d['amount'] /= 1000
         super().__init__(**d)
         self._date = t.date
@@ -30,7 +31,7 @@ class Transaction(_Transaction):
 
     @amount.setter
     def amount(self, a):
-        self._amount = abs(1000*a) * (1 if self._amount > 0 else -1)
+        self._amount = abs(1000 * a) * (1 if self._amount > 0 else -1)
 
     def is_outflow(self):
         return self._amount < 0
@@ -53,7 +54,7 @@ class Transaction(_Transaction):
 
     def to_parent(self):
         d = self.__dict__.copy()
-        d['amount'] = self._amount
+        d['amount'] = int(self._amount)
         d['date'] = self._date
         del d['_amount']
         del d['_date']
@@ -61,6 +62,12 @@ class Transaction(_Transaction):
 
     def __repr__(self):
         if not self.subtransactions:
-            str_fields = self.id, self._date, '$' + str(self.amount), self._amount
-            return ' | '.join(map(str, str_fields))
+            str_fields = self.id, self._date, '$' + \
+                str(self.amount), self._amount, self.id, self.memo, self.account_name
+            return ' | '.join(map(str, str_fields)) + ' ||| '
         return '[' + ', '.join(map(str, self.subtransactions)) + ']'
+
+
+def starts_with_id(s):
+    alphanumeric = '[a-z0-9]'
+    return re.match('^x{8}-x{4}-x{4}-x{12}'.replace('x', alphanumeric), s)

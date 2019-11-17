@@ -47,6 +47,7 @@ def enter_item(transaction, payee_element, category_element, memo_element, outfl
 def locate_transaction(t):
     search = yap.gui.get('transaction-search-input')
     search.clear()
+    yap.utils.log('looking for %s' % t.id)
     search.send_keys('Memo: %s' % t.id)
     search.send_keys(yap.gui.Keys.ENTER)
 
