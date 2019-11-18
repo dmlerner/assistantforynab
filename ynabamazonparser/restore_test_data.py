@@ -6,19 +6,21 @@ yap.ynab.gui_client.load_gui()
 
 
 def rename_and_close():
+    yap.utils.log_debug('rename_and_close')
     try:
         edit_account = yap.gui.get_by_text('user-entered-text', yap.settings.account_name)
-        yap.utils.log(edit_account)
+        yap.utils.log_debug(edit_account)
         yap.gui.right_click(edit_account)
         yap.gui.send_keys(str(random.random()))
         yap.gui.get('button-red').click()
         yap.gui.get_by_text('button-primary', 'Transfer Funds').click()
         yap.gui.get_by_text('button-primary', 'Finish Closing Account').click()
     except BaseException:
-        yap.utils.log('probably already deleted')
+        yap.utils.log_debug('probably already deleted')
 
 
 def add_new_account():
+    yap.utils.log_debug('add_new_account')
     time.sleep(1)
     add_account = yap.gui.get('nav-add-account')
     add_account.click()
@@ -36,6 +38,7 @@ def add_new_account():
 
 
 def load_test_data():
+    yap.utils.log_debug('load_test_data')
     '''
     account_id: str
     date: str
@@ -58,10 +61,11 @@ def load_test_data():
     for t in ts:
         t.account_id = account_id
     yap.ynab.api_client.create(ts)
-    yap.gui.driver().refresh()
+    yap.utils.quit(True)
 
 
 def prepare_test_account():
+    yap.utils.log_debug('prepare_test_account')
     rename_and_close()
     add_new_account()
     load_test_data()

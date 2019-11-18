@@ -62,10 +62,11 @@ class Transaction(_Transaction):
 
     def __repr__(self):
         if not self.subtransactions:
-            str_fields = self.id, self._date, '$' + \
-                str(self.amount), self._amount, self.id, self.memo, self.account_name
-            return ' | '.join(map(str, str_fields)) + ' ||| '
-        return '[' + ', '.join(map(str, self.subtransactions)) + ']'
+            str_fields = [self._date, '$' + str(round(self.amount, 2)), self.account_name, self.id]
+            if self.id not in self.memo:
+                str_fields.append(self.memo)
+            return ' | '.join(map(str, str_fields)) 
+        return '\n'.join(map(str, self.subtransactions))[:-5] 
 
 
 def starts_with_id(s):

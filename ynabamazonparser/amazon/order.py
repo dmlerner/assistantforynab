@@ -43,7 +43,7 @@ class Order:
         return to_float(self._total_charged)
 
     def __repr__(self):
-        fields = self.order_id, self._order_date, self._total_charged
+        fields = self._order_date, self._total_charged, self.order_id
         return ' | '.join(map(str, fields))
 
     def __lt__(self, other):

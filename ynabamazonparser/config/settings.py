@@ -6,8 +6,15 @@ import ynabamazonparser as yap
 from ynabamazonparser.config import private
 
 start_time = datetime.datetime.now()
-log_verbosity = 0
-print_verbosity = 0
+
+debug_verbosity = 2
+info_verbosity = 1
+error_verbosity = 0
+
+log_verbosity = 2
+print_verbosity = 1
+
+max_log_age_days = float('90')
 
 home = os.path.expanduser('~')
 
@@ -27,9 +34,9 @@ for p in log_dir, data_dir:
 
 private_settings_path = os.path.join(config_dir, 'private.py')
 if not os.path.exists(private_settings_path):
-    yap.utils.log('ERROR: no private settings found, using defaults. Please edit %s' %
+    yap.utils.log_error('ERROR: no private settings found, using defaults. Please edit %s' %
                   private_settings_path)
-    yap.utils.log('Will not be able to access YNAB')
+    yap.utils.log_error('Will not be able to access YNAB')
     private_settings_template_path = os.path.join(
         config_dir, 'private_template.py')
     shutil.copy(private_settings_template_path, private_settings_path)
@@ -47,7 +54,5 @@ close_browser_on_finish = False
 force_download_amazon = False
 
 ' TODO: variable controlling if transactions stay checked in the UI when done; currently they do '
-' TODO: actually use log levels '
-' TODO: classes instead of all these dictionaries '
 ' TODO: call get transactions via official ruby api '
 ' TODO: configurable amazon download length; currently 30 days '

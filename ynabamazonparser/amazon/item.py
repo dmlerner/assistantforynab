@@ -54,7 +54,7 @@ class Item:
         return to_float(self._item_total)
 
     def __repr__(self):
-        str_fields = self.title, self._order_date, self._item_total
+        str_fields = self._order_date, self._item_total, self.title
         return ' | '.join(map(str, str_fields))
 
     def __lt__(self, other):

@@ -4,6 +4,7 @@ import ynabamazonparser as yap
 
 
 def annotate(t, order, items):
+    yap.utils.log_debug('annotate', t, order, items)
     t.date = order.order_date
     if len(items) == 1:
         annotate_with_item(t, items[0])
@@ -14,9 +15,11 @@ def annotate(t, order, items):
         for i, s in zip(items, t.subtransactions):
             annotate_with_item(s, i)
         assert len(t.subtransactions) == len(items)
+    yap.utils.log_info(t)
 
 
 def annotate_with_item(t, i):
+    yap.utils.log_debug('annotate_with_item')
     t.payee_name = i.seller
     t.memo = i.title
     t.amount = i.item_total
@@ -28,16 +31,17 @@ def get_category(item):
 
 
 def get_eligible_transactions(transactions):
+    yap.utils.log_debug('get_eligible_transactions')
     predicates = newer_than, has_blank_or_WIP_memo, matches_account, yap.ynab.transaction.Transaction.is_outflow
     eligible = yap.utils.by(
         filter(
             lambda t: all(p(t) for p in predicates),
             transactions.values()),
         lambda t: t.id)
-    yap.utils.log(
+    yap.utils.log_info(
         'Found %s transactions to attempt to match with Amazon orders' % len(eligible))
     if not eligible:
-        yap.utils.log('No transactions matching predicates')
+        yap.utils.log_info('No transactions matching predicates for matching')
         yap.utils.quit()
     return eligible
 

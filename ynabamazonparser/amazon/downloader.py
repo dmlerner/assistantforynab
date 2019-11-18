@@ -7,11 +7,13 @@ import ynabamazonparser as yap
 
 
 def get_downloaded_csv_filenames():
+    yap.utils.log_debug('get_downloaded_csv_filenames')
     return set(
         glob.glob(os.path.join(yap.settings.downloads_dir, '*.csv')))
 
 
 def wait_for_download(timeout=30):
+    yap.utils.log_debug('wait_for_download')
     filenames_before = get_downloaded_csv_filenames()
     for i in range(timeout):
         filenames = get_downloaded_csv_filenames()
@@ -24,10 +26,12 @@ def wait_for_download(timeout=30):
 
 
 def parse_items(item_dicts):
+    yap.utils.log_debug('parse_items', len(item_dicts))
     return yap.utils.group_by(map(yap.amazon.item.Item.from_dict, item_dicts), lambda i: i.order_id)
 
 
 def parse_orders(order_dicts):
+    yap.utils.log_debug('parse_orders', len(order_dicts))
     orders = list(map(yap.amazon.order.Order.from_dict, order_dicts))
     combined = combine_orders(orders)
     return yap.utils.by(combined, lambda o: o.order_id)
@@ -50,6 +54,7 @@ def read(p):
 
 
 def combine_orders(orders):
+    yap.utils.log_debug('combine_orders')
     combined = {}
     for order in orders:
         if order.order_id in combined:
@@ -60,6 +65,7 @@ def combine_orders(orders):
 
 
 def load(data_type):
+    yap.utils.log_debug('load', data_type)
     assert data_type in data_parsers
     target_path = csv_paths[data_type]
     try:
@@ -74,12 +80,15 @@ def load(data_type):
             d.find_element_by_id('report-type').send_keys(data_type)
             d.find_element_by_id('report-confirm').click()
             path = wait_for_download()
+            yap.utils.log_debug(path, target_path)
             os.rename(path, target_path)
 
     except BaseException:
-        if input('One more try?').lower() != 'q':
+        if input('One more try? [Y/n]').lower() != 'n':
             load(data_type)
         else:
             yap.utils.quit()
 
-    return data_parsers[data_type](read(target_path))
+    list_of_dicts = read(target_path)
+    yap.utils.log_info('Found %s %s' % (len(list_of_dicts), data_type))
+    return data_parsers[data_type](list_of_dicts)
