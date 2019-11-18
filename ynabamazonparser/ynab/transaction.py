@@ -41,15 +41,15 @@ class Transaction(_Transaction):
 
     @date.getter
     def date(self):
-        return datetime.datetime.strptime(self._date, Transaction.date_format)
+        return datetime.datetime.strptime(self._date, yap.ynab.ynab.date_format)
 
     @date.setter
     def date(self, d):
         if isinstance(d, datetime.datetime):
-            self._date = datetime.datetime.strftime(d, Transaction.date_format)
+            self._date = datetime.datetime.strftime(d, yap.ynab.ynab.date_format)
         else:
             # make sure it's a valid format
-            datetime.datetime.strptime(d, Transaction.date_format)
+            datetime.datetime.strptime(d, yap.ynab.ynab.date_format)
             self._date = d
 
     def to_parent(self):

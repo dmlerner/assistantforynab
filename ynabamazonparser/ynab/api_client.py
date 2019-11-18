@@ -51,3 +51,9 @@ def create(transactions):
     if 'error' in response:
         yap.utils.log_error('ERROR:', response)
     yap.utils.log_debug('not using', not_using)
+
+def get_categories():
+    raw_groups = api.categories.get_categories(yap.settings.budget_id).data.category_groups
+    raw_categories = (c for g in raw_groups for c in g.categories)
+    categories = map(yap.ynab.category.Category, raw_categories)
+    return yap.utils.by(categories, lambda c: c.category_group_id)

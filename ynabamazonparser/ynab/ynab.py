@@ -48,7 +48,7 @@ def annotate_for_locating(t):
 
 
 def update_gui():
-    n =len(transactions_to_gui_update)
+    n = len(transactions_to_gui_update)
     yap.utils.log_debug('update_gui', n)
     if not transactions_to_gui_update:
         return
@@ -64,3 +64,6 @@ def update_gui():
     yap.ynab.gui_client.load_gui()
     yap.ynab.gui_client.enter_all_transactions(transactions_to_gui_update)
     yap.utils.log_info(yap.utils.separator)
+
+
+date_format = '%Y-%m-%d'

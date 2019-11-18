@@ -12,7 +12,7 @@ info_verbosity = 1
 error_verbosity = 0
 
 log_verbosity = 2
-print_verbosity = 1
+print_verbosity = 2
 
 max_log_age_days = float('90')
 
