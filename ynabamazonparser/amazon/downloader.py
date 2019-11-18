@@ -84,7 +84,7 @@ def load(data_type):
             os.rename(path, target_path)
 
     except BaseException:
-        yap.utils.log_exception()
+        yap.utils.log_exception_debug()
         if input('One more try? [Y/n]').lower() != 'n':
             load(data_type)
         else:

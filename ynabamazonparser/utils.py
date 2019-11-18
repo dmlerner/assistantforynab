@@ -59,7 +59,7 @@ def quit(gui_quit=False):
     if gui_quit or yap.settings.close_browser_on_finish:
         yap.gui.quit()
     log_file.close()
-    sys.exit()
+#    sys.exit()
 
 
 def group_by(collection, key):
@@ -87,23 +87,25 @@ def debug():
     pdb.set_trace()
 
 
-def log_exception():
-    log_debug(traceback.format_exc())
+def log_exception_debug():
+    log_debug('DEBUG', traceback.format_exc())
 
-date_format = '%y-%m-%d'
+def log_exception():
+    log_error(traceback.format_exc())
+    return
+
+date_format = '%Y-%m-%d'
 def format_date(d, df=date_format):
-    return d.stftime(d, df)
+    return d.strftime(df)
 
 def parse_date(d, df=date_format):
     return datetime.datetime.strptime(d, df)
 
 def format_money(p):
-    assert type(p) is floatk
-    return '$' + round(p, 2)
+    assert type(p) is float
+    return '$' + str(abs(round(p, 2)))
 
-def filter_dict(d, whitelist=None):
+def filter_dict(d, whitelist):
     if not type(d) is dict:
-        if whiltelist is None and '_parent_dict' in d.__dict__:
-            whitelist = d._parent_dict
         d = d.__dict__
     return { k: d[k] for k in d if k in whitelist }

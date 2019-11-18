@@ -8,7 +8,7 @@ def load_gui():
     url = 'https://app.youneedabudget.com/%s/accounts' % yap.settings.budget_id
     d = yap.gui.driver()
     d.get(url)
-    if not yap.gui.get('user-logged-in'):
+    if not yap.gui.get('user-logged-in', require=False):
         selection = input('Must be logged in. Try again? [Y/n]')
         if selection.lower() == 'n':
             yap.utils.quit()

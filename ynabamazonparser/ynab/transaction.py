@@ -1,28 +1,38 @@
 import re
 
-from ynab_sdk.api.models.responses.transactions import Transaction as _Transaction
+from ynab_sdk.api.models.requests.transaction import TransactionRequest
 
 import ynabamazonparser as yap
 
-# transaction_id, amount, memo, payee_id, category_od, transfer_account_id, deleted
 class Transaction:
 
-    def __init__(self, t, **kwargs):
-        assert type(t) is _Transaction
-        d = t.__dict__
-        self._parent_dict = d
-        self.amount = yap.ynab.utils.parse_money(t.amount)
-        self.date = yap.ynab.utils.parse_date(t.date)
-        self.account_name = t.account_name
-        self.payee_name = t.payee_name
-        self.category_name = t.category_name
-        self.memo = t.memo
-        self.id = t.id
-        self.account_id = t.account_id
+    def __init__(self, d):
+        if type(d) is not dict:
+            d = d.__dict__
+        self._parent_dict = d.copy()
+        self.amount = yap.ynab.utils.parse_money(d['amount'])
+        self.date = yap.ynab.utils.parse_date(d['date'])
+        self.account_name = d['account_name']
 
-        # May assume that a _Transaction has no subtransactions, because the api won't return them anyway
-        assert not t.subtransactions
+        self.payee_name = d.get('payee_name')
+        if not self.payee_name: # needed for subtransactions; TODO see that ynab converts this
+            self.payee_id = d['payee_id']
+
+        self.category_name = d.get('category_name')
+        if not self.category_name: # needed for subtransactions
+            self.category_id = d['category_id']
+
+        self.memo = d['memo']
+        self.id = d['id']
+
         self.subtransactions = [] # [ynab.Transaction]
+        if d.get('subtransactions'):
+            for s in d['subtransactions']:
+                d = s.__dict__.copy()
+                d['date'] = yap.ynab.utils.format_date(self.date)
+                d['id'] = self.id
+                d['account_name'] = self.account_name
+                self.subtransactions.append(Transaction(d))
 
     def is_outflow(self):
         return self.amount < 0
@@ -30,20 +40,18 @@ class Transaction:
     def is_inflow(self):
         return self.amount > 0
 
-    def to_parent(self):
+    def to_transaction_request(self):
         d = self.__dict__.copy()
         d['amount'] = yap.ynab.utils.to_milliunits(self.amount)
         d['date'] = yap.ynab.utils.format_date(self.date)
-        yap.utils.filter_dict(d, self._parent_dict)
-        return _Transaction(**d)
+        d = yap.utils.filter_dict(d, TransactionRequest.__dataclass_fields__)
+        return TransactionRequest(**d)
 
     def __repr__(self):
         if not self.subtransactions:
-            str_fields = [self._date, '$' + str(round(self.amount, 2)), self.account_name, self.id]
-            if self.id not in self.memo:
-                str_fields.append(self.memo)
-            return ' | '.join(map(str, str_fields)) 
-        return '\n'.join(map(str, self.subtransactions))[:-5]
+            str_fields = yap.utils.format_date(self.date), yap.utils.format_money(self.amount), self.account_name, self.memo, self.id
+            return ' | '.join(map(str, str_fields))
+        return '\n'.join(map(str, self.subtransactions))
 
 
 def starts_with_id(s):

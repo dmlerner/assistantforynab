@@ -13,11 +13,11 @@ def rename_and_close():
         yap.gui.right_click(edit_account)
         yap.gui.send_keys(str(random.random()))
         yap.gui.get('button-red').click()
-        yap.gui.get_by_text('button-primary', 'Transfer Funds').click()
-        yap.gui.get_by_text('button-primary', 'Finish Closing Account').click()
+        yap.gui.get_by_text('button-primary', 'Transfer Funds', wait=4).click()
+        yap.gui.get_by_text('button-primary', 'Finish Closing Account', wait=4).click()
     except BaseException:
-        yap.utils.log_exception()
-        yap.utils.log_debug('probably already deleted')
+        yap.utils.log_exception_debug()
+        yap.utils.log_debug('probably already deleted or no transactions in account to transfer')
 
 
 def add_new_account():
@@ -67,9 +67,13 @@ def load_test_data():
 
 def prepare_test_account():
     yap.utils.log_debug('prepare_test_account')
-    rename_and_close()
-    add_new_account()
-    load_test_data()
+    try:
+        rename_and_close()
+        add_new_account()
+        load_test_data()
+    except:
+        yap.utils.log_exception()
+        yap.utils.quit(True)
 
 
 prepare_test_account()

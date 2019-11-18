@@ -1,5 +1,4 @@
 from ynab_sdk import YNAB
-from ynab_sdk.api.models.requests.transaction import TransactionRequest
 
 import ynabamazonparser as yap
 
@@ -33,12 +32,8 @@ def update(t):
 
 
 def create(transactions):
-    yap.utils.log_debug('create', transactions)
-    transaction_requests = []
-    for t in transactions:
-        p = yap.utils.filter_dict(t)
-        tr = TransactionRequest(**p)
-        transaction_requests.append(tr)
+    yap.utils.log_debug('create', *transactions)
+    transaction_requests = [t.to_transaction_request() for t in transactions]
     response = api.transactions.create_transactions(yap.settings.budget_id, transaction_requests)
     yap.utils.log_debug('response', response)
     if 'error' in response:

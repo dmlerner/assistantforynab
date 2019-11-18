@@ -33,20 +33,20 @@ def get(class_name, count=None, require=True, predicate=None, wait=30, pause=.25
     return matches
 
 
-def get_by_placeholder(class_name, p, count=None, require=True):
+def get_by_placeholder(class_name, p, count=None, require=True, wait=30):
     yap.utils.log_debug('get_by_placeholder', class_name, p)
     if isinstance(p, str):
         p = (p,)
-    return get(class_name, count, require, lambda e: e.get_attribute('placeholder') in p)
+    return get(class_name, count, require, lambda e: e.get_attribute('placeholder') in p, wait)
 
 
-def get_by_text(class_name, t, count=None, require=True, partial=False):
+def get_by_text(class_name, t, count=None, require=True, wait=30, partial=False):
     yap.utils.log_debug('get_by_text', class_name, t)
     if isinstance(t, str):
         t = (t,)
     if partial:
-        return get(class_name, count, require, lambda e: any(T in e.text for T in t))
-    return get(class_name, count, require, lambda e: e.text in t)
+        return get(class_name, count, require, lambda e: any(T in e.text for T in t), wait)
+    return get(class_name, count, require, lambda e: e.text in t, wait)
 
 
 def click(element, n=1, pause=.5):
@@ -101,15 +101,14 @@ def driver():
         options.add_argument('--disable-extensions')
         _driver = webdriver.Chrome(options=options)
     except BaseException:
-        yap.utils.log_exception()
-        error = traceback.format_exc()
-        if 'data directory is already in use' in error:
+        quit()
+        if 'data directory is already in use' in traceback.format_exc():
+            yap.utils.log_exception_debug()
             yap.utils.log_error('Must close Selenium-controlled Chrome.')
             if input('Try again? [Y/n]').lower() != 'n':
                 return driver()
         else:
-            yap.utils.log_error(error)
-        yap.utils.quit(True)
+            yap.utils.log_exception()
     return _driver
 
 
@@ -124,5 +123,5 @@ def is_alive(d):
         d.execute(Command.STATUS)
         return True
     except BaseException:
-        yap.utils.log_exception()
+        yap.utils.log_exception_debug()
         return False
