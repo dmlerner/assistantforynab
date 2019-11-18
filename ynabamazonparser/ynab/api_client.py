@@ -7,7 +7,8 @@ api = YNAB(yap.settings.api_key)
 
 def get_all_transactions():
     yap.utils.log_debug('get_all_transactions')
-    raw = api.transactions.get_transactions(yap.settings.budget_id).data.transactions
+    response = api.transactions.get_transactions(yap.settings.budget_id)
+    raw = response.data.transactions
     transactions = list(map(yap.ynab.transaction.Transaction, raw))
     yap.utils.log_info('Found %s transactions' % len(transactions or []))
     transactions.sort(key=lambda t: t.date, reverse=True)
@@ -28,6 +29,7 @@ def update(t):
     response = api.transactions.update_transaction(yap.settings.budget_id, p)
     if 'error' in response:
         yap.utils.log_error('ERROR:', response)
+        return
     t.subtransactions = s
 
 
@@ -39,8 +41,12 @@ def create(transactions):
     if 'error' in response:
         yap.utils.log_error('ERROR:', response)
 
+
 def get_categories():
-    raw_groups = api.categories.get_categories(yap.settings.budget_id).data.category_groups
-    raw_categories = (c for g in raw_groups for c in g.categories)
-    categories = map(yap.ynab.category.Category, raw_categories)
+    response = api.categories.get_categories(yap.settings.budget_id)
+    groups = response.data.category_groups
+    for g in groups:
+        for c in g.categories:
+            c['category_group_name'] = g.name
+    categories = (yap.ynab.category.Category(c) for g in groups for c in g.categories)
     return yap.utils.by(categories, lambda c: c.category_group_id)

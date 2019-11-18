@@ -6,9 +6,8 @@ import ynabamazonparser as yap
 
 class Transaction:
 
-    def __init__(self, d):
-        if type(d) is not dict:
-            d = d.__dict__
+    def __init__(self, t):
+        d = t if type(t) is dict else t.__dict__
         self._parent_dict = d.copy()
         self.amount = yap.ynab.utils.parse_money(d['amount'])
         self.date = yap.ynab.utils.parse_date(d['date'])

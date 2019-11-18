@@ -1,6 +1,5 @@
 import re
 import datetime
-from dataclasses import dataclass
 
 from ynab_sdk.api.models.responses.category import Category as _Category
 '''
@@ -38,44 +37,21 @@ from ynab_sdk.api.models.responses.category import Category as _Category
 '''
 
 
-@dataclass
 class Category(_Category):
     def __init__(self, c):
-        d = c.__dict__
-        self._balance = d['balance']  # hacky
-        d['balance'] /= 1000
-        super().__init__(**d)
-        self._date = t.date
-
-    @property
-    def balance(self):
-        return self._balance
-
-    @property
-    def date(self):
-        return self._date
-
-    # These allow us to not think about milliunits
-    @balance.getter
-    def balance(self):
-        return abs(self._balance / 1000)
-
-    @balance.setter
-    def balance(self, a):
-        self._balance = abs(1000 * a) * (1 if self._balance > 0 else -1)
-
-    @date.getter
-    def date(self):
-        return datetime.datetime.strptime(self._date, yap.ynab.ynab.date_format)
-
-    @date.setter
-    def date(self, d):
-        if isinstance(d, datetime.datetime):
-            self._date = datetime.datetime.strftime(d, yap.ynab.ynab.date_format)
-        else:
-            # make sure it's a valid format
-            datetime.datetime.strptime(d, yap.ynab.ynab.date_format)
-            self._date = d
+        d = c if type(c) is dict else c.__dict__
+        self._parent_dict = d.copy()
+        self.id = d['id']
+        self.name = d['name']
+        self.budgeted = d['budgeted']
+        self.activity = d['activity']
+        self.balance = yap.utils.parse_money(d['balance'])
+        self.goal_type = d['goal_type']
+        self.goal_target = yap.utils.parse_money(d['goal_target'])
+        self.goal_target_month = yap.ynab.utils.parse_date(d['goal_target_month'])
+        self.category_group_name = d['category_group_name']
+        self.category_group_id = d['category_group_id']
+        self.is_credit_card_payment = self.category_group_name in yap.settings.credit_card_group_names
 
     def to_parent(self):
         d = self.__dict__.copy()
@@ -94,7 +70,7 @@ class Category(_Category):
         return '\n'.join(map(str, self.subtransactions))[:-5]
 
     def goal_budget_rate(self):
-        assert self.goal_type in 'MF', 'TBD', 'NEED', None
+        assert self.goal_type in ('MF', 'TBD', 'NEED', None)
         '''
         8 types
         payment
@@ -120,7 +96,7 @@ class Category(_Category):
             next_month = 1
         first_of_coming_month = datetime.datetime(year + next_month == 1, next_month, 1)
 
-        if savings:
+        if not self.is_credit_card_payment:
             if gt == 'NEED':
                 progress = self.budgeted
                 if self.goal_target_month:
@@ -138,7 +114,7 @@ class Category(_Category):
                     deadline = self.goal_target_month
                 else:
                     return None
-        elif:  # payment
+        else:
             if gt == 'MF':  # budget an amount this month
                 progress = self.budgeted
                 deadline = first_of_coming_month

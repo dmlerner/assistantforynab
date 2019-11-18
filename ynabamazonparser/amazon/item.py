@@ -5,7 +5,7 @@ class Item:
     ''' Contains all fields for an item as downloaded in the csv '''
 
     def __init__(self, d):
-        self._parent_fields = d
+        self._parent_dict = d
         self.order_id = d['order_id']
 
         self.order_date = yap.amazon.utils.parse_date(d['order_date'])

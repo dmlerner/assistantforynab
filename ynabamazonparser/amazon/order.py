@@ -4,7 +4,7 @@ import ynabamazonparser as yap
 class Order:
     ''' Contains all fields for an order as downloaded in the csv '''
     def __init__(self, d):
-        self._parent_fields = d
+        self._parent_dict = d
         self.order_date = yap.amazon.utils.parse_date(d['order_date'])
         self.order_id = d['order_id']
         self.shipment_date = yap.amazon.utils.parse_date(d['shipment_date'])
@@ -31,8 +31,8 @@ class Order:
     def __add__(self, other):
         assert isinstance(other, Order)
         assert other.order_id == self.order_id
-        combined_dict = self._parent_fields.copy()
-        other_dict = other._parent_fields.copy()
+        combined_dict = self._parent_dict.copy()
+        other_dict = other._parent_dict.copy()
         for k in other.__dict__:
             if other_dict[k] == combined_dict[k]:
                 continue

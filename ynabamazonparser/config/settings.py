@@ -56,3 +56,6 @@ force_download_amazon = False
 ' TODO: variable controlling if transactions stay checked in the UI when done; currently they do '
 ' TODO: call get transactions via official ruby api '
 ' TODO: configurable amazon download length; currently 30 days '
+
+# As opposed to savings; used for goal setting
+credit_card_group_names = ['Credit Card Payments']
