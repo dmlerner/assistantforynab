@@ -23,7 +23,7 @@ chrome_data_dir = os.path.join(
     home, '\\AppData\\Local\\Google\\Chrome\\User Data\\Default')
 ' NOTE: must have the chromedriver named chromedriver (not chromedriver.exe), somewhere in your PATH '
 
-downloads_path = os.path.join(home, 'Downloads')
+downloads_dir = os.path.join(home, 'Downloads')
 config_dir = os.path.split(os.path.realpath(__file__))[0]
 root_dir = config_dir[:config_dir.rindex(os.path.sep)]
 log_dir = os.path.join(root_dir, 'log')

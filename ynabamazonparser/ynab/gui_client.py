@@ -112,8 +112,8 @@ def enter_all_transactions(transactions):
             enter_transaction(t)
         except BaseException:
             ' Likely because there were multiple search results '
+            yap.utils.log_exception()
             yap.utils.log_error('Error on transaction', t)
-            yap.utils.log_error(traceback.format_exc())
             search = yap.gui.get('transaction-search-input')
             search.clear()
     yap.utils.quit()

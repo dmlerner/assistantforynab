@@ -101,6 +101,7 @@ def driver():
         options.add_argument('--disable-extensions')
         _driver = webdriver.Chrome(options=options)
     except BaseException:
+        yap.utils.log_exception()
         error = traceback.format_exc()
         if 'data directory is already in use' in error:
             yap.utils.log_error('Must close Selenium-controlled Chrome.')
@@ -123,4 +124,5 @@ def is_alive(d):
         d.execute(Command.STATUS)
         return True
     except BaseException:
+        yap.utils.log_exception()
         return False

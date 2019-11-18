@@ -4,6 +4,7 @@ import datetime
 import os
 import sys
 import pdb
+import traceback
 
 import ynabamazonparser as yap
 
@@ -84,3 +85,7 @@ def equalish(a, b):
 
 def debug():
     pdb.set_trace()
+
+
+def log_exception():
+    log_debug(traceback.format_exc())

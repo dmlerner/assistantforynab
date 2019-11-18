@@ -16,6 +16,7 @@ def rename_and_close():
         yap.gui.get_by_text('button-primary', 'Transfer Funds').click()
         yap.gui.get_by_text('button-primary', 'Finish Closing Account').click()
     except BaseException:
+        yap.utils.log_exception()
         yap.utils.log_debug('probably already deleted')
 
 
