@@ -35,22 +35,14 @@ def update(t):
 def create(transactions):
     yap.utils.log_debug('create', transactions)
     transaction_requests = []
-    not_using = set()
     for t in transactions:
-        p = t.to_parent().__dict__
-        for k in p:
-            if k not in TransactionRequest.__dataclass_fields__.keys():
-                not_using.add(k)
-        for k in not_using:
-            if k in p:
-                del p[k]
+        p = yap.utils.filter_dict(t)
         tr = TransactionRequest(**p)
         transaction_requests.append(tr)
     response = api.transactions.create_transactions(yap.settings.budget_id, transaction_requests)
     yap.utils.log_debug('response', response)
     if 'error' in response:
         yap.utils.log_error('ERROR:', response)
-    yap.utils.log_debug('not using', not_using)
 
 def get_categories():
     raw_groups = api.categories.get_categories(yap.settings.budget_id).data.category_groups

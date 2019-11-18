@@ -100,3 +100,10 @@ def parse_date(d, df=date_format):
 def format_money(p):
     assert type(p) is floatk
     return '$' + round(p, 2)
+
+def filter_dict(d, whitelist=None):
+    if not type(d) is dict:
+        if whiltelist is None and '_parent_dict' in d.__dict__:
+            whitelist = d._parent_dict
+        d = d.__dict__
+    return { k: d[k] for k in d if k in whitelist }
