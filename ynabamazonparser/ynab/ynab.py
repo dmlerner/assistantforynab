@@ -66,4 +66,3 @@ def update_gui():
     yap.utils.log_info(yap.utils.separator)
 
 
-date_format = '%Y-%m-%d'

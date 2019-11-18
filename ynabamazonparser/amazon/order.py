@@ -1,81 +1,44 @@
-import datetime
-import dataclasses
-
 import ynabamazonparser as yap
 
 
-@dataclasses.dataclass
 class Order:
     ''' Contains all fields for an order as downloaded in the csv '''
-    _order_date: str
-    order_id: str
-    payment_instrument_type: str
-    website: str
-    purchase_order_number: str
-    ordering_customer_email: str
-    shipment_date: str
-    shipping_address_name: str
-    shipping_address_street_1: str
-    shipping_address_street_2: str
-    shipping_address_city: str
-    shipping_address_state: str
-    shipping_address_zip: str
-    order_status: str
-    carrier_name_and_tracking_number: str
-    subtotal: str
-    shipping_charge: str
-    tax_before_promotions: str
-    total_promotions: str
-    tax_charged: str
-    _total_charged: str
-    buyer_name: str
-    group_name: str
+    def __init__(self, d):
+        self._parent_fields = d
+        self.order_date = yap.amazon.utils.parse_date(d['order_date'])
+        self.order_id = d['order_id']
+        self.shipment_date = yap.amazon.utils.parse_date(d['shipment_date'])
+        self.total_charged = yap.amazon.utils.parse_money(d['total_charged'])
 
-    def from_dict(d):
-        return Order(*d.values())
-
-    @property
-    def order_date(self):
-        return to_datetime(self._order_date)
-
-    @property
-    def total_charged(self):
-        return to_float(self._total_charged)
 
     def __repr__(self):
-        fields = self._order_date, self._total_charged, self.order_id
+        fields = yap.amazon.utils.date_format(self.order_date),\
+            yap.utils.format_money(self.total_charged), self.order_id
         return ' | '.join(map(str, fields))
 
+    '''
+    I think I'm not using this...
     def __lt__(self, other):
         assert isinstance(other, yap.amazon.Item)
         return self.order_date < other.order_date
 
     def __in__(self, order):
         assert isinstance(order, yap.order.Order)
-        return self._order_id == order._order_id
+        return self.order_id == order_order_id
+    '''
 
+    # used to combine orders that shipped separately
     def __add__(self, other):
         assert isinstance(other, Order)
         assert other.order_id == self.order_id
-        combined_dict = self.__dict__.copy()
-        other_dict = other.__dict__.copy()
+        combined_dict = self._parent_fields.copy()
+        other_dict = other._parent_fields.copy()
         for k in other.__dict__:
             if other_dict[k] == combined_dict[k]:
                 continue
             if '$' in other_dict[k] and '$' in combined_dict[k]:
-                combined_dict[k] = '$' + str(to_float(other_dict[k]) + to_float(combined_dict[k]))
+                combined_dict[k] = '$' + str(parse_money(other_dict[k]) + parse_money(combined_dict[k]))
             else:
                 combined_dict[k] += ', ' + other_dict[k]
-        return Order.from_dict(combined_dict)
+        return Order(combined_dict)
 
-
-def to_float(price):
-    ''' $123.45::str -> 123.45::float '''
-    return float(price[1:])
-
-
-date_format = '%m/%d/%y'
-
-
-def to_datetime(d):
-    return datetime.datetime.strptime(d, date_format)

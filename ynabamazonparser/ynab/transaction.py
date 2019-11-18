@@ -1,56 +1,27 @@
 import re
-import datetime
-from dataclasses import dataclass
 
 from ynab_sdk.api.models.responses.transactions import Transaction as _Transaction
 
+import ynabamazonparser as yap
 
-@dataclass
-class Transaction(_Transaction):
-    date_format = '%Y-%m-%d'
+
+class Transaction:
 
     def __init__(self, t):
+        assert type(t) is _Transaction
         d = t.__dict__
-        self._amount = d['amount']  # hacky
-        d['amount'] /= 1000
-        super().__init__(**d)
-        self._date = t.date
-
-    @property
-    def amount(self):
-        return self._amount
-
-    @property
-    def date(self):
-        return self._date
-
-    # These allow us to not think about milliunits
-    @amount.getter
-    def amount(self):
-        return abs(self._amount / 1000)
-
-    @amount.setter
-    def amount(self, a):
-        self._amount = abs(1000 * a) * (1 if self._amount > 0 else -1)
+        self._parent_dict = d
+        self.amount = yap.ynab.utils.parse_money(t.amount)
+        self.date = yap.ynab.utils.parse_date(t.date)
+        self.account_name = t.account_name
+        self.id = t.id
+        self.subtransactions = [Transaction(s) for s in t.subtransactions]
 
     def is_outflow(self):
-        return self._amount < 0
+        return self.amount < 0
 
     def is_inflow(self):
-        return self._amount > 0
-
-    @date.getter
-    def date(self):
-        return datetime.datetime.strptime(self._date, yap.ynab.ynab.date_format)
-
-    @date.setter
-    def date(self, d):
-        if isinstance(d, datetime.datetime):
-            self._date = datetime.datetime.strftime(d, yap.ynab.ynab.date_format)
-        else:
-            # make sure it's a valid format
-            datetime.datetime.strptime(d, yap.ynab.ynab.date_format)
-            self._date = d
+        return self.amount > 0
 
     def to_parent(self):
         d = self.__dict__.copy()

@@ -89,3 +89,14 @@ def debug():
 
 def log_exception():
     log_debug(traceback.format_exc())
+
+date_format = '%y-%m-%d'
+def format_date(d, df=date_format):
+    return d.stftime(d, df)
+
+def parse_date(d, df=date_format):
+    return datetime.datetime.strptime(d, df)
+
+def format_money(p):
+    assert type(p) is floatk
+    return '$' + round(p, 2)
