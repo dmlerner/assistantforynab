@@ -10,8 +10,9 @@ def main():
     a.update_ynab()
     yap.utils.log_info('Success')
     '''
-    yap.ynab.api_client.get_categories()
+    categories = yap.ynab.api_client.get_categories()
+    return categories
 
 
 if __name__ == '__main__':
-    main()
+    cat=main()

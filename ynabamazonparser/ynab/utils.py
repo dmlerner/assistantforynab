@@ -15,6 +15,8 @@ date_format = '%Y-%m-%d'
 
 
 def parse_date(d):
+    if not d:
+        return None
     return yap.utils.parse_date(d, date_format)
 
 
@@ -27,4 +29,4 @@ def first_of_coming_month():
     next_month = now.month + 1
     if next_month == 13:
         next_month = 1
-    return datetime.datetime(now.year + next_month == 1, next_month, 1)
+    return datetime.datetime(now.year + (next_month == 1), next_month, 1)

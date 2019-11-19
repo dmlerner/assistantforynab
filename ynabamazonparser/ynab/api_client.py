@@ -45,8 +45,8 @@ def create(transactions):
 def get_categories():
     response = api.categories.get_categories(yap.settings.budget_id)
     groups = response.data.category_groups
+    categories = []
     for g in groups:
         for c in g.categories:
-            c['category_group_name'] = g.name
-    categories = (yap.ynab.category.Category(c) for g in groups for c in g.categories)
-    return yap.utils.by(categories, lambda c: c.category_group_id)
+            categories.append(yap.ynab.category.Category(c, g.name))
+    return yap.utils.by(categories, lambda c: c.id)

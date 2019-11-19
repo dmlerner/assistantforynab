@@ -57,7 +57,7 @@ clear_old_logs()
 def quit(gui_quit=False):
     log_info('Quitting')
     if gui_quit or yap.settings.close_browser_on_finish:
-        yap.gui.quit()
+        yap.utils.gui.quit()
     log_file.close()
 #    sys.exit()
 
@@ -72,7 +72,9 @@ def group_by(collection, key):
 def by(collection, key):
     d = collections.OrderedDict()
     for c in collection:
-        d[key(c)] = c
+        k = key(c)
+        assert k not in d
+        d[k] = c
     return d
 
 
