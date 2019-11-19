@@ -49,10 +49,12 @@ class Category(_Category):
         self.goal_type = d['goal_type']
         self.goal_target = yap.utils.parse_money(d['goal_target'])
         self.goal_target_month = yap.ynab.utils.parse_date(d['goal_target_month'])
+        self.goal_goal_month = yap.ynab.utils.parse_date(d['goal_goal_month'])
         self.category_group_name = d['category_group_name']
         self.category_group_id = d['category_group_id']
         self.is_credit_card_payment = self.category_group_name in yap.settings.credit_card_group_names
 
+    '''
     def to_parent(self):
         d = self.__dict__.copy()
         d['balance'] = int(self._balance)
@@ -68,37 +70,60 @@ class Category(_Category):
                 str_fields.append(self.memo)
             return ' | '.join(map(str, str_fields))
         return '\n'.join(map(str, self.subtransactions))[:-5]
+    '''
 
-    def goal_budget_rate(self):
-        assert self.goal_type in ('MF', 'TBD', 'NEED', None)
-        '''
-        8 types
-        payment
-            None
-            MF "pay specific amount monthly" no specific end date chase amazon 2
-            TBD "pay off balance by date" amount adjusts if you pay more/less than you should chase amazon
-        saving
-            None
-            NEED w/o goal_target_month "monthly" shaina spending monthly
-            NEED w/ goal_target_month "by date" mark/rae spending by date
-            MF ('monthly') savings monthly contribution
-            TBD ('target budgeted by date') can spend from it xiaolu savings target balance
-                may or may not have a date
-                if not, no way to have a target rate
-        '''
-        gt = self.goal_type
-        if not gt:
-            return None
+    def goal_amount_remaining(self):
+        if self.goal_type in ('NEED', 'MF'):
+            progress = self.budgeted
+        elif self.goal_type in ('TBD',):
+            progress = self.balance
+        return self.goal_target - progress
 
-        now = datetime.datetime.now()
-        next_month = now.month + 1
-        if next_month == 13:
-            next_month = 1
-        first_of_coming_month = datetime.datetime(year + next_month == 1, next_month, 1)
-
+    def goal_amount_remaining(self):
         if not self.is_credit_card_payment:
             if gt == 'NEED':
                 progress = self.budgeted
+
+    def goal_time_remaining(self):
+        if self.goal_type == 'MF' or self.is_credit_card_payment and self.goal_type == 'NEED':
+            deadline = first_of_coming_month
+        elif self.goal_type == 'NEED' and self.goal_target_month:
+            deadline = self.goal_target_month
+
+
+        return self.goal_target_month - self.goal_creation_month
+'''
+    def goal_percentage(self):
+        return self.goal_amount_remaining() / self.goal_target
+
+         if not self.is_credit_card_payment:
+             if gt == 'NEED':
+-                progress = self.budgeted
+                 if self.goal_target_month:
+                     deadline = self.goal_target_month
+                 else:
+@@ -110,16 +107,13 @@ class Category(_Category):
+                 deadline = first_of_coming_month
+             elif gt == 'TBD':
+                 if self.goal_target_month:
+-                    progress = self.balance
+                     deadline = self.goal_target_month
+                 else:
+                     return None
+         else:
+             if gt == 'MF':  # budget an amount this month
+-                progress = self.budgeted
+                 deadline = first_of_coming_month
+             elif gt == 'TBD':  # have an amount by some month
+-                progress = self.balance
+                 deadline = self.goal_target_month
+'''
+
+
+    def goal_budget_rate(self):
+
+        if not self.is_credit_card_payment:
+            if gt == 'NEED':
                 if self.goal_target_month:
                     deadline = self.goal_target_month
                 else:
@@ -110,16 +135,13 @@ class Category(_Category):
                 deadline = first_of_coming_month
             elif gt == 'TBD':
                 if self.goal_target_month:
-                    progress = self.balance
                     deadline = self.goal_target_month
                 else:
                     return None
         else:
             if gt == 'MF':  # budget an amount this month
-                progress = self.budgeted
                 deadline = first_of_coming_month
             elif gt == 'TBD':  # have an amount by some month
-                progress = self.balance
                 deadline = self.goal_target_month
 
         remaining_amount = self.goal_target - progress

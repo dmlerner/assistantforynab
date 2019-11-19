@@ -109,3 +109,6 @@ def filter_dict(d, whitelist):
     if not type(d) is dict:
         d = d.__dict__
     return { k: d[k] for k in d if k in whitelist }
+
+def now():
+    return datetime.datetime.now()
