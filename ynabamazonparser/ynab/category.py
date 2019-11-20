@@ -44,7 +44,7 @@ class Category:
         return self.goal_amount_remaining() / self.goal_days_remaining()
 
     def __repr__(self):
-        money_fields = tuple(map(yap.utils.format_money, (self.goal_amount_remaining(), self.balance, self.budgeted)))
+        money_fields = tuple(map(yap.utils.format_money, (self.goal_amount_remaining(), self.balance, self.budgeted, self.budget_rate_required())))
         str_fields = (self.name, self.goal_days_remaining()) + money_fields
         return ' | '.join(map(str, str_fields))
 

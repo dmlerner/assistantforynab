@@ -13,26 +13,26 @@ class Budgeter:
         unimportant = reversed(self.priorities)
         sink = next(important)
         source = next(unimportant)
-        excess = 0
         while source is not sink:
-            if yap.utils.equalish(sink.get_total_need(), 0):
+            need = sink.get_total_need()
+            if yap.utils.equalish(need, 0):
                 sink = next(important)
             available = source.get_total_available()
-            if yap.utils.equalish(available, 0):
-                # TODO: do I need equalish, here, in 28, or elsewhere?
-                # fuck floats
+            if available <= 0:
                 source = next(unimportant)
-            # generally this will return zero, unless all source goals entail negative balance
-            excess += source.distribute(-available)
-            excess = source.distribute(sink.distribute(available + excess))
-        return excess
+            use = min(available, need)
+            before = source.get_total_available() + sink.get_total_available()
+            source.distribute(-use)
+            sink.distribute(use)
+            after = source.get_total_available() + sink.get_total_available()
+            assert yap.utils.equalish(after, before)
 
     def __repr__(self):
         return '\n'.join(map(str, self.priorities))
 
 
 class Priority:
-    ''' Allows negative balance, but you really shouldn't do that '''
+
     def __init__(self, categories, weights=None):
         assert all(isinstance(c, yap.ynab.category.Category) for c in categories)
         # inherently, priority of a goal with days remaining is higher, so it makes no sense to mix them
@@ -59,34 +59,41 @@ class Priority:
         weighted_days = [c.goal_days_remaining() * 1 / w for (w, c) in zip(self.weights, self.categories)]
         return [w / sum(weighted_days) for w in weighted_days]
 
-    def redistribute(self):
+    def distribute(self, amount=0):
         '''
         Make all goals have equal budget rates required
         Return any excess
         '''
+        yap.utils.log_debug(self, amount)
+        assert self.get_total_available() + amount >= 0
+        self.categories[0].adjust_budget(amount)
         need = self.get_total_need()
-        if need > 0:
-            rates = self.get_normalized_rates()
-            for r, c in zip(rates, self.categories):
-                c.adjust_budget(c.goal_amount_remaining() - r * need)
-            assert yap.utils.equalish(self.get_total_need(), need)
-            # return 0 # this happens implicitly
+        rates = self.get_normalized_rates()
+        for r, c in zip(rates, self.categories):
+            c.adjust_budget(c.goal_amount_remaining() - r * need)
 
-        else:
-            # if need <= 0:
-            for c in self.categories:
-                c.adjust_budget(c.goal_amount_remaining())
-            assert yap.utils.equalish(self.get_total_need(), 0)
-            # return -need # happens implicitly
+        assert yap.utils.equalish(self.get_total_need(), need)
 
         wc = list(zip(self.weights, self.categories))
         assert all(yap.utils.equalish(w1 * c1.budget_rate_required(), w2 * c2.budget_rate_required())
                    for ((w1, c1), (w2, c2)) in zip(wc, wc[1:]))
-        return self.get_total_need() - need
 
-    def distribute(self, amount):
-        self.categories[0].adjust_budget(amount)
-        return self.redistribute()
+        self.fix_negative_balance()
+
+    def fix_negative_balance(self):
+        ''' Want distribute to never make sum of negative balances worse '''
+        need = self.get_total_need()
+        need_fixing = [c for c in self.categories if c.balance < 0]  # TODO generalize along with get_total_available
+        if not need_fixing:
+            return
+        deficit = sum(c.balance for c in need_fixing)
+        for c in need_fixing:
+            self.categories.remove(c)
+            c.adjust_budget(-c.balance)
+        self.distribute(deficit)
+        self.categories.extend(need_fixing)
+        assert yap.utils.equalish(self.get_total_need(), need)
 
     def __repr__(self):
+        self.categories.sort(key=lambda c: c.name)
         return '\n'.join(map(str, self.categories))

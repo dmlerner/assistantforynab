@@ -32,10 +32,10 @@ if __name__ == '__main__':
     c.goal_target_month = yap.ynab.utils.first_of_coming_month() + 30*one_day
     for C in p.categories:
         C.adjust_budget(C.goal_amount_remaining())
-    yap.utils.log_debug(p.redistribute())
-    a.adjust_budget(-2)
-    b.adjust_budget(-2)
-    p.redistribute()
+    yap.utils.log_debug(p.distribute())
+    a.adjust_budget(-200)
+    b.adjust_budget(-200)
+    p.distribute()
     yap.utils.log_debug(p)
 
     p2 = yap.assistant.budgeter.Priority(cat[3:6], (1, 1, 2))
@@ -48,10 +48,11 @@ if __name__ == '__main__':
     f.goal_target_month = yap.ynab.utils.first_of_coming_month() + 30*one_day
     for C in p2.categories:
         C.adjust_budget(C.goal_amount_remaining())
-    yap.utils.log_debug(p2.redistribute())
-    d.adjust_budget(+2)
-    p2.redistribute()
+    yap.utils.log_debug(p2.distribute())
+    d.adjust_budget(+200)
+    p2.distribute()
     yap.utils.log_debug(p2)
+    yap.utils.log_debug('...')
 
     bud = yap.assistant.budgeter.Budgeter(p, p2)
     bud.budget()
