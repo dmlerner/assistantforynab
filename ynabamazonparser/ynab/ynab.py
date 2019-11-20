@@ -64,5 +64,3 @@ def update_gui():
     yap.ynab.gui_client.load_gui()
     yap.ynab.gui_client.enter_all_transactions(transactions_to_gui_update)
     yap.utils.log_info(yap.utils.separator)
-
-

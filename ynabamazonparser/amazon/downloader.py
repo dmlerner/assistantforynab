@@ -72,7 +72,7 @@ def load(data_type):
         if yap.settings.force_download_amazon or missing_csv(data_type):
             d = yap.utils.gui.driver()
             url = 'https://smile.amazon.com/gp/b2b/reports'
-            if not url in d.current_url:
+            if url not in d.current_url:
                 d.get(url)
 
             d.find_element_by_id('report-last30Days').click()

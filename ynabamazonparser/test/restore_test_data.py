@@ -71,7 +71,7 @@ def prepare_test_account():
         rename_and_close()
         add_new_account()
         load_test_data()
-    except:
+    except BaseException:
         yap.utils.log_exception()
         yap.utils.quit(True)
 

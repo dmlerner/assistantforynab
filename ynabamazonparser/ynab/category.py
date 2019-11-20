@@ -5,15 +5,17 @@ from ynab_sdk.api.models.responses.category import Category as _Category
 
 import ynabamazonparser as yap
 
+
 class Category:
     def __init__(self, c, category_group_name=None):
-        d = c if type(c) is dict else c.__dict__
+        d = c if isinstance(c, dict) else c.__dict__
+        self.x = 0
         self._parent_dict = d.copy()
         self.id = d['id']
         self.name = d['name']
         self.budgeted = d['budgeted']
         self.activity = d['activity']
-        self.balance = yap.ynab.utils.parse_money(d['balance'])
+        self.balance = yap.ynab.utils.parse_money(d['balance'])  # "Available" in web app
         self.goal_type = d['goal_type']
         self.goal_target = yap.ynab.utils.parse_money(d['goal_target'])
         self.goal_target_month = yap.ynab.utils.parse_date(d['goal_target_month'])
@@ -27,7 +29,7 @@ class Category:
         deadline = self.goal_target_month or yap.ynab.utils.first_of_coming_month()
         days_timedelta = deadline - yap.utils.now()
         one_day = datetime.timedelta(1)
-        return days_timedelta.total_seconds() / one_day.total_seconds()
+        return days_timedelta.total_seconds() / one_day.total_seconds() + self.x
 
     def goal_amount_remaining(self):
         progress = self.balance if self.goal_type == 'TBD' else self.budgeted
@@ -36,7 +38,13 @@ class Category:
     def budget_rate_required(self):
         return self.goal_amount_remaining() / self.goal_days_remaining()
 
-
     def __repr__(self):
-        str_fields = self.name, self.goal_days_remaining(), self.goal_amount_remaining()
+        money_fields = tuple(map(yap.utils.format_money, (self.goal_amount_remaining(), self.balance, self.budgeted)))
+        str_fields = (self.name, self.goal_days_remaining()) + money_fields
         return ' | '.join(map(str, str_fields))
+
+    def adjust_budget(self, amount):
+        yap.utils.log_debug('cat.adjusting', 'amount=%s'%amount, self)
+        self.budgeted += amount
+        self.balance += amount
+        yap.utils.log_debug('cat.adjusted', 'amount=%s'%amount, self)

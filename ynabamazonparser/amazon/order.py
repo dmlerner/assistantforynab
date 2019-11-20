@@ -3,13 +3,13 @@ import ynabamazonparser as yap
 
 class Order:
     ''' Contains all fields for an order as downloaded in the csv '''
+
     def __init__(self, d):
         self._parent_dict = d
         self.order_date = yap.amazon.utils.parse_date(d['order_date'])
         self.order_id = d['order_id']
         self.shipment_date = yap.amazon.utils.parse_date(d['shipment_date'])
         self.total_charged = yap.amazon.utils.parse_money(d['total_charged'])
-
 
     def __repr__(self):
         fields = yap.amazon.utils.date_format(self.order_date),\
@@ -41,4 +41,3 @@ class Order:
             else:
                 combined_dict[k] += ', ' + other_dict[k]
         return Order(combined_dict)
-

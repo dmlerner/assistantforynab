@@ -46,7 +46,7 @@ def clear_old_logs():
     log_debug('clear_old_logs')
     for name in glob.glob(yap.settings.log_dir):
         path = os.path.join(yap.settings.log_dir, name)
-        modified_time  = datetime.datetime.fromtimestamp(os.path.getmtime(path))
+        modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(path))
         if not newer_than(modified_time, yap.settings.max_log_age_days):
             os.remove(path)
 
@@ -92,25 +92,33 @@ def debug():
 def log_exception_debug():
     log_debug('DEBUG', traceback.format_exc())
 
+
 def log_exception():
     log_error(traceback.format_exc())
     return
 
+
 date_format = '%Y-%m-%d'
+
+
 def format_date(d, df=date_format):
     return d.strftime(df)
+
 
 def parse_date(d, df=date_format):
     return datetime.datetime.strptime(d, df)
 
+
 def format_money(p):
-    assert type(p) is float
+    assert type(p) in (float, int)
     return '$' + str(abs(round(p, 2)))
+
 
 def filter_dict(d, whitelist):
     if not type(d) is dict:
         d = d.__dict__
-    return { k: d[k] for k in d if k in whitelist }
+    return {k: d[k] for k in d if k in whitelist}
+
 
 def now():
     return datetime.datetime.now()

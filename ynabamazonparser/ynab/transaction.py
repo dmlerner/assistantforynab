@@ -4,27 +4,28 @@ from ynab_sdk.api.models.requests.transaction import TransactionRequest
 
 import ynabamazonparser as yap
 
+
 class Transaction:
 
     def __init__(self, t):
-        d = t if type(t) is dict else t.__dict__
+        d = t if isinstance(t, dict) else t.__dict__
         self._parent_dict = d.copy()
         self.amount = yap.ynab.utils.parse_money(d['amount'])
         self.date = yap.ynab.utils.parse_date(d['date'])
         self.account_name = d['account_name']
 
         self.payee_name = d.get('payee_name')
-        if not self.payee_name: # needed for subtransactions; TODO see that ynab converts this
+        if not self.payee_name:  # needed for subtransactions; TODO see that ynab converts this
             self.payee_id = d['payee_id']
 
         self.category_name = d.get('category_name')
-        if not self.category_name: # needed for subtransactions
+        if not self.category_name:  # needed for subtransactions
             self.category_id = d['category_id']
 
         self.memo = d['memo']
         self.id = d['id']
 
-        self.subtransactions = [] # [ynab.Transaction]
+        self.subtransactions = []  # [ynab.Transaction]
         if d.get('subtransactions'):
             for s in d['subtransactions']:
                 d = s.__dict__.copy()
@@ -48,7 +49,9 @@ class Transaction:
 
     def __repr__(self):
         if not self.subtransactions:
-            str_fields = yap.utils.format_date(self.date), yap.utils.format_money(self.amount), self.account_name, self.memo, self.id
+            str_fields = yap.utils.format_date(
+                self.date), yap.utils.format_money(
+                self.amount), self.account_name, self.memo, self.id
             return ' | '.join(map(str, str_fields))
         return '\n'.join(map(str, self.subtransactions))
 
