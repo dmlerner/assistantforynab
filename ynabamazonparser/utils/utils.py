@@ -111,7 +111,7 @@ def parse_date(d, df=date_format):
 
 def format_money(p):
     assert type(p) in (float, int)
-    return '$' + str(abs(round(p, 2)))
+    return ('' if p>=0 else '-') + '$' + str(abs(round(p, 2)))
 
 
 def filter_dict(d, whitelist):

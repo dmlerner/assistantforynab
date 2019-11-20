@@ -26,8 +26,14 @@ class Priority:
         return sum(c.goal_amount_remaining() for c in self.categories)
 
     def get_normalized_rates(self):
-        rates = [c.budget_rate_required() for c in self.categories]
-        return [r / sum(rates) for r in rates]
+        # rates = [c.budget_rate_required() for c in self.categories]
+        days = [c.goal_days_remaining() for c in self.categories]
+        # each cateogry's fractional need should equal its fraction of sum(days)
+        # in order ot hav equal rates
+        # and fractional need is jus tanother name for normalized rate
+        need = self.get_total_need()
+        # need of a category should be proportional its goal days remaining
+        return [d / sum(days) for d in days]
 
     def redistribute(self):
         '''
@@ -56,6 +62,7 @@ class Priority:
             # return -need # happens implicitly
 
         yap.utils.log_debug('redistributed', s, '.'*20, self)
+        assert all(yap.utils.equalish(a.budget_rate_required(), b.budget_rate_required()) for (a, b) in zip(self.categories, self.categories[1:]))
         return self.get_total_need() - need
 
     def distribute(self, amount):
