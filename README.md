@@ -1,9 +1,14 @@
 
 **This is an alpha version. Use at your own risk. I suggest backing up your budget first.**
 # What's this?
-[YNAB](ynab.com) is excellent budgeting software, but it does a lousy job of importing Amazon transactions. `ynabamazonimporter` downloads some data from your Amazon account and uses it to annotate the transactions in YNAB. 
+[YNAB](ynab.com) is excellent budgeting software, but is missing some essential features:
 
-It adds the item title and amount to each YNAB transaction. For multi-item orders, typically YNAB will have one transaction. This script splits the transaction and has the name/price for each item.
+1) Automatic distribution of funds to meet category goals
+2) Goals on a specific date
+3) Backup and restore your budget
+4) Split Amazon transactions into individual, labeled items
+5) API for adding/modifying split transactions
+
 
 ![Demo GIF](demo.gif)
 
@@ -29,7 +34,7 @@ cp default_client.py ../lib/python3.8/site-packages/ynab_sdk/utils/clients
 
 ```
 source $YOUR_CHOICE_OF_DIRECTORY_NAME/bin/activate
-python3 $YOUR_CHOICE_OF_DIRECTORY_NAME/ynabamazonparser/driver.py
+python3 -m ynabamazonparser $YOUR_CHOICE_OF_DIRECTORY_NAME/ynabamazonparser/driver.py
 deactivate
 ```
 
