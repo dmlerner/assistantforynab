@@ -9,7 +9,6 @@ import ynabamazonparser as yap
 class Category:
     def __init__(self, c, category_group_name=None):
         d = c if isinstance(c, dict) else c.__dict__
-        self.x = 0
         self._parent_dict = d.copy()
         self.id = d['id']
         self.name = d['name']
@@ -24,18 +23,24 @@ class Category:
         self.is_credit_card_payment = self.category_group_name in yap.settings.credit_card_group_names
 
     def goal_days_remaining(self):
+        if not self.goal_type:
+            return None
         if self.goal_type == 'TBD' and not self.goal_target_month:
             return None
         deadline = self.goal_target_month or yap.ynab.utils.first_of_coming_month()
         days_timedelta = deadline - yap.utils.now()
         one_day = datetime.timedelta(1)
-        return days_timedelta.total_seconds() / one_day.total_seconds() + self.x
+        return days_timedelta.total_seconds() / one_day.total_seconds() 
 
     def goal_amount_remaining(self):
+        if not self.goal_type:
+            return None
         progress = self.balance if self.goal_type == 'TBD' else self.budgeted
         return self.goal_target - progress
 
     def budget_rate_required(self):
+        if not self.goal_type:
+            return None
         return self.goal_amount_remaining() / self.goal_days_remaining()
 
     def __repr__(self):
@@ -44,7 +49,5 @@ class Category:
         return ' | '.join(map(str, str_fields))
 
     def adjust_budget(self, amount):
-        yap.utils.log_debug('cat.adjusting', 'amount=%s'%amount, self)
-        self.budgeted += amount
         self.balance += amount
-        yap.utils.log_debug('cat.adjusted', 'amount=%s'%amount, self)
+        self.budgeted += amount
