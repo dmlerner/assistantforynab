@@ -7,7 +7,6 @@ class Order:
 
     def __init__(self, d):
         self._parent_dict = d
-#        ya.utils.debug()
         ya.utils.log_debug(d)
         self.order_date = utils.parse_date(d['Order Date'])
         self.order_id = d['Order ID']

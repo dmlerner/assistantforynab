@@ -18,7 +18,6 @@ def add_adjustment_subtransaction(t):
     subtransaction_total = sum(s.amount for s in t.subtransactions)
     if ya.utils.equalish(subtransaction_total, t.amount):
         return
-#    ya.utils.debug()
     adjustment = deepcopy(t)
     adjustment.subtransactions = []
     adjustment.memo = 'Split transaction adjustment'

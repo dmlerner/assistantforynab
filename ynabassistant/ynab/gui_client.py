@@ -21,7 +21,7 @@ def enter_fields(fields, values):
         f.clear()
         f.send_keys(str(v))
         if i != len(fields) - 1:
-            f.send_keys(gui.Keys.TAB)
+            f.send_keys(ya.utils.gui.Keys.TAB)
 
 
 def get_category(transaction):
@@ -36,13 +36,15 @@ def get_category(transaction):
     return transaction.category_name
 
 
-def enter_item(transaction, payee_element, category_element, memo_element, outflow_element):
+def enter_item(transaction, payee_element, category_element, memo_element, outflow_element, inflow_element):
     'TODO/BUG: "Return: Amazon" category is equivalent to "AnythingElse: Amazon"'
     ya.utils.log_debug('enter_item', transaction)
     # TODO rename
     category = get_category(transaction)
+    outflow = 0 if transaction.amount > 0 else abs(transaction.amount)
+    inflow = 0 if transaction.amount < 0 else abs(transaction.amount)
     enter_fields((payee_element, category_element, memo_element, outflow_element),
-                 (transaction.payee_name, category, transaction.memo, transaction.amount))
+                 (transaction.payee_name, category, transaction.memo, outflow, inflow))
 
 
 def locate_transaction(t):
@@ -77,12 +79,12 @@ def enter_transaction(t):
     add_subtransaction_rows(t)
     account, date, payees, categories, memos = map(lambda p: ya.utils.gui.get_by_placeholder('accounts-text-field', p),
                                                    ('account', 'date', 'payee', 'category', 'memo'))
-    date.send_keys(t.date)
+    date.send_keys(ya.ynab.utils.format_date(t.date))
     outflows, inflows = map(lambda p: ya.utils.gui.get_by_placeholder(
         'ember-text-field', p), ('outflow', 'inflow'))
     n = len(t.subtransactions)
     if n == 1:
-        enter_item(t, payees, categories, memos, outflows)
+        enter_item(t, payees, categories, memos, outflows, inflows)
         ' TODO: do not approve, only save? '
         ' Maybe it is only approving things that are already approved? '
         approve = ya.utils.gui.get_by_text('button-primary', ['Approve', 'Save'])
@@ -93,7 +95,7 @@ def enter_transaction(t):
         memos[0].send_keys(', '.join(s.memo for s in t.subtransactions))
         for i, s in enumerate(t.subtransactions):
             '+1 because index 0 is for overall purchase'
-            enter_item(s, payees[i + 1], categories[i + 1], memos[i + 1], outflows[i + 1])
+            enter_item(s, payees[i + 1], categories[i + 1], memos[i + 1], outflows[i + 1], inflows[i + 1])
         outflows[-1].send_keys(ya.utils.gui.Keys.ENTER)
 
 
