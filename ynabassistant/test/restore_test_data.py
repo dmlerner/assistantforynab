@@ -3,11 +3,12 @@ import random
 import time
 
 
-
 def rename_and_close():
     ya.utils.log_debug('rename_and_close')
     try:
-        edit_account = ya.utils.gui.get_by_text('user-entered-text', ya.settings.account_name)
+        ya.utils.gui.zoom(100)
+        ya.utils.gui.get('navlink-reports').click()
+        edit_account = ya.utils.gui.get_by_text('nav-account-name', ya.settings.account_name)
         ya.utils.log_debug(edit_account)
         ya.utils.gui.right_click(edit_account)
         ya.utils.gui.send_keys(str(random.random()))
@@ -39,19 +40,6 @@ def add_new_account():
 
 def load_test_data():
     ya.utils.log_debug('load_test_data')
-    '''
-    account_id: str
-    date: str
-    amount: int
-    payee_id: Optional[str] = None
-    payee_name: Optional[str] = None
-    category_id: Optional[str] = None
-    memo: Optional[str] = None
-    cleared: Optional[str] = None
-    approved: Optional[bool] = None
-    flag_color: Optional[str] = None
-    import_id: Optional[str] = None
-    '''
     ts = [t for t in ya.ynab.api_client.get_all_transactions().values() if t.account_name == 'Test Data']
     n = 30
     ts = ts[:n]
@@ -74,6 +62,11 @@ def prepare_test_account():
         ya.utils.log_exception()
         ya.utils.quit(True)
 
-if __name__ == '__main__':
+
+def main():
     ya.ynab.gui_client.load_gui()
     prepare_test_account()
+
+
+if __name__ == '__main__':
+    main()

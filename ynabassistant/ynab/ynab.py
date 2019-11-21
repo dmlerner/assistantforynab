@@ -14,10 +14,11 @@ transactions_to_rest_update = []
 
 def add_adjustment_subtransaction(t):
     ''' Ensures that the sum of subtransaction prices equals the transaction amount '''
-    ya.utils.log_debug('add_adjustment_subtransaction')
+    ya.utils.log_debug('add_adjustment_subtransaction', t)
     subtransaction_total = sum(s.amount for s in t.subtransactions)
     if ya.utils.equalish(subtransaction_total, t.amount):
         return
+#    ya.utils.debug()
     adjustment = deepcopy(t)
     adjustment.subtransactions = []
     adjustment.memo = 'Split transaction adjustment'
@@ -35,9 +36,7 @@ def update():
 
 def update_rest():
     ya.utils.log_info('Updating %s transactions via YNAB REST API' % len(transactions_to_rest_update))
-    for t in transactions_to_rest_update:
-        ya.utils.log_info(t)
-        ynab.api_client.update(t)
+    ynab.api_client.update(transactions_to_rest_update)
     ya.utils.log_info(ya.utils.separator)
 
 
@@ -54,13 +53,15 @@ def update_gui():
     if not transactions_to_gui_update:
         return
     ya.utils.log_info('Updating %s transactions via YNAB webapp' % n)
+    old_memos = []
     for t in transactions_to_gui_update:
         # Ensures that we can find it in the gui
         if len(t.subtransactions) <= 1:
-            ya.utils.log_debug('Warning: updating via gui with %s subtransactions' % len(t.subtransactions), t)
-        old_memo = annotate_for_locating(t)
-        ynab.api_client.update(t)
-        t.memo = old_memo
+            ya.utils.log_debug('Warning: no good reason to update via gui with %s subtransaction(s)' % len(t.subtransactions), t)
+        old_memos.append(annotate_for_locating(t))
+    ynab.api_client.update(transactions_to_gui_update)
+    for m, t in zip(old_memos, transactions_to_gui_update):
+        t.memo = m
         add_adjustment_subtransaction(t)
     ynab.gui_client.load_gui()
     ynab.gui_client.enter_all_transactions(transactions_to_gui_update)

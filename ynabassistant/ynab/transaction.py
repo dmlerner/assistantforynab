@@ -13,6 +13,7 @@ class Transaction:
         self.amount = ya.ynab.utils.parse_money(d['amount'])
         self.date = ya.ynab.utils.parse_date(d['date'])
         self.account_name = d['account_name']
+        self.account_id = d['account_id']
 
         self.payee_name = d.get('payee_name')
         if not self.payee_name:  # needed for subtransactions; TODO see that ynab converts this
@@ -32,6 +33,7 @@ class Transaction:
                 d['date'] = ya.ynab.utils.format_date(self.date)
                 d['id'] = self.id
                 d['account_name'] = self.account_name
+                d['account_id'] = self.account_id
                 self.subtransactions.append(Transaction(d))
 
     def is_outflow(self):
@@ -49,9 +51,8 @@ class Transaction:
 
     def __repr__(self):
         if not self.subtransactions:
-            str_fields = ya.utils.format_date(
-                self.date), ya.utils.format_money(
-                self.amount), self.account_name, self.memo, self.id
+            str_fields = ya.utils.format_date(self.date), ya.utils.format_money(self.amount), \
+                self.account_name, self.memo, self.id
             return ' | '.join(map(str, str_fields))
         return '\n'.join(map(str, self.subtransactions))
 

@@ -22,11 +22,8 @@ class TransactionsApi:
         }
         return self.client.post(f'/budgets/{budget_id}/transactions', payload)
 
-    def update_transaction(self, budget_id: str, transaction: Transaction) -> TransactionsResponse:
+    def update_transactions(self, budget_id: str, transactions: List[TransactionRequest]) -> TransactionsResponse:
         payload = {
-            'transaction': dataclasses.asdict(transaction)
+            'transactions': [dataclasses.asdict(t) for t in transactions]
         }
-        transaction_id = transaction.id
-        response = self.client.put(
-            f'/budgets/{budget_id}/transactions/{transaction_id}', payload)
-        return response
+        return self.client.patch(f'/budgets/{budget_id}/transactions', payload)

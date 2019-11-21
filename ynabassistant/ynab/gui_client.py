@@ -2,6 +2,7 @@ import traceback
 
 import ynabassistant as ya
 
+
 def load_gui():
     ya.utils.log_debug('load_gui')
     url = 'https://app.youneedabudget.com/%s/accounts' % ya.settings.budget_id
@@ -49,8 +50,7 @@ def locate_transaction(t):
     search = ya.utils.gui.get('transaction-search-input')
     search.clear()
     search.send_keys('Memo: %s' % t.id)
-    search.send_keys(gui.Keys.ENTER)
-
+    search.send_keys(ya.utils.gui.Keys.ENTER)
 
 def add_subtransaction_rows(t):
     ya.utils.log_debug('add_subtransactions_rows', len(t.subtransactions))
@@ -68,16 +68,16 @@ def add_subtransaction_rows(t):
         ya.utils.gui.click(split)
         'gui.clicking split means we already have two'
         for i in range(n - 2):
-            ya.utils.gui.click(gui.get('ynab-grid-split-add-sub-transaction'))
+            ya.utils.gui.click(ya.utils.gui.get('ynab-grid-split-add-sub-transaction'))
 
 
 def enter_transaction(t):
-    ya.utils.log_debug('enter_transaction', t)
+    ya.utils.log_debug('enter_transaction', t.__dict__)
     locate_transaction(t)
     add_subtransaction_rows(t)
     account, date, payees, categories, memos = map(lambda p: ya.utils.gui.get_by_placeholder('accounts-text-field', p),
                                                    ('account', 'date', 'payee', 'category', 'memo'))
-    date.send_keys(t._date)
+    date.send_keys(t.date)
     outflows, inflows = map(lambda p: ya.utils.gui.get_by_placeholder(
         'ember-text-field', p), ('outflow', 'inflow'))
     n = len(t.subtransactions)
@@ -94,7 +94,7 @@ def enter_transaction(t):
         for i, s in enumerate(t.subtransactions):
             '+1 because index 0 is for overall purchase'
             enter_item(s, payees[i + 1], categories[i + 1], memos[i + 1], outflows[i + 1])
-        outflows[-1].send_keys(gui.Keys.ENTER)
+        outflows[-1].send_keys(ya.utils.gui.Keys.ENTER)
 
 
 def enter_all_transactions(transactions):

@@ -18,7 +18,7 @@ class Assistant:
     def update_amazon_transactions(self):
         ya.utils.log_info('Matching Amazon orders to YNAB transactions')
         potential_amazon_transactions = ya.amazon.amazon.get_eligible_transactions(self.transactions)
-        self.orders_by_transaction_id = ya.assistant.match.match_all(potential_amazon_transactions, self.orders)
+        self.orders_by_transaction_id = ya.amazon.match.match_all(potential_amazon_transactions, self.orders)
         for t_id, order in self.orders_by_transaction_id.items():
             t = self.transactions[t_id]
             items = self.items[order.order_id]

@@ -35,7 +35,7 @@ for p in log_dir, data_dir:
 private_settings_path = os.path.join(config_dir, 'private.py')
 if not os.path.exists(private_settings_path):
     ya.utils.log_error('ERROR: no private settings found, using defaults. Please edit %s' %
-                        private_settings_path)
+                       private_settings_path)
     ya.utils.log_error('Will not be able to access YNAB')
     private_settings_template_path = os.path.join(
         config_dir, 'private_template.py')

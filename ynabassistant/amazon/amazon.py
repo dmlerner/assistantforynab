@@ -22,7 +22,7 @@ def annotate_with_item(t, i):
     ya.utils.log_debug('annotate_with_item')
     t.payee_name = i.seller
     t.memo = i.title
-    t.amount = i.item_total
+    t.amount = -i.item_total
     t.category_name = get_category(i)
 
 

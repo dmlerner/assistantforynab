@@ -4,6 +4,7 @@ import glob
 import csv
 
 import ynabassistant as ya
+from . import *
 
 
 def get_downloaded_csv_filenames():
@@ -27,12 +28,12 @@ def wait_for_download(timeout=30):
 
 def parse_items(item_dicts):
     ya.utils.log_debug('parse_items', len(item_dicts))
-    return ya.utils.group_by(map(ya.amazon.item.Item.from_dict, item_dicts), lambda i: i.order_id)
+    return ya.utils.group_by(map(item.Item, item_dicts), lambda i: i.order_id)
 
 
 def parse_orders(order_dicts):
     ya.utils.log_debug('parse_orders', len(order_dicts))
-    orders = list(map(ya.amazon.order.Order.from_dict, order_dicts))
+    orders = list(map(Order, order_dicts))
     combined = combine_orders(orders)
     return ya.utils.by(combined, lambda o: o.order_id)
 

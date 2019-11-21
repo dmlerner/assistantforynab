@@ -22,7 +22,7 @@ class DefaultClient(BaseClient):
         response = requests.post(url, json=payload, headers=self.headers)
         return response.json()
 
-    def put(self, endpoint: str, payload: dict):
+    def patch(self, endpoint: str, payload: dict):
         url = self.config.full_url + endpoint
-        response = requests.put(url, json=payload, headers=self.headers)
+        response = requests.patch(url, json=payload, headers=self.headers)
         return response.json()

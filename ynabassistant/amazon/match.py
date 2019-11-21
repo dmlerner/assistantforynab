@@ -8,7 +8,7 @@ def get_order(transaction, orders):
     ya.utils.log_debug('get_order', transaction, orders)
     possible_orders = []
     for order in orders.values():
-        if ya.utils.equalish(order.total_charged, transaction.amount):
+        if ya.utils.equalish(order.total_charged, -transaction.amount):
             possible_orders.append(order)
     if len(possible_orders) == 0:
         ya.utils.log_debug('No matching order for transaction')
@@ -40,6 +40,7 @@ def time_difference(transaction, order):
 def match_all(transactions, orders):
     ya.utils.log_debug('match_all', len(transactions), len(orders))
     orders_by_transaction_id = {}
+    #ya.utils.debug()
     for t_id, t in transactions.items():
         order = get_order(t, orders)
         if not order:

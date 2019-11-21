@@ -15,27 +15,17 @@ def get_all_transactions():
     return ya.utils.by(transactions, lambda t: t.id)
 
 
-def update_all(transactions):
-    ya.utils.log_debug('update_all')
-    for t in transactions:
-        update(t)
-
-
-def update(t):
-    ya.utils.log_debug('update', t)
-    s = t.subtransactions
-    t.subtransactions = []
-    p = t.to_parent()
-    response = api.transactions.update_transaction(ya.settings.budget_id, p)
+def update(transactions): # TODO combine with create?
+    ya.utils.log_debug('update', *transactions)
+    transaction_requests = [t.to_transaction_request() for t in transactions] # correct
+    response = api.transactions.update_transactions(ya.settings.budget_id, transaction_requests)
     if 'error' in response:
         ya.utils.log_error('ERROR:', response)
-        return
-    t.subtransactions = s
 
 
 def create(transactions):
     ya.utils.log_debug('create', *transactions)
-    transaction_requests = [t.to_transaction_request() for t in transactions]
+    transaction_requests = [t.to_transaction_request() for t in transactions] # correct
     response = api.transactions.create_transactions(ya.settings.budget_id, transaction_requests)
     ya.utils.log_debug('response', response)
     if 'error' in response:

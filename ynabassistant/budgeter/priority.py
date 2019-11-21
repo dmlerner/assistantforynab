@@ -2,6 +2,7 @@ import collections
 
 import ynabassistant as ya
 
+
 class Priority:
 
     def __init__(self, categories, weights=None):

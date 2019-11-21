@@ -30,7 +30,7 @@ class Category:
         deadline = self.goal_target_month or ya.ynab.utils.first_of_coming_month()
         days_timedelta = deadline - ya.utils.now()
         one_day = datetime.timedelta(1)
-        return days_timedelta.total_seconds() / one_day.total_seconds() 
+        return days_timedelta.total_seconds() / one_day.total_seconds()
 
     def goal_amount_remaining(self):
         if not self.goal_type:
@@ -44,7 +44,8 @@ class Category:
         return self.goal_amount_remaining() / self.goal_days_remaining()
 
     def __repr__(self):
-        money_fields = tuple(map(ya.utils.format_money, (self.goal_amount_remaining(), self.balance, self.budgeted, self.budget_rate_required())))
+        money_fields = tuple(map(ya.utils.format_money, (self.goal_amount_remaining(),
+                                                         self.balance, self.budgeted, self.budget_rate_required())))
         str_fields = (self.name, self.goal_days_remaining()) + money_fields
         return ' | '.join(map(str, str_fields))
 
