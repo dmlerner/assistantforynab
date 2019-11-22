@@ -37,7 +37,17 @@ def _log(*x, verbosity=0, sep=' | ', end=os.linesep * 2):
         print(*x, sep=sep, end=end)
 
 
+def to_datetime(d):
+    if d is None:
+        return None
+    if type(d) is datetime.date:
+        return datetime.datetime(*d.timetuple()[:3])
+    assert type(d) is datetime.datetime
+    return d
+
+
 def newer_than(d, days_ago=30):
+    d = to_datetime(d)
     cutoff = datetime.datetime.now() - datetime.timedelta(days=days_ago)
     return d > cutoff
 
@@ -81,8 +91,8 @@ def by(collection, key):
 separator = '\n' + '.' * 100 + '\n'
 
 
-def equalish(a, b):
-    return round(a, 4) == round(b, 4)
+def equalish(a, b, precision=4):
+    return round(a, precision) == round(b, precision)
 
 
 def debug():
@@ -109,6 +119,20 @@ def parse_date(d, df=date_format):
     return datetime.datetime.strptime(d, df)
 
 
+one_day = datetime.timedelta(1)
+
+
+def to_float_days(d):
+    return d.total_seconds() / one_day.total_seconds()
+
+
+def day_delta(a, b=None):
+    a = to_datetime(a)
+    b = to_datetime(b) or now()
+
+    return abs(to_float_days(a - b))
+
+
 def format_money(p):
     assert type(p) in (float, int)
     return ('' if p >= 0 else '-') + '$' + str(abs(round(p, 2)))
@@ -123,16 +147,17 @@ def filter_dict(d, whitelist):
 def now():
     return datetime.datetime.now()
 
+
 def _convert(obj, t):
     init_params = t.__init__.__code__.co_varnames
     d = obj.__dict__
-    # [1:] slices off the `_` at start of variable names 
+    # [1:] slices off the `_` at start of variable names
     # because (I think) generated classes are overriding to_dict
-    filtered = { k[1:]: d[k] for k in d if k[1:] in init_params }
-    #ya.utils.log_debug(obj, d, t, filtered, init_params)
-    #ya.utils.debug()
+    filtered = {k[1:]: d[k] for k in d if k[1:] in init_params}
     return t(**filtered)
+
 
 def convert(obj, t):
     if type(obj) in (tuple, list):
         return list(map(lambda o: _convert(o, t), obj))
+    return _covert(obj, t)

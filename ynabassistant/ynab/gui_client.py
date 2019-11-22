@@ -41,8 +41,9 @@ def enter_item(transaction, payee_element, category_element, memo_element, outfl
     ya.utils.log_debug('enter_item', transaction)
     # TODO rename
     category = get_category(transaction)
-    outflow = 0 if transaction.amount > 0 else abs(transaction.amount)
-    inflow = 0 if transaction.amount < 0 else abs(transaction.amount)
+    amount = ya.ynab.utils.amount(transaction)
+    outflow = 0 if amount > 0 else abs(amount)
+    inflow = 0 if amount < 0 else abs(amount)
     enter_fields((payee_element, category_element, memo_element, outflow_element),
                  (transaction.payee_name, category, transaction.memo, outflow, inflow))
 
@@ -117,4 +118,4 @@ def enter_all_transactions(transactions):
             ya.utils.log_error('Error on transaction', t)
             search = ya.utils.gui.get('transaction-search-input')
             search.clear()
-    ya.utils.quit()
+    ya.utils.gui.quit()

@@ -22,7 +22,7 @@ def annotate_with_item(t, i):
     ya.utils.log_debug('annotate_with_item')
     t.payee_name = i.seller
     t.memo = i.title
-    t.amount = -i.item_total
+    t.amount = ya.ynab.utils.to_milliunits(-i.item_total)
     t.category_name = get_category(i)
 
 
@@ -33,16 +33,8 @@ def get_category(item):
 def get_eligible_transactions(transactions):
     ya.utils.log_debug('get_eligible_transactions')
     predicates = newer_than, has_blank_or_WIP_memo, matches_account
-    eligible = ya.utils.by(
-        filter(
-            lambda t: all(p(t) for p in predicates),
-            transactions.values()),
-        lambda t: t.id)
-    ya.utils.log_info(
-        'Found %s transactions to attempt to match with Amazon orders' % len(eligible))
-    if not eligible:
-        ya.utils.log_info('No transactions matching predicates for matching')
-        ya.utils.quit()
+    eligible = list(filter(lambda t: all(p(t) for p in predicates), transactions))
+    ya.utils.log_info('Found %s transactions to attempt to match with Amazon orders' % len(eligible))
     return eligible
 
 
@@ -51,7 +43,7 @@ def has_blank_memo(t):
 
 
 def has_blank_or_WIP_memo(t):
-    return has_blank_memo(t) or ya.ynab.transaction.starts_with_id(t.memo)
+    return has_blank_memo(t) or ya.ynab.utils.starts_with_id(t.memo)
 
 
 def matches_account(t):

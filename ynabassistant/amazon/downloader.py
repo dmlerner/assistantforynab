@@ -34,8 +34,7 @@ def parse_items(item_dicts):
 def parse_orders(order_dicts):
     ya.utils.log_debug('parse_orders', len(order_dicts))
     orders = list(map(Order, order_dicts))
-    combined = combine_orders(orders)
-    return ya.utils.by(combined, lambda o: o.order_id)
+    return combine_orders(orders)
 
 
 data_parsers = {'items': parse_items, 'orders': parse_orders}

@@ -40,7 +40,7 @@ def add_new_account():
 
 def load_test_data():
     ya.utils.log_debug('load_test_data')
-    ts = [t for t in ya.ynab.api_client.Client().get_all_transactions().values() if t.account_name == 'Test Data']
+    ts = [t for t in ya.ynab.api_client.get_all_transactions() if t.account_name == 'Test Data']
     n = 30
     ts = ts[:n]
     ya.utils.gui.get_by_text('user-entered-text', ya.settings.account_name).click()
@@ -48,8 +48,8 @@ def load_test_data():
     account_id = url[url.rindex('/') + 1:]
     for t in ts:
         t.account_id = account_id
-    ya.ynab.api_client.Client().create(ts)
-    ya.utils.quit(True)
+    ya.ynab.api_client.create_transactions(ts)
+    ya.utils.gui.quit()
 
 
 def prepare_test_account():
