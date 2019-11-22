@@ -10,9 +10,8 @@ def load_gui():
     d.get(url)
     if not ya.utils.gui.get('user-logged-in', require=False):
         selection = input('Must be logged in. Try again? [Y/n]')
-        if selection.lower() == 'n':
-            ya.utils.quit()
-        load_gui()
+        if selection.lower() != 'n':
+            load_gui()
 
 
 def enter_fields(fields, values):
@@ -37,9 +36,9 @@ def get_category(transaction):
 
 
 def enter_item(transaction, payee_element, category_element, memo_element, outflow_element, inflow_element):
-    'TODO/BUG: "Return: Amazon" category is equivalent to "AnythingElse: Amazon"'
-    ya.utils.log_debug('enter_item', transaction)
+    # TODO/BUG: "Return: Amazon" category is equivalent to "AnythingElse: Amazon"'
     # TODO rename
+    ya.utils.log_debug('enter_item', transaction)
     category = get_category(transaction)
     amount = ya.ynab.utils.amount(transaction)
     outflow = 0 if amount > 0 else abs(amount)

@@ -7,6 +7,7 @@ import pdb
 import traceback
 
 import ynabassistant as ya
+import ynab_api
 
 
 def get_log_path():
@@ -18,7 +19,15 @@ log_file = open(get_log_path(), 'a+')
 
 
 def log_info(*x, sep=os.linesep, end=os.linesep * 2):
-    _log(*x, verbosity=ya.settings.info_verbosity, sep=sep, end=end)
+    formatted = []
+    formatters = {ynab_api.TransactionDetail: ya.ynab.utils.format_transaction,
+                  ynab_api.SubTransaction: ya.ynab.utils.format_transaction}
+    for i in x:
+        if type(i) in formatters:
+            formatted.append(formatters[type(i)](i))
+        else:
+            formatted.append(i)
+    _log(*formatted, verbosity=ya.settings.info_verbosity, sep=sep, end=end)
 
 
 def log_debug(*x, sep=os.linesep, end=os.linesep * 2):
@@ -62,14 +71,6 @@ def clear_old_logs():
 
 
 clear_old_logs()
-
-
-def quit(gui_quit=False):
-    log_info('Quitting')
-    if gui_quit or ya.settings.close_browser_on_finish:
-        ya.utils.gui.quit()
-    log_file.close()
-#    sys.exit()
 
 
 def group_by(collection, key):

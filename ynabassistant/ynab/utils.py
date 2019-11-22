@@ -51,3 +51,9 @@ def calculate_adjustment(t):
         return
     return t.amount - subtransaction_total
 
+def format_transaction(t):
+    assert type(t) in (ynab_api.TransactionDetail, ynab_api.SubTransaction)
+    t_formatted = ' | '.join(list(map(str, (format_date(t.date), amount(t), t.memo))))
+    if type(t) is ynab_api.TransactionDetail:
+        t_formatted += '\n' + '\n'.join(list(map(format_transaction, t.subtransactions)))
+    return t_formatted

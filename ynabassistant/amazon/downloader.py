@@ -87,8 +87,6 @@ def load(data_type):
         ya.utils.log_exception_debug()
         if input('One more try? [Y/n]').lower() != 'n':
             load(data_type)
-        else:
-            ya.utils.quit()
 
     list_of_dicts = read(target_path)
     ya.utils.log_info('Found %s %s' % (len(list_of_dicts), data_type))

@@ -54,13 +54,9 @@ def load_test_data():
 
 def prepare_test_account():
     ya.utils.log_debug('prepare_test_account')
-    try:
-        rename_and_close()
-        add_new_account()
-        load_test_data()
-    except BaseException:
-        ya.utils.log_exception()
-        ya.utils.quit(True)
+    rename_and_close()
+    add_new_account()
+    load_test_data()
 
 
 def main():

@@ -51,7 +51,7 @@ default_category = 'ERROR'
 close_browser_on_finish = False
 
 ' Always redownload csvs '
-force_download_amazon = True
+force_download_amazon = False
 
 ' TODO: variable controlling if transactions stay checked in the UI when done; currently they do '
 ' TODO: call get transactions via official ruby api '

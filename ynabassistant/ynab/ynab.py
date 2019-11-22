@@ -40,6 +40,7 @@ def update_rest():
     if not transactions_to_rest_update:
         return
     ya.utils.log_info('Updating %s transactions via YNAB REST API' % len(transactions_to_rest_update))
+    ya.utils.log_info(transactions_to_rest_update)
     ynab.api_client.update_transactions(transactions_to_rest_update)
     ya.utils.log_info(ya.utils.separator)
 
