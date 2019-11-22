@@ -3,8 +3,7 @@ from ynabassistant import test
 
 
 def main():
-    test.amazon.main()
-
+    pass
 
 if __name__ == '__main__':
     main()

@@ -122,3 +122,17 @@ def filter_dict(d, whitelist):
 
 def now():
     return datetime.datetime.now()
+
+def _convert(obj, t):
+    init_params = t.__init__.__code__.co_varnames
+    d = obj.__dict__
+    # [1:] slices off the `_` at start of variable names 
+    # because (I think) generated classes are overriding to_dict
+    filtered = { k[1:]: d[k] for k in d if k[1:] in init_params }
+    #ya.utils.log_debug(obj, d, t, filtered, init_params)
+    #ya.utils.debug()
+    return t(**filtered)
+
+def convert(obj, t):
+    if type(obj) in (tuple, list):
+        return list(map(lambda o: _convert(o, t), obj))

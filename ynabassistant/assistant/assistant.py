@@ -11,8 +11,8 @@ class Assistant:
 
     def load_ynab_data(self):
         ya.utils.log_info('Downloading YNAB')
-        self.transactions = ya.ynab.api_client.get_all_transactions()  # { (transaction)id: transaction }
-        #self.categories = ya.ynab.api_client.get_categories()  # { category_id: category }
+        self.transactions = ya.ynab.api_client.Client().get_all_transactions()  # { (transaction)id: transaction }
+        self.categories = ya.ynab.api_client.Client().get_categories()  # { category_id: category }
         ya.utils.log_info(ya.utils.separator)
 
     def update_amazon_transactions(self):

@@ -1,3 +1,2 @@
-from . import api_client, gui_client, ynab, transaction, utils, category
-from .transaction import Transaction
+from . import api_client, gui_client, ynab, utils, category
 from .category import Category

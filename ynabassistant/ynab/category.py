@@ -1,7 +1,8 @@
 import re
 import datetime
 
-from ynab_sdk.api.models.responses.category import Category as _Category
+#from ynab_api.api.models.responses.category import Category as _Category
+from ynab_api import Category as _Category
 
 import ynabassistant as ya
 

@@ -32,7 +32,7 @@ def get_category(item):
 
 def get_eligible_transactions(transactions):
     ya.utils.log_debug('get_eligible_transactions')
-    predicates = newer_than, has_blank_or_WIP_memo, matches_account, ya.ynab.transaction.Transaction.is_outflow
+    predicates = newer_than, has_blank_or_WIP_memo, matches_account
     eligible = ya.utils.by(
         filter(
             lambda t: all(p(t) for p in predicates),

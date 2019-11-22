@@ -35,7 +35,7 @@ def update():
 
 def update_rest():
     ya.utils.log_info('Updating %s transactions via YNAB REST API' % len(transactions_to_rest_update))
-    ynab.api_client.update(transactions_to_rest_update)
+    ynab.api_client.Client().update(transactions_to_rest_update)
     ya.utils.log_info(ya.utils.separator)
 
 
@@ -58,7 +58,7 @@ def update_gui():
         if len(t.subtransactions) <= 1:
             ya.utils.log_debug('Warning: no good reason to update via gui with %s subtransaction(s)' % len(t.subtransactions), t)
         old_memos.append(annotate_for_locating(t))
-    ynab.api_client.update(transactions_to_gui_update)
+    ynab.api_client.Client().update(transactions_to_gui_update)
     for m, t in zip(old_memos, transactions_to_gui_update):
         t.memo = m
         add_adjustment_subtransaction(t)
