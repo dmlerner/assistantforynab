@@ -52,3 +52,15 @@ def get_categories():
     categories = [c for g in groups for c in g.categories]
     assert all(isinstance(c, ynab_api.Category) for c in categories)
     return categories
+
+
+def update_categories(categories):
+    ya.utils.log_debug('update_categories')
+    if not categories:
+        return
+    assert all(isinstance(c, ynab_api.Category) for c in categories)
+    for c in categories:
+        sc = ya.utils.convert(c, ynab_api.SaveMonthCategory)
+        scw = ynab_api.SaveMonthCategoryWrapper(sc)
+        response = categories_api.update_month_category(ya.settings.budget_id, "current", c.id, scw)
+        ya.utils.log_debug(response)

@@ -25,5 +25,13 @@ class Budgeter:
             after = source.total_available() + sink.total_available()
             assert ya.utils.equalish(after, before)
 
+    def confirm(self):
+        pass
+
+    def update_ynab(self):
+        categories = {g.category.name: g.category for p in self.priorities for g in p.goals}
+        ya.utils.log_info("Updating %s categories" % len(categories))
+        ya.ynab.api_client.update_categories(list(categories.values()))
+
     def __repr__(self):
         return '\n'.join(map(str, self.priorities))

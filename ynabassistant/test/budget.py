@@ -1,11 +1,10 @@
 import ynabassistant as ya
-import datetime
 
 
 def main():
     goals = list(filter(lambda g: g.days_remaining(),
-                   map(ya.budgeter.Goal,
-                       ya.ynab.api_client.get_categories())))
+                        map(ya.budgeter.Goal,
+                            ya.ynab.api_client.get_categories())))
     p = ya.budgeter.Priority(goals[:3], (1, 1, 2))
     a, b, c = p.goals
     a.name = 'a'
@@ -41,6 +40,7 @@ def main():
     bud = ya.budgeter.Budgeter(p, p2)
     bud.budget()
     ya.utils.log_debug(bud)
+    bud.update_ynab()
 
 
 if __name__ == '__main__':

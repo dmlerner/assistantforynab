@@ -154,7 +154,8 @@ def _convert(obj, t):
     # [1:] slices off the `_` at start of variable names
     # because (I think) generated classes are overriding to_dict
     filtered = {k[1:]: d[k] for k in d if k[1:] in init_params}
-    return t(**filtered)
+    cast = {k: int(v) if type(v) is float else v for (k, v) in filtered.items()}
+    return t(**cast)
 
 
 def convert(obj, t):
