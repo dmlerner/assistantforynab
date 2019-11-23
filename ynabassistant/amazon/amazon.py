@@ -10,7 +10,9 @@ def annotate(t, order, items):
         t.memo += ' ' + order.order_id
     else:
         t.memo = order.order_id
-        t.subtransactions = [ynab_api.SubTransaction() for i in items]
+        t.subtransactions = [ynab_api.SubTransaction(
+            local_vars_configuration=ya.ynab.no_check_configuration)
+            for i in items]
         for i, s in zip(items, t.subtransactions):
             annotate_with_item(s, i)
         assert len(t.subtransactions) == len(items)
@@ -26,13 +28,13 @@ def annotate_with_item(st, i):
     # but rest_client ignores subtransactions
     # and it's useful to gui_client
     st.payee_name = get_payee_name(i)
-    st.payee_id = ''
+    st.payee_id = None
 
     # category_name exists on transaction, but not savetransaction
     # similarly, ignored by rest_client but used by gui_client
     st.category_name = get_category_name(i)
-    category = ya.utils.find_by(ya.assistant.categories, lambda c: c.name == st.category_name)
-    st.category_id = category.id if category else ''
+    category = ya.utils.find_by(ya.assistant.Assistant.categories, lambda c: c.name == st.category_name)
+    st.category_id = category.id if category else None
 
     st.memo = i.title
     st.amount = ya.ynab.utils.to_milliunits(-i.item_total)
@@ -52,9 +54,9 @@ def get_payee_name(item):
 def get_eligible_transactions(transactions):
     ya.utils.log_debug('get_eligible_transactions')
     predicates = newer_than, has_blank_or_WIP_memo, matches_account
-    eligible = list(filter(lambda t: all(p(t) for p in predicates), transactions))
+    eligible = list(filter(lambda t: all(p(t) for p in predicates), transactions.values()))
     ya.utils.log_info('Found %s transactions to attempt to match with Amazon orders' % len(eligible))
-    return eligible
+    return ya.utils.by(eligible, lambda t: t.id)
 
 
 def has_blank_memo(t):

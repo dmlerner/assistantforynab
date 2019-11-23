@@ -44,15 +44,17 @@ def create_transactions(transactions):
     ya.utils.log_debug(response)
 
 
-def get_categories():
-    ya.utils.log_debug('get_categories')
+def get_category_groups():
+    ya.utils.log_debug('get_category_groups')
     response = categories_api.get_categories(ya.settings.budget_id)
     ya.utils.log_debug(response)
     groups = response.data.category_groups
+    ya.utils.log_info('Found %s category groups' % len(groups or []))
     assert all(isinstance(g, ynab_api.CategoryGroupWithCategories) for g in groups)
     categories = [c for g in groups for c in g.categories]
     assert all(isinstance(c, ynab_api.Category) for c in categories)
-    return categories
+    ya.utils.log_info('Found %s categories' % len(categories or []))
+    return groups
 
 
 def update_categories(categories):
@@ -74,5 +76,5 @@ def get_payees():
     ps = response.data.payees
     assert all(isinstance(p, ynab_api.Payee) for p in ps)
     ya.utils.log_info('Found %s payees' % len(ps or []))
-    ps.sort(key=lambda p: p.date)
+    ps.sort(key=lambda p: p.name)
     return ps

@@ -75,44 +75,49 @@ def do_gui():
     gui_queue.clear()
 
 
-def check_payee(st):
+def check_payee(st, payees):
     ya.ynab.utils.type_assert_st(st)
-    assert not st.payee_id or st.payee_id in ya.assistant.payees
+    assert not st.payee_id or st.payee_id in payees
     # Need get because this is a field that isn't on the ynab_api model
     # I just add it for gui_client convenience in amazon.amazon
     if st.payee_id and st.__dict__.get('payee_name'):
-        assert ya.assistant.payees[st.payee_id].name == st.payee_name
+        assert payees[st.payee_id].name == st.payee_name
     if isinstance(st, ynab_api.TransactionDetail):
-        list(map(check_payee, st.subtransactions))
+        [check_payee(s, payees) for s in st.subtransactions]
 
 
-def check_category(st):
+def check_category(st, categories):
     ya.ynab.utils.type_assert_st(st)
-    assert not st.category_id or st.category_id in ya.assistant.categories
+    assert not st.category_id or st.category_id in categories
     if st.category_id and st.__dict__.get('category_name'):
-        assert ya.assistant.categories[st.category_id].name == st.category_name
+        assert categories[st.category_id].name == st.category_name
     if isinstance(st, ynab_api.TransactionDetail):
-        list(map(check_category, st.subtransactions))
+        [check_category(s, categories) for s in st.subtransactions]
 
 
-def queue(ts, mode):
+def queue(ts, mode, payees, categories):
     assert mode in rest_modes
     if type(ts) not in (tuple, list):
         ts = [ts]
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in ts)
     for t in ts:
-        check_payee(t)
-        check_category(t)
+        if payees is not None:
+            check_payee(t, payees)
+        if categories is not None:
+            check_category(t, categories)
         (gui_queue if t.subtransactions else rest_queue)[mode].append(t)
 
 
-def queue_create(ts):
-    queue(ts, 'create')
+def queue_create(ts, payees=None, categories=None):
+    queue(ts, 'create', payees=None, categories=None)
 
 
-def queue_update(ts):
-    queue(ts, 'update')
+def queue_update(ts, payees=None, categories=None):
+    queue(ts, 'update', payees, categories)
 
 
 rest_modes = {'create': ynab.api_client.create_transactions,
               'update': ynab.api_client.update_transactions}
+
+no_check_configuration = ynab_api.Configuration()
+no_check_configuration.client_side_validation = False

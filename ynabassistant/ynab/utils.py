@@ -69,19 +69,3 @@ def format_subtransaction(s):
 
 def type_assert_st(st):
     assert type(st) in (ynab_api.TransactionDetail, ynab_api.SubTransaction)
-
-
-def get_payee_name(s):
-    assert isinstance(s, ynab_api.SubTransaction)
-    for p in ya.assistant.payees:
-        if p.id == s.payee_id:
-            return p.name
-    assert False
-
-
-def get_category_name(s):
-    assert isinstance(s, ynab_api.SubTransaction)
-    for c in ya.assistant.categories:
-        if c.id == s.category_id:
-            return c.name
-    assert False

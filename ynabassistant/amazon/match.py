@@ -5,7 +5,7 @@ def get_order(t, orders):
     ''' Gets an order corresponding to the ynab transaction '''
     ya.utils.log_debug('get_order', t, orders)
     possible_orders = []
-    for order in orders:
+    for order in orders.values():
         # need negative because YNAB outflows have negative amount
         if ya.utils.equalish(order.total_charged, -ya.ynab.utils.amount(t)):
             possible_orders.append(order)
@@ -36,10 +36,10 @@ assigned_order_ids = set()
 def match_all(transactions, orders):
     ya.utils.log_debug('match_all', len(transactions), len(orders))
     orders_by_transaction_id = {}
-    for t in transactions:
+    for t_id, t in transactions.items():
         order = get_order(t, orders)
         if not order:
             continue
-        orders_by_transaction_id[t.id] = order
+        orders_by_transaction_id[t_id] = order
     ya.utils.log_info('Found %s matches' % len(orders_by_transaction_id))
     return orders_by_transaction_id
