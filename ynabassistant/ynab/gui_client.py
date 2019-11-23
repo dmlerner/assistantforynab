@@ -1,3 +1,4 @@
+import ynab_api
 import ynabassistant as ya
 
 
@@ -21,28 +22,39 @@ def enter_fields(fields, values):
             f.send_keys(ya.utils.gui.Keys.TAB)
 
 
-def get_category(transaction):
-    ya.utils.log_debug('get_category', transaction)
-    if not transaction.category_name or 'Split (Multiple' in transaction.category_name:
-        ya.utils.log_debug('invalid category %s, using default' % transaction.category_name)
-        ' ynab would fail to download with ynab_api_client if `transaction` is a split transaction '
-        ' even though you can hit save in the ui '
-        ' hence using a default '
-        assert ya.settings.default_category
-        return ya.settings.default_category
-    return transaction.category_name
-
-
-def enter_item(transaction, payee_element, category_element, memo_element, outflow_element, inflow_element):
+def get_category(st):
+    ya.utils.log_debug('get_category', st)
     # TODO/BUG: "Return: Amazon" category is equivalent to "AnythingElse: Amazon"'
-    # TODO rename
-    ya.utils.log_debug('enter_item', transaction)
-    category = get_category(transaction)
-    amount = ya.ynab.utils.amount(transaction)
+    # use cateogory group id?
+    ya.ynab.utils.type_assert_st(st)
+    category = st.__dict__.get('category_name')
+    if not category or 'Split (Multiple' in category:
+        assert ya.settings.default_category
+        ya.utils.log_debug('invalid category %s, using default' % ya.settings.default_category)
+        '''
+        ynab would fail to download with ynab_api_client if `st` is a split transaction
+        even though you can hit save in the ui
+        hence using a default
+        '''
+        return ya.settings.default_category
+    return category
+
+def get_payee(st):
+    ya.utils.log_debug('get_payee', st)
+    ya.ynab.utils.type_assert_st(st)
+    return st.__dict__.get('payee_name')
+
+
+def enter(st, payee_element, category_element, memo_element, outflow_element, inflow_element):
+    ya.utils.log_debug('enter', st)
+    ya.ynab.utils.type_assert_st(st)
+    category = get_category(st)
+    payee = get_payee(st)
+    amount = ya.ynab.utils.amount(st)
     outflow = 0 if amount > 0 else abs(amount)
     inflow = 0 if amount < 0 else abs(amount)
     enter_fields((payee_element, category_element, memo_element, outflow_element),
-                 (transaction.payee_name, category, transaction.memo, outflow, inflow))
+                 (payee, category, st.memo, outflow, inflow))
 
 
 def locate_transaction(t):
@@ -83,7 +95,7 @@ def enter_transaction(t):
         'ember-text-field', p), ('outflow', 'inflow'))
     n = len(t.subtransactions)
     if n == 1:
-        enter_item(t, payees, categories, memos, outflows, inflows)
+        enter(t, payees, categories, memos, outflows, inflows)
         ' TODO: do not approve, only save? '
         ' Maybe it is only approving things that are already approved? '
         approve = ya.utils.gui.get_by_text('button-primary', ['Approve', 'Save'])
@@ -94,7 +106,7 @@ def enter_transaction(t):
         memos[0].send_keys(', '.join(s.memo for s in t.subtransactions))
         for i, s in enumerate(t.subtransactions):
             '+1 because index 0 is for overall purchase'
-            enter_item(s, payees[i + 1], categories[i + 1], memos[i + 1], outflows[i + 1], inflows[i + 1])
+            enter(s, payees[i + 1], categories[i + 1], memos[i + 1], outflows[i + 1], inflows[i + 1])
         outflows[-1].send_keys(ya.utils.gui.Keys.ENTER)
 
 

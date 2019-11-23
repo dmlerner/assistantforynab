@@ -1,1 +1,1 @@
-from .assistant import Assistant
+from .assistant import *

@@ -1,5 +1,4 @@
-from copy import deepcopy
-
+import ynab_api
 import ynabassistant as ya
 
 
@@ -11,23 +10,43 @@ def annotate(t, order, items):
         t.memo += ' ' + order.order_id
     else:
         t.memo = order.order_id
-        t.subtransactions = [deepcopy(t) for i in items]
+        t.subtransactions = [ynab_api.SubTransaction() for i in items]
         for i, s in zip(items, t.subtransactions):
             annotate_with_item(s, i)
         assert len(t.subtransactions) == len(items)
     ya.utils.log_info(t)
 
 
-def annotate_with_item(t, i):
+def annotate_with_item(st, i):
     ya.utils.log_debug('annotate_with_item')
-    t.payee_name = i.seller
-    t.memo = i.title
-    t.amount = ya.ynab.utils.to_milliunits(-i.item_total)
-    t.category_name = get_category(i)
+    ya.ynab.utils.type_assert_st(st)
+
+    # ynab_api will create payee if needed when id is null
+    # payee_name doesn't actually exist on subtransaction
+    # but rest_client ignores subtransactions
+    # and it's useful to gui_client
+    st.payee_name = get_payee_name(i)
+    st.payee_id = ''
+
+    # category_name exists on transaction, but not savetransaction
+    # similarly, ignored by rest_client but used by gui_client
+    st.category_name = get_category_name(i)
+    category = ya.utils.find_by(ya.assistant.categories, lambda c: c.name == st.category_name)
+    st.category_id = category.id if category else ''
+
+    st.memo = i.title
+    st.amount = ya.ynab.utils.to_milliunits(-i.item_total)
 
 
-def get_category(item):
-    return ya.settings.default_category
+def get_category_name(item):
+    # TODO: business logic?
+    # TODO: what if category_name exists in multiple category groups
+    name = ya.settings.default_category
+    return name
+
+
+def get_payee_name(item):
+    return item.seller
 
 
 def get_eligible_transactions(transactions):

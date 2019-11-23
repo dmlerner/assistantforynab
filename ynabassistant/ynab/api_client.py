@@ -10,6 +10,7 @@ api_client = ynab_api.api_client.ApiClient(configuration)
 accounts_api = ynab_api.AccountsApi(api_client)
 categories_api = ynab_api.CategoriesApi(api_client)
 transactions_api = ynab_api.TransactionsApi(api_client)
+payees_api = ynab_api.PayeesApi(api_client)
 
 
 def get_all_transactions():
@@ -64,3 +65,14 @@ def update_categories(categories):
         scw = ynab_api.SaveMonthCategoryWrapper(sc)
         response = categories_api.update_month_category(ya.settings.budget_id, "current", c.id, scw)
         ya.utils.log_debug(response)
+
+
+def get_payees():
+    ya.utils.log_debug('get_payees')
+    response = payees_api.get_payees(ya.settings.budget_id)
+    ya.utils.log_debug(response)
+    ps = response.data.payees
+    assert all(isinstance(p, ynab_api.Payee) for p in ps)
+    ya.utils.log_info('Found %s payees' % len(ps or []))
+    ps.sort(key=lambda p: p.date)
+    return ps

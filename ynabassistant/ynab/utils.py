@@ -13,9 +13,9 @@ def parse_money(price):
     return price / 1000
 
 
-def amount(t):
-    assert type(t) in (ynab_api.TransactionDetail, ynab_api.SubTransaction)
-    return parse_money(t.amount)
+def amount(st):
+    type_assert_st(st)
+    return parse_money(st.amount)
 
 
 def to_milliunits(p):
@@ -56,8 +56,32 @@ def calculate_adjustment(t):
 
 
 def format_transaction(t):
-    assert type(t) in (ynab_api.TransactionDetail, ynab_api.SubTransaction)
+    assert isinstance(t, ynab_api.TransactionDetail)
     t_formatted = ' | '.join(list(map(str, (format_date(t.date), amount(t), t.memo))))
-    if isinstance(t, ynab_api.TransactionDetail):
-        t_formatted += '\n' + '\n'.join(list(map(format_transaction, t.subtransactions)))
+    t_formatted += '\n' + '\n'.join(list(map(format_subtransaction, t.subtransactions)))
     return t_formatted.strip()
+
+
+def format_subtransaction(s):
+    assert isinstance(s, ynab_api.SubTransaction)
+    return ' | '.join(list(map(str, (amount(s), s.memo))))
+
+
+def type_assert_st(st):
+    assert type(st) in (ynab_api.TransactionDetail, ynab_api.SubTransaction)
+
+
+def get_payee_name(s):
+    assert isinstance(s, ynab_api.SubTransaction)
+    for p in ya.assistant.payees:
+        if p.id == s.payee_id:
+            return p.name
+    assert False
+
+
+def get_category_name(s):
+    assert isinstance(s, ynab_api.SubTransaction)
+    for c in ya.assistant.categories:
+        if c.id == s.category_id:
+            return c.name
+    assert False

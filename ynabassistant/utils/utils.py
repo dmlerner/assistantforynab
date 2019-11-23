@@ -20,7 +20,7 @@ log_file = open(get_log_path(), 'a+')
 def log_info(*x, sep=os.linesep, end=os.linesep * 2):
     formatted = []
     formatters = {ynab_api.TransactionDetail: ya.ynab.utils.format_transaction,
-                  ynab_api.SubTransaction: ya.ynab.utils.format_transaction}
+                  ynab_api.SubTransaction: ya.ynab.utils.format_subtransaction}
     for i in x:
         if type(i) in formatters:
             formatted.append(formatters[type(i)](i))
@@ -86,6 +86,13 @@ def by(collection, key):
         assert k not in d
         d[k] = c
     return d
+
+
+def find_by(collection, predicate):  # TODO reverse arg order on all these to be function, iterable
+    matches = list(filter(predicate, collection.values()))
+    assert len(matches) <= 1
+    if matches:
+        return matches.pop()
 
 
 separator = '\n' + '.' * 100 + '\n'

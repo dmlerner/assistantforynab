@@ -1,13 +1,14 @@
 from copy import deepcopy
+import collections
 import ynab
 import ynab_api
 import ynabassistant as ya
 
 # Needed iff changing subtransactions
-transactions_to_gui_update = []
+gui_queue = collections.defaultdict(list)  # mode: [TransactionDetail]
 
 # Any changes to subtransactions are ignored
-transactions_to_rest_update = []
+rest_queue = collections.defaultdict(list)  # mode: [TransactionDetail]
 
 
 def add_adjustment_subtransaction(t):
@@ -19,7 +20,6 @@ def add_adjustment_subtransaction(t):
     if not amount:
         return
     adjustment = deepcopy(t.subtransactions[0])
-    adjustment.subtransactions = []
     adjustment.memo = 'Split transaction adjustment'
     adjustment.amount = amount
     adjustment.category_name = ya.settings.default_category  # TODO
@@ -28,19 +28,21 @@ def add_adjustment_subtransaction(t):
     assert ya.utils.equalish(t.amount, sum(s.amount for s in t.subtransactions))
 
 
-def update():
-    update_rest()
-    update_gui()
+def do():
+    do_rest()
+    do_gui()
 
 
-def update_rest():
-    ya.utils.log_debug('update_rest', transactions_to_rest_update)
-    if not transactions_to_rest_update:
+def do_rest():
+    ya.utils.log_debug('update_rest', rest_queue)
+    if not rest_queue:
         return
-    ya.utils.log_info('Updating %s transactions via YNAB REST API' % len(transactions_to_rest_update))
-    ya.utils.log_info(*transactions_to_rest_update)
-    ynab.api_client.update_transactions(transactions_to_rest_update)
-    ya.utils.log_info(ya.utils.separator)
+    for mode, ts in rest_queue.items():
+        ya.utils.log_info('%s %s transactions via YNAB REST API' % (mode, len(ts)))
+        ya.utils.log_info(*ts)
+        rest_modes[mode](ts)
+        ya.utils.log_info(ya.utils.separator)
+    rest_queue.clear()
 
 
 def annotate_for_locating(t):
@@ -50,31 +52,67 @@ def annotate_for_locating(t):
     return old_memo
 
 
-def update_gui():
-    ya.utils.log_debug('update_gui', transactions_to_gui_update)
-    if not transactions_to_gui_update:
+def do_gui():
+    ya.utils.log_debug('update_gui', gui_queue)
+    if not gui_queue:
         return
-    ya.utils.log_info('Updating %s transactions via YNAB webapp' % len(transactions_to_gui_update))
     old_memos = []
-    for t in transactions_to_gui_update:
-        if len(t.subtransactions) <= 1:
-            ya.utils.log_debug('Warning: no good reason to update via gui with %s subtransaction(s)' %
-                               len(t.subtransactions), t)
-        # Ensures that we can find it in the gui
-        old_memos.append(annotate_for_locating(t))
-    ynab.api_client.update_transactions(transactions_to_gui_update)
-    for m, t in zip(old_memos, transactions_to_gui_update):
-        t.memo = m
-        add_adjustment_subtransaction(t)
-    ynab.gui_client.load_gui()
-    ynab.gui_client.enter_all_transactions(transactions_to_gui_update)
-    ya.utils.log_info(ya.utils.separator)
+    for mode, ts in gui_queue.items():
+        ya.utils.log_info('%s %s transactions via YNAB webapp' % (mode, len(ts)))
+        for t in ts:
+            if len(t.subtransactions) <= 1:
+                ya.utils.log_debug('Warning: no good reason to update via gui with %s subtransaction(s)' %
+                                   len(t.subtransactions), t)
+            # Ensures that we can find it in the gui
+            old_memos.append(annotate_for_locating(t))
+        rest_modes[mode](ts)
+        for m, t in zip(old_memos, ts):
+            t.memo = m
+            add_adjustment_subtransaction(t)
+        ynab.gui_client.load_gui()
+        ynab.gui_client.enter_all_transactions(ts)
+        ya.utils.log_info(ya.utils.separator)
+    gui_queue.clear()
+
+
+def check_payee(st):
+    ya.ynab.utils.type_assert_st(st)
+    assert not st.payee_id or st.payee_id in ya.assistant.payees
+    # Need get because this is a field that isn't on the ynab_api model
+    # I just add it for gui_client convenience in amazon.amazon
+    if st.payee_id and st.__dict__.get('payee_name'):
+        assert ya.assistant.payees[st.payee_id].name == st.payee_name
+    if isinstance(st, ynab_api.TransactionDetail):
+        list(map(check_payee, st.subtransactions))
+
+
+def check_category(st):
+    ya.ynab.utils.type_assert_st(st)
+    assert not st.category_id or st.category_id in ya.assistant.categories
+    if st.category_id and st.__dict__.get('category_name'):
+        assert ya.assistant.categories[st.category_id].name == st.category_name
+    if isinstance(st, ynab_api.TransactionDetail):
+        list(map(check_category, st.subtransactions))
+
+
+def queue(ts, mode):
+    assert mode in rest_modes
+    if type(ts) not in (tuple, list):
+        ts = [ts]
+    assert all(isinstance(t, ynab_api.TransactionDetail) for t in ts)
+    for t in ts:
+        check_payee(t)
+        check_category(t)
+        (gui_queue if t.subtransactions else rest_queue)[mode].append(t)
+
+
+def queue_create(ts):
+    queue(ts, 'create')
 
 
 def queue_update(ts):
-    if type(ts) not in (tuple, list):
-        ts = [ts]
-    assert all(type(t) is ynab_api.TransactionDetail for t in ts)
-    for t in ts:
-        update_list = transactions_to_rest_update if t.subtransactions else transactions_to_gui_update
-        update_list.append(t)
+    queue(ts, 'update')
+
+
+rest_modes = {'create': ynab.api_client.create_transactions,
+              'update': ynab.api_client.update_transactions}
