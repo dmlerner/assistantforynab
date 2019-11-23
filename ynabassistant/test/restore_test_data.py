@@ -47,7 +47,7 @@ def load_test_data():
     url = ya.utils.gui.driver().current_url
     account_id = url[url.rindex('/') + 1:]
     for t in ts:
-        t.account_id = account_id
+        t.account_id = account_id  # notice that we don't overwrite account_name, and rest prefers ID, ignores name
     ya.ynab.api_client.create_transactions(ts)
     ya.utils.gui.quit()
 

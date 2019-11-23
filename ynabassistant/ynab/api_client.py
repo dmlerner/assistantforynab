@@ -13,6 +13,17 @@ transactions_api = ynab_api.TransactionsApi(api_client)
 payees_api = ynab_api.PayeesApi(api_client)
 
 
+def get_all_accounts():
+    ya.utils.log_debug('get_all_accounts')
+    response = accounts_api.get_accounts(ya.settings.budget_id)
+    ya.utils.log_debug(response)
+    acs = response.data.accounts
+    assert all(isinstance(ac, ynab_api.Account) for ac in acs)
+    ya.utils.log_info('Found %s accounts' % len(acs or []))
+    acs.sort(key=lambda ac: ac.name, reverse=True)
+    return acs
+
+
 def get_all_transactions():
     ya.utils.log_debug('get_all_transactions')
     response = transactions_api.get_transactions(ya.settings.budget_id)

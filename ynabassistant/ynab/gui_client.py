@@ -39,6 +39,7 @@ def get_category(st):
         return ya.settings.default_category
     return category
 
+
 def get_payee(st):
     ya.utils.log_debug('get_payee', st)
     ya.ynab.utils.type_assert_st(st)
@@ -61,7 +62,7 @@ def locate_transaction(t):
     ya.utils.log_debug('locate_transaction', t)
     search = ya.utils.gui.get('transaction-search-input')
     search.clear()
-    search.send_keys('Memo: %s' % t.id)
+    search.send_keys('Account: %s, Memo: %s' % (t.account_name, t.id))
     search.send_keys(ya.utils.gui.Keys.ENTER)
 
 
@@ -74,6 +75,7 @@ def add_subtransaction_rows(t):
         ya.utils.gui.click(removes)
         removes = ya.utils.gui.get('ynab-grid-sub-remove', require=False, wait=.5)
     n = len(t.subtransactions)
+    ya.utils.gui.get_by_placeholder('accounts-text-field', 'category').clear()
     if n > 1:
         category_dropdown = ya.utils.gui.get_by_placeholder('dropdown-text-field', 'category')
         category_dropdown.send_keys(' ')
@@ -86,10 +88,13 @@ def add_subtransaction_rows(t):
 
 def enter_transaction(t):
     ya.utils.log_debug('enter_transaction', t.__dict__)
+    accounts_sidebar = ya.utils.gui.get_by_text('user-entered-text', t.account_name)
+    ya.utils.gui.click(accounts_sidebar)  # handles that it contains two elements
     locate_transaction(t)
+    assert t.account_name not in ('Annotated', 'Test Data')  # don't overwrite test data
     add_subtransaction_rows(t)
-    account, date, payees, categories, memos = map(lambda p: ya.utils.gui.get_by_placeholder('accounts-text-field', p),
-                                                   ('account', 'date', 'payee', 'category', 'memo'))
+    date, payees, categories, memos = map(lambda p: ya.utils.gui.get_by_placeholder('accounts-text-field', p),
+                                          ('date', 'payee', 'category', 'memo'))
     date.send_keys(ya.ynab.utils.format_date(t.date))
     outflows, inflows = map(lambda p: ya.utils.gui.get_by_placeholder(
         'ember-text-field', p), ('outflow', 'inflow'))

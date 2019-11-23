@@ -1,12 +1,19 @@
+import ynabassistant as ya
+import ynab_api
 import collections
 import glob
 import datetime
 import os
 import pdb
 import traceback
+import inspect
 
-import ynabassistant as ya
-import ynab_api
+
+def get_location(n=2):
+    stack = inspect.stack()
+    s = stack[n]
+    filename = s.filename.replace(ya.settings.root_dir, '')
+    return ' '.join(str(x).strip() for x in (filename, s.code_context[0], s.lineno))
 
 
 def get_log_path():
@@ -30,7 +37,7 @@ def log_info(*x, sep=os.linesep, end=os.linesep * 2):
 
 
 def log_debug(*x, sep=os.linesep, end=os.linesep * 2):
-    _log(*x, verbosity=ya.settings.debug_verbosity, sep=sep, end=end)
+    _log(get_location(), *x, verbosity=ya.settings.debug_verbosity, sep=sep, end=end)
 
 
 def log_error(*x, sep=os.linesep, end=os.linesep * 2):

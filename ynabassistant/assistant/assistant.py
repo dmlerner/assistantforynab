@@ -13,6 +13,7 @@ class Assistant:
     @staticmethod
     def load_ynab_data():
         ya.utils.log_info('Downloading YNAB')
+        Assistant.accounts = ya.utils.by(ya.ynab.api_client.get_all_accounts(), lambda ac: ac.id)
         Assistant.transactions = ya.utils.by(ya.ynab.api_client.get_all_transactions(), lambda t: t.id)
         Assistant.category_groups = ya.utils.by(ya.ynab.api_client.get_category_groups(), lambda g: g.id)
         Assistant.categories = ya.utils.by((c for g in Assistant.category_groups.values()
