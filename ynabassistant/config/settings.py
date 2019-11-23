@@ -28,7 +28,8 @@ config_dir = os.path.split(os.path.realpath(__file__))[0]
 root_dir = config_dir[:config_dir.rindex(os.path.sep)]
 log_dir = os.path.join(root_dir, 'log')
 data_dir = os.path.join(root_dir, 'data')
-for p in log_dir, data_dir:
+backup_dir = os.path.join(root_dir, 'backup')
+for p in log_dir, data_dir, backup_dir:
     if not os.path.exists(p):
         os.mkdir(p)
 

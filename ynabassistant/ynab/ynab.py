@@ -1,5 +1,6 @@
 from copy import deepcopy
 import ynab
+import ynab_api
 import ynabassistant as ya
 
 # Needed iff changing subtransactions
@@ -68,3 +69,12 @@ def update_gui():
     ynab.gui_client.load_gui()
     ynab.gui_client.enter_all_transactions(transactions_to_gui_update)
     ya.utils.log_info(ya.utils.separator)
+
+
+def queue_update(ts):
+    if type(ts) not in (tuple, list):
+        ts = [ts]
+    assert all(type(t) is ynab_api.TransactionDetail for t in ts)
+    for t in ts:
+        update_list = transactions_to_rest_update if t.subtransactions else transactions_to_gui_update
+        update_list.append(t)
