@@ -1,5 +1,5 @@
 import ynabassistant as ya
-from . import *
+from . import utils
 
 
 class Item:

@@ -12,6 +12,7 @@ def parse_money(price):
     assert isinstance(price, int)
     return price / 1000
 
+
 def amount(t):
     assert type(t) in (ynab_api.TransactionDetail, ynab_api.SubTransaction)
     return parse_money(t.amount)
@@ -41,9 +42,11 @@ def first_of_coming_month():
         next_month = 1
     return datetime.datetime(now.year + (next_month == 1), next_month, 1)
 
+
 def starts_with_id(s):
     alphanumeric = '[a-z0-9]'
     return re.match('^x{8}-x{4}-x{4}-x{12}'.replace('x', alphanumeric), s)
+
 
 def calculate_adjustment(t):
     subtransaction_total = sum(s.amount for s in t.subtransactions)
@@ -51,9 +54,10 @@ def calculate_adjustment(t):
         return
     return t.amount - subtransaction_total
 
+
 def format_transaction(t):
     assert type(t) in (ynab_api.TransactionDetail, ynab_api.SubTransaction)
     t_formatted = ' | '.join(list(map(str, (format_date(t.date), amount(t), t.memo))))
-    if type(t) is ynab_api.TransactionDetail:
+    if isinstance(t, ynab_api.TransactionDetail):
         t_formatted += '\n' + '\n'.join(list(map(format_transaction, t.subtransactions)))
-    return t_formatted
+    return t_formatted.strip()

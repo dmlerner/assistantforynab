@@ -6,4 +6,3 @@ c.update_transactions(ts)
 c.create_transactions(ts)
 cs = c.get_categories()
 assert cs
-

@@ -1,4 +1,3 @@
-import collections
 import ynabassistant as ya
 
 

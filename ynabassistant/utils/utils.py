@@ -2,7 +2,6 @@ import collections
 import glob
 import datetime
 import os
-import sys
 import pdb
 import traceback
 
@@ -161,4 +160,4 @@ def _convert(obj, t):
 def convert(obj, t):
     if type(obj) in (tuple, list):
         return list(map(lambda o: _convert(o, t), obj))
-    return _covert(obj, t)
+    return _convert(obj, t)

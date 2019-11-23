@@ -1,5 +1,3 @@
-import datetime
-
 import ynab_api
 
 import ynabassistant as ya
@@ -7,7 +5,7 @@ import ynabassistant as ya
 
 class Goal:
     def __init__(self, category):
-        assert type(category) is ynab_api.Category
+        assert isinstance(category, ynab_api.Category)
         self.category = category
         self.is_credit_card_payment = category.name in ya.settings.credit_card_group_names
 
@@ -31,8 +29,11 @@ class Goal:
         return self.amount_remaining() / self.days_remaining()
 
     def __repr__(self):
-        money_fields = tuple(map(ya.utils.format_money, (self.amount_remaining(),
-                                                         self.category.balance, self.category.budgeted, self.budget_rate_required())))
+        money_fields = tuple(map(ya.utils.format_money,
+                                 (self.amount_remaining(),
+                                  self.category.balance,
+                                  self.category.budgeted,
+                                  self.budget_rate_required())))
         str_fields = (self.category.name, self.days_remaining()) + money_fields
         return ' | '.join(map(str, str_fields))
 
@@ -41,4 +42,4 @@ class Goal:
         self.category.budgeted += amount
 
     def available(self):
-        return self.category.balance # TODO
+        return self.category.balance  # TODO

@@ -11,6 +11,7 @@ accounts_api = ynab_api.AccountsApi(api_client)
 categories_api = ynab_api.CategoriesApi(api_client)
 transactions_api = ynab_api.TransactionsApi(api_client)
 
+
 def get_all_transactions():
     ya.utils.log_debug('get_all_transactions')
     response = transactions_api.get_transactions(ya.settings.budget_id)
@@ -21,6 +22,7 @@ def get_all_transactions():
     ts.sort(key=lambda t: t.date, reverse=True)
     return ts
 
+
 def update_transactions(transactions):
     ya.utils.log_debug('update_transactions', *transactions)
     if not transactions:
@@ -30,6 +32,7 @@ def update_transactions(transactions):
     utw = ynab_api.UpdateTransactionsWrapper(transactions=ut)
     response = transactions_api.update_transactions(ya.settings.budget_id, utw)
     ya.utils.log_debug(response)
+
 
 def create_transactions(transactions):
     ya.utils.log_debug('create_transactions', *transactions)

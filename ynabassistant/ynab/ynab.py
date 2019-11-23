@@ -1,11 +1,8 @@
 from copy import deepcopy
-
-import ynabassistant as ya
 import ynab
+import ynabassistant as ya
 
 # Needed iff changing subtransactions
-# I'm abusing subtransactions field by storing [ynab.Transactions]
-# Instead of [official api subtransaction]
 transactions_to_gui_update = []
 
 # Any changes to subtransactions are ignored
@@ -40,7 +37,7 @@ def update_rest():
     if not transactions_to_rest_update:
         return
     ya.utils.log_info('Updating %s transactions via YNAB REST API' % len(transactions_to_rest_update))
-    ya.utils.log_info(transactions_to_rest_update)
+    ya.utils.log_info(*transactions_to_rest_update)
     ynab.api_client.update_transactions(transactions_to_rest_update)
     ya.utils.log_info(ya.utils.separator)
 
@@ -60,7 +57,8 @@ def update_gui():
     old_memos = []
     for t in transactions_to_gui_update:
         if len(t.subtransactions) <= 1:
-            ya.utils.log_debug('Warning: no good reason to update via gui with %s subtransaction(s)' % len(t.subtransactions), t)
+            ya.utils.log_debug('Warning: no good reason to update via gui with %s subtransaction(s)' %
+                               len(t.subtransactions), t)
         # Ensures that we can find it in the gui
         old_memos.append(annotate_for_locating(t))
     ynab.api_client.update_transactions(transactions_to_gui_update)

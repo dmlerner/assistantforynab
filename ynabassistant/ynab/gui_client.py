@@ -1,5 +1,3 @@
-import traceback
-
 import ynabassistant as ya
 
 
@@ -53,6 +51,7 @@ def locate_transaction(t):
     search.clear()
     search.send_keys('Memo: %s' % t.id)
     search.send_keys(ya.utils.gui.Keys.ENTER)
+
 
 def add_subtransaction_rows(t):
     ya.utils.log_debug('add_subtransactions_rows', len(t.subtransactions))

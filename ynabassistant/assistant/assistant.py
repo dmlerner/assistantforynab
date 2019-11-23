@@ -6,7 +6,7 @@ class Assistant:
     def load_amazon_data(self):
         ya.utils.log_info('Loading Amazon')
         self.orders = ya.amazon.downloader.load('orders')
-        self.items_by_order_id = ya.amazon.downloader.load('items')  
+        self.items_by_order_id = ya.amazon.downloader.load('items')
         ya.utils.log_info(ya.utils.separator)
 
     def load_ynab_data(self):
