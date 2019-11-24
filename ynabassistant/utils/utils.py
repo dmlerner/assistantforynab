@@ -185,3 +185,7 @@ def convert(obj, t):
     if type(obj) in (tuple, list):
         return list(map(lambda o: _convert(o, t), obj))
     return _convert(obj, t)
+
+
+def multi_filter(predicates, collection):
+    return filter(lambda t: all(p(t) for p in predicates), collection)

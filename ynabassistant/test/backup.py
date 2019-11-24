@@ -1,6 +1,5 @@
 import ynabassistant as ya
 import copy
-import time
 
 
 def save_and_load_int():
@@ -14,7 +13,6 @@ def save_and_load_anotated_transactions():
     ya.utils.log_info('save_and_load_annotated_transactions')
     annotated = [t for t in ya.assistant.Assistant.transactions.values() if t.account_name == 'Annotated']
     annotated.sort(key=lambda t: t.date)
-    #annotated = annotated[-30:]
     ya.utils.log_debug(*annotated)
     ya.utils.backup.save(annotated)
     loaded = ya.utils.backup.load(type(annotated[0]))
@@ -32,7 +30,7 @@ def upload_to_new_account(annotated):
     for t in to_upload:
         t.account_name = ya.settings.account_name  # matters to gui but not rest
         t.account_id = account_id
-        t.import_id = None  # TODO maybe I need to poke the subtransactions like an amazon/amazon.annotate
+        t.import_id = None
         for s in t.subtransactions:
             if s.payee_id:
                 assert s.payee_id in ya.assistant.Assistant.payees
@@ -51,10 +49,6 @@ def sub_to_tuple(s):
     return s.amount, s.category_id, s.deleted, s.memo, s.payee_id, s.transfer_account_id
 
 
-# def diff_tuples(t1, t2):
-    # return ((i, j) for (i, j) in zip(t1, t2) if i != j)
-
-
 def diff(ts1, ts2, tupler):
     tuple_ts1 = set(map(tupler, ts1))
     tuple_ts2 = set(map(tupler, ts2))
@@ -67,7 +61,7 @@ def download_and_compare(annotated):
     downloaded.sort(key=lambda t: t.date)
     ya.utils.log_info('downloaded', *downloaded)
     dad, dda = diff(annotated, downloaded, to_tuple)
-    ya.utils.log_debug(*dad)  # currently failing only on category_name/id
+    ya.utils.log_debug(*dad)
     ya.utils.log_debug(*dda)
     sdad, sdda = diff([s for t in annotated for s in t.subtransactions],
                       [s for t in downloaded for s in t.subtransactions], sub_to_tuple)
@@ -88,7 +82,6 @@ def main():
     ya.assistant.Assistant.load_ynab_data()
     annotated = save_and_load_anotated_transactions()
     upload_to_new_account(annotated)
-    time.sleep(3)
     download_and_compare(annotated)
     ya.utils.log_info('PASS')
 

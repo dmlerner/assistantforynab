@@ -1,10 +1,11 @@
 import ynabassistant as ya
-from ynabassistant import test
+import ynab_api
 
 
 def main():
-    pass
+    ya.utils.backup.restore_account_transactions()
+    #return ya.utils.backup.load_before(ynab_api.TransactionDetail)
 
 
 if __name__ == '__main__':
-    main()
+    td = main()
