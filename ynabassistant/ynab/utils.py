@@ -23,6 +23,7 @@ def to_milliunits(p):
 
 
 date_format = '%Y-%m-%d'
+gui_date_format = '%m/%d/%Y'
 
 
 def parse_date(d):
@@ -33,6 +34,10 @@ def parse_date(d):
 
 def format_date(d):
     return ya.utils.format_date(d, date_format)
+
+
+def gui_format_date(d):
+    return ya.utils.format_date(d, gui_date_format)
 
 
 def first_of_coming_month():

@@ -1,4 +1,3 @@
-import ynab_api
 import ynabassistant as ya
 
 
@@ -18,8 +17,7 @@ def enter_fields(fields, values):
     for i, (f, v) in enumerate(zip(fields, values)):
         f.clear()
         f.send_keys(str(v))
-        if i != len(fields) - 1:
-            f.send_keys(ya.utils.gui.Keys.TAB)
+        f.send_keys(ya.utils.gui.Keys.TAB)
 
 
 def get_category(st):
@@ -95,7 +93,7 @@ def enter_transaction(t):
     add_subtransaction_rows(t)
     date, payees, categories, memos = map(lambda p: ya.utils.gui.get_by_placeholder('accounts-text-field', p),
                                           ('date', 'payee', 'category', 'memo'))
-    date.send_keys(ya.ynab.utils.format_date(t.date))
+    date.send_keys(ya.ynab.utils.gui_format_date(t.date))
     outflows, inflows = map(lambda p: ya.utils.gui.get_by_placeholder(
         'ember-text-field', p), ('outflow', 'inflow'))
     n = len(t.subtransactions)
@@ -108,7 +106,7 @@ def enter_transaction(t):
         ya.utils.gui.click(approve)
     else:
         memos[0].clear()
-        memos[0].send_keys(', '.join(s.memo for s in t.subtransactions))
+        memos[0].send_keys(t.memo)
         for i, s in enumerate(t.subtransactions):
             '+1 because index 0 is for overall purchase'
             enter(s, payees[i + 1], categories[i + 1], memos[i + 1], outflows[i + 1], inflows[i + 1])

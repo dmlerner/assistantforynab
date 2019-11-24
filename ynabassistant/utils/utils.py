@@ -106,6 +106,8 @@ separator = '\n' + '.' * 100 + '\n'
 
 
 def equalish(a, b, precision=4):
+    if {type(a), type(b)} - {int, float}:
+        return False
     return round(a, precision) == round(b, precision)
 
 
@@ -126,10 +128,14 @@ date_format = '%Y-%m-%d'
 
 
 def format_date(d, df=date_format):
+    if not d:
+        return None
     return d.strftime(df)
 
 
 def parse_date(d, df=date_format):
+    if not d:
+        return None
     return datetime.datetime.strptime(d, df)
 
 
@@ -137,6 +143,7 @@ one_day = datetime.timedelta(1)
 
 
 def to_float_days(d):
+    assert type(d) is datetime.timedelta
     return d.total_seconds() / one_day.total_seconds()
 
 
@@ -148,7 +155,9 @@ def day_delta(a, b=None):
 
 
 def format_money(p):
-    assert type(p) in (float, int)
+    if not type(p) in (float, int):
+        ya.utils.log_debug('format_mony type error', p, type(p))
+        return ''
     return ('' if p >= 0 else '-') + '$' + str(abs(round(p, 2)))
 
 

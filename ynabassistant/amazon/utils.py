@@ -2,7 +2,9 @@ import ynabassistant as ya
 
 
 def parse_money(price):
-    assert price[0] == '$'
+    assert type(price) is str
+    if not price or price[0] != '$':
+        return None
     return float(price[1:])
 
 
