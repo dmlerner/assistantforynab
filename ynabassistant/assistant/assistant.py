@@ -19,6 +19,7 @@ class Assistant:
         Assistant.categories = ya.utils.by((c for g in Assistant.category_groups.values()
                                             for c in g.categories), lambda c: c.id)
         Assistant.payees = ya.utils.by(ya.ynab.api_client.get_payees(), lambda p: p.id)
+        ya.assistant.utils._build_get_maps()
         ya.utils.log_info(ya.utils.separator)
 
     @staticmethod

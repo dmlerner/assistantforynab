@@ -1,2 +1,3 @@
 from ynabassistant.config import settings
-from ynabassistant import amazon, ynab, assistant, budgeter, utils, test
+from ynabassistant.assistant import Assistant
+from ynabassistant import amazon, ynab, budgeter, utils, test, backup

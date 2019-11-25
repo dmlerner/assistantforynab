@@ -83,6 +83,6 @@ def save_and_log(f):
         ya.utils.log_debug(*args, **kwargs)
         ret = f(*args, **kwargs)
         ya.utils.log_debug(*ret)
-        ya.utils.backup.save(ret)
+        ya.backup.local.save(ret)
         return ret
     return save_and_log_f

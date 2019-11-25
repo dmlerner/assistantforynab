@@ -33,7 +33,7 @@ def annotate_with_item(st, i):
     # category_name exists on transaction, but not savetransaction
     # similarly, ignored by rest_client but used by gui_client
     st.category_name = get_category_name(i)
-    category = ya.utils.find_by(ya.assistant.Assistant.categories, lambda c: c.name == st.category_name)
+    category = ya.utils.find_by(ya.Assistant.categories, lambda c: c.name == st.category_name)
     st.category_id = category.id if category else None
 
     st.memo = i.title

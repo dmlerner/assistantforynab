@@ -3,7 +3,7 @@ import ynabassistant as ya
 
 def main():
     ya.test.restore_test_data.main()
-    a = ya.assistant.Assistant
+    a = ya.Assistant
     a.load_ynab_data()
     a.load_amazon_data()
     a.update_amazon_transactions()
