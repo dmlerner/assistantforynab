@@ -41,9 +41,18 @@ def load_before(t, timestamp=ya.settings.start_time):
     return load_path(path)
 
 
-def load(t):
+def load(t, predicates=()):
     ''' Load the current session's backup '''
-    return load_path(get_backup_path(t))
+    loaded = load_path(get_backup_path(t))
+    return list(ya.utils.multi_filter(predicates, loaded))
+
+
+def load_transactions(predicates=()):
+    return load(ynab_api.TransactionDetail, predicates)
+
+
+def load_account_transactions(account_name, predicates=()):
+    return load_transactions((lambda t: t.account_name == account_name,) + predicates)
 
 
 def load_path(path):

@@ -39,7 +39,7 @@ def do_rest():
         return
     for mode, ts in rest_queue.items():
         ya.utils.log_info('%s %s transactions via YNAB REST API' % (mode, len(ts)))
-        ya.utils.log_info(*ts)
+        ya.utils.log_debug(mode, *ts)
         rest_modes[mode](ts)
         ya.utils.log_info(ya.utils.separator)
     rest_queue.clear()
@@ -59,6 +59,7 @@ def do_gui():
     old_memos = []
     for mode, ts in gui_queue.items():
         ya.utils.log_info('%s %s transactions via YNAB webapp' % (mode, len(ts)))
+        ya.utils.log_debug(mode, *ts)
         for t in ts:
             if len(t.subtransactions) <= 1:
                 ya.utils.log_debug('Warning: no good reason to update via gui with %s subtransaction(s)' %

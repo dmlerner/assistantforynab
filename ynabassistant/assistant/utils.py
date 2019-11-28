@@ -1,39 +1,49 @@
 import ynabassistant as ya
 
-_accounts = None  # by name
-_category_groups = None  # by name
-_categories = None  # by name
-_payees = None  # by name
-_transactions = None  # account_name: { transaction_id: transaction }
+_accounts = {}  # by name
+_category_groups = {}  # by name
+_categories = {}  # by name
+_payees = {}  # by name
+_transactions = {}  # account_name: { transaction_id: transaction }
 
 
 def _build_get_maps():
     global _accounts, _category_groups, _categories, _payees, _transactions
 
-    _accounts and _accounts.clear()
+    _accounts.clear()
     for a in ya.Assistant.accounts.values():
-        assert a.name not in _accounts
+        if a.name in _accounts:
+            ya.utils.log_debug('skipping; duplicate accounts with name %s: %s %s' % (a.name, _accounts[a.name], a))
+            continue
         _accounts[a.name] = a
 
-    _category_groups and _category_groups.clear()
+    _category_groups.clear()
     for cg in ya.Assistant.category_groups.values():
-        assert cg.name not in _category_groups
+        if cg.name in _category_groups:
+            ya.utils.log_debug('skipping; duplicate category_groups with name %s: %s %s' %
+                               (cg.name, _category_groups[cg.name], a))
+            continue
         _category_groups[cg.name] = cg
 
-    _categories and _categories.clear()
+    _categories.clear()
     for c in ya.Assistant.categories.values():
-        assert c.name not in _categories
+        if c.name in _categories:
+            ya.utils.log_debug('skipping; duplicate categories with name %s: %s %s' % (c.name, _categories[c.name], c))
+            continue
         _categories[c.name] = c
 
-    _payees and _payees.clear()
+    _payees.clear()
     for p in ya.Assistant.payees.values():
-        assert p.name not in _payees
+        # I have two payees with same name but different ID, somehow...
+        # Njoy Tech, Sixth Avenue Aquarium
+        # Which have 1 and 0 transactions, respectively
+        # TODO: wtf
+        if p.name in _payees:
+            ya.utils.log_debug('skipping; duplicate payees with name %s: %s %s' % (p.name, _payees[p.name], p))
+            continue
         _payees[p.name] = p
 
-    _transactions and _transactions.clear()
-    __transactions = ya.utils.group_by(ya.Assistant.transactions, lambda t: t.account_name)
-    for account_name in __transactions.values():
-        _transactions[account_name] = ya.utils.by(__transactions[account_name], lambda t: t.id)
+    _transactions = ya.utils.group_by(ya.Assistant.transactions.values(), lambda t: t.account_name)
 
 
 def get_account(name):

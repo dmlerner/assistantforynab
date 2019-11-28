@@ -188,4 +188,10 @@ def convert(obj, t):
 
 
 def multi_filter(predicates, collection):
-    return filter(lambda t: all(p(t) for p in predicates), collection)
+    return list(filter(lambda t: all(p(t) for p in predicates), collection))
+
+
+def debug_assert(x):
+    if not x:
+        log_debug('debug_assert error')
+        ya.utils.debug()

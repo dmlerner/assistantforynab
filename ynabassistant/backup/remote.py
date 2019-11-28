@@ -4,9 +4,9 @@ import ynab_api
 import ynabassistant as ya
 
 
-def diff_with_backup(predicates=(), timestamp=ya.settings.start_time, order='first'):
+def diff_with_backup(predicates, timestamp=ya.settings.start_time, order='first'):
     all_backup_transactions = ya.backup.local.load_before(ynab_api.TransactionDetail, timestamp)
-    matching = list(ya.utils.multi_filter(predicates, all_backup_transactions))
+    matching = ya.utils.multi_filter(predicates, all_backup_transactions)
 
     def key(t):
         return t.id
@@ -16,7 +16,7 @@ def diff_with_backup(predicates=(), timestamp=ya.settings.start_time, order='fir
     unique = ya.utils.by(get_unique(matching, key, order), key)
     unique_keys = set(unique.keys())
 
-    ya.Assistant.load_ynab_data()
+    ya.Assistant.download_ynab(transactions=True)  # TODO: can I get away with this?
     current_transactions = ya.utils.by(
         ya.utils.multi_filter(
             predicates,
@@ -34,10 +34,11 @@ def diff_with_backup(predicates=(), timestamp=ya.settings.start_time, order='fir
 
 
 def restore_account_transactions(name=ya.settings.account_name):
+    # restores only transactions newer than default of 30 days
     restore_transactions((lambda t: ya.utils.newer_than(t.date), lambda t: t.account_name == name))
 
 
-def restore_transactions(predicates=(), timestamp=ya.settings.start_time, order='first', confirm=True):
+def restore_transactions(predicates, timestamp=ya.settings.start_time, order='first', confirm=True):
     modified, deleted, added = diff_with_backup(predicates, timestamp, order)
     ya.utils.log_debug('before')
     ya.utils.log_debug(modified)
@@ -72,8 +73,9 @@ def get_unique(x, key, order='first'):
 
 
 def copy_to_account(ts, account_name):
+    ya.utils.log_debug('copy_to_account', *ts)
     to_upload = copy.deepcopy(ts)
-    account_id = ya.assistant.utils.accounts[account_name].id
+    account_id = ya.assistant.utils.get_account(account_name).id
     for t in to_upload:
         t.account_name = account_name  # matters to gui but not rest
         t.account_id = account_id
@@ -82,6 +84,6 @@ def copy_to_account(ts, account_name):
             if s.payee_id:
                 assert s.payee_id in ya.Assistant.payees
                 s.payee_name = ya.Assistant.payees[s.payee_id].name
-    ya.utils.log_info('to_upload', *to_upload)
+    ya.utils.log_debug('to_upload', *to_upload)
     ya.ynab.queue_create(to_upload)
     ya.ynab.do()

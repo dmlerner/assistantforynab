@@ -54,7 +54,7 @@ def get_payee_name(item):
 def get_eligible_transactions(transactions):
     ya.utils.log_debug('get_eligible_transactions')
     predicates = newer_than, has_blank_or_WIP_memo, matches_account
-    eligible = list(filter(lambda t: all(p(t) for p in predicates), transactions.values()))
+    eligible = ya.utils.multi_filter(predicates, transactions.values())
     ya.utils.log_info('Found %s transactions to attempt to match with Amazon orders' % len(eligible))
     return ya.utils.by(eligible, lambda t: t.id)
 
