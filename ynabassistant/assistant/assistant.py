@@ -14,17 +14,14 @@ class Assistant:
     def download_ynab(accounts=False, transactions=False, category_groups=False, categories=False, payees=False):
         ya.utils.log_info('Downloading YNAB')
         assert accounts or transactions or category_groups or category_groups or payees
-        if accounts:
-            Assistant.accounts = ya.utils.by(ya.ynab.api_client.get_all_accounts(), lambda ac: ac.id)
-        if transactions:
-            Assistant.transactions = ya.utils.by(ya.ynab.api_client.get_all_transactions(), lambda t: t.id)
-        if category_groups or categories:
-            Assistant.category_groups = ya.utils.by(ya.ynab.api_client.get_category_groups(), lambda g: g.id)
-        if categories:
-            Assistant.categories = ya.utils.by((c for g in Assistant.category_groups.values()
-                                                for c in g.categories), lambda c: c.id)
-        if payees:
-            Assistant.payees = ya.utils.by(ya.ynab.api_client.get_payees(), lambda p: p.id)
+        Assistant.accounts = accounts and ya.utils.by(ya.ynab.api_client.get_all_accounts(), lambda ac: ac.id) or {}
+        Assistant.transactions = transactions and ya.utils.by(
+            ya.ynab.api_client.get_all_transactions(), lambda t: t.id) or {}
+        Assistant.category_groups = (category_groups or categories) and ya.utils.by(
+            ya.ynab.api_client.get_category_groups(), lambda g: g.id) or {}
+        Assistant.categories = categories and ya.utils.by(
+            (c for g in Assistant.category_groups.values() for c in g.categories), lambda c: c.id) or {}
+        Assistant.payees = payees and ya.utils.by(ya.ynab.api_client.get_payees(), lambda p: p.id) or {}
         ya.assistant.utils._build_get_maps()
         ya.utils.log_info(ya.utils.separator)
 

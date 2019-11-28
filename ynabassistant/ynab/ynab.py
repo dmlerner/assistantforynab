@@ -34,13 +34,20 @@ def do():
 
 
 def do_rest():
-    ya.utils.log_debug('update_rest', rest_queue)
+    ya.utils.log_debug('do_rest', rest_queue)
     if not rest_queue:
         return
     for mode, ts in rest_queue.items():
         ya.utils.log_info('%s %s transactions via YNAB REST API' % (mode, len(ts)))
         ya.utils.log_debug(mode, *ts)
-        rest_modes[mode](ts)
+        copied = deepcopy(ts)
+        for t in copied:
+            if t.subtransactions:
+                t.subtransactions = []
+                t.category_id = None
+                t.category_name = None
+
+        rest_modes[mode](copied)
         ya.utils.log_info(ya.utils.separator)
     rest_queue.clear()
 
@@ -53,7 +60,7 @@ def annotate_for_locating(t):
 
 
 def do_gui():
-    ya.utils.log_debug('update_gui', gui_queue)
+    ya.utils.log_debug('do_gui', gui_queue)
     if not gui_queue:
         return
     old_memos = []

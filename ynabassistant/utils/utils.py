@@ -86,20 +86,13 @@ def group_by(collection, key):
     return grouped
 
 
-def by(collection, key):
+def by(collection, key):  # TODO reverse arg order on all these to be function, iterable
     d = collections.OrderedDict()
     for c in collection:
         k = key(c)
         assert k not in d
         d[k] = c
     return d
-
-
-def find_by(collection, predicate):  # TODO reverse arg order on all these to be function, iterable
-    matches = list(filter(predicate, collection.values()))
-    assert len(matches) <= 1
-    if matches:
-        return matches.pop()
 
 
 separator = '\n' + '.' * 100 + '\n'
@@ -156,7 +149,7 @@ def day_delta(a, b=None):
 
 def format_money(p):
     if not type(p) in (float, int):
-        ya.utils.log_debug('format_mony type error', p, type(p))
+        ya.utils.log_debug('format_money type error', p, type(p))
         return ''
     return ('' if p >= 0 else '-') + '$' + str(abs(round(p, 2)))
 

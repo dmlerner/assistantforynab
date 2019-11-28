@@ -1,4 +1,5 @@
 import ynabassistant as ya
+import time
 
 
 def save_and_load_int():
@@ -18,18 +19,22 @@ def save_and_load_anotated_transactions():
     return annotated
 
 
-def download_and_compare(annotated):
-    ya.utils.log_info('download_and_compare')
+def download_and_compare(annotated, wait=5, retries=2):
+    ya.utils.log_info('download_and_compare', retries)
     ya.Assistant.download_ynab(transactions=True)
     downloaded = ya.assistant.utils.get_transactions(ya.settings.account_name)
     ya.utils.log_info('downloaded', *downloaded)
-    diffs = ya.backup.utils.diff_transactions(downloaded, annotated)
-    ya.utils.debug_assert(all(not x for x in diffs))
-    for ts in annotated, downloaded:
+    for ts in annotated, downloaded:  # needed?
         ts.sort(key=lambda t: t.date)
     diffs = ya.backup.utils.diff_transactions(downloaded, annotated)
+    diffs = [d for d in diffs if 'Starting Balance' not in str(d)]  # TODO
     ya.utils.log_debug(*diffs)
-    ya.utils.debug_assert(all(not x for x in diffs))
+    if all(not x for x in diffs):
+        return
+    assert retries > 0
+    ya.utils.log_info('failed, sleeping %s' % wait)
+    time.sleep(wait)
+    download_and_compare(annotated, wait, retries - 1)
 
 
 def main():
