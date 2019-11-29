@@ -31,7 +31,7 @@ class Budgeter:
     def update_ynab(self):
         categories = {g.category.name: g.category for p in self.priorities for g in p.goals}
         ya.utils.log_info("Updating %s categories" % len(categories))
-        ya.ynab.api_client.update_categories(list(categories.values()))
+        ya.ynab.api_client.update_categories(list(categories.values()))  # TODO: queue via ynab.ynab
 
     def __repr__(self):
         return '\n'.join(map(str, self.priorities))

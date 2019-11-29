@@ -72,20 +72,3 @@ def get_unique(x, key, order='first'):
     return [grouped[k][index] for k in grouped]
 
 
-def copy_to_account(ts, account_name):
-    ya.utils.log_debug('copy_to_account', *ts)
-    to_upload = copy.deepcopy(ts)
-    account_id = ya.assistant.utils.get_account(account_name).id
-    for t in to_upload:
-        t.account_name = account_name  # matters to gui but not rest
-        t.account_id = account_id
-        t.import_id = None
-        for s in t.subtransactions:
-            s.category_name = ya.settings.default_category
-            if s.payee_id:
-                assert s.payee_id in ya.Assistant.payees
-                s.payee_name = ya.Assistant.payees[s.payee_id].name
-    ya.utils.log_debug('to_upload', *to_upload)
-    ya.ynab.queue_create(to_upload)
-    ya.ynab.do()
-

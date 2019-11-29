@@ -43,7 +43,7 @@ if not os.path.exists(private_settings_path):
     shutil.copy(private_settings_template_path, private_settings_path)
 
 budget_id = private.budget_id
-account_name = private.account_name
+account_name = private.account_name # TODO: remove this, or treat as only a default? 
 api_key = private.api_key
 
 fail_on_ambiguous_transaction = False

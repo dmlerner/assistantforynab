@@ -1,3 +1,4 @@
+import time
 import ynabassistant as ya
 
 
@@ -5,6 +6,8 @@ def load_gui():
     ya.utils.log_debug('load_gui')
     url = 'https://app.youneedabudget.com/%s/accounts' % ya.settings.budget_id
     d = ya.utils.gui.driver()
+    if url in d.current_url:
+        return
     d.get(url)
     if not ya.utils.gui.get('user-logged-in', require=False):
         selection = input('Must be logged in. Try again? [Y/n]')
@@ -73,12 +76,6 @@ def select_all():
     ya.utils.gui.click(ya.utils.gui.get('ynab-checkbox-button-square'))
 
 
-def delete():
-    ya.utils.gui.send_keys(ya.utils.gui.Keys.DELETE)
-    ya.utils.gui.send_keys(ya.utils.gui.Keys.ENTER)
-    ya.utils.gui.send_keys(ya.utils.gui.Keys.ENTER)
-
-
 def adjust_subtransaction_rows(t):
     ya.utils.log_debug('add_subtransactions_rows', len(t.subtransactions))
     # Remove existing subtransactions
@@ -134,6 +131,7 @@ def enter_transaction(t):
 
 def enter_all_transactions(transactions):
     ya.utils.log_debug('enter_all_transactions', len(transactions))
+    load_gui()
     for t in transactions:
         ya.utils.log_info(t)
         if len(t.subtransactions) > 3:
@@ -151,3 +149,46 @@ def enter_all_transactions(transactions):
             search = ya.utils.gui.get('transaction-search-input')
             search.clear()
     ya.utils.gui.quit()
+
+
+def add_unlinked_account(account_name, balance=0, account_type='credit'):
+    ya.utils.log_debug('add_unlinked_account')
+    assert account_type in {'credit'}
+    load_gui()
+    # TODO: other account types? linked?
+    time.sleep(1)
+    add_account = ya.utils.gui.get('nav-add-account')
+    add_account.click()
+    unlinked = ya.utils.gui.get_by_text('select-linked-unlinked-box-title', 'UNLINKED')
+    unlinked.click()
+    ya.utils.gui.send_keys(account_type)
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
+    ya.utils.gui.send_keys(account_name)
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
+    ya.utils.gui.send_keys(str(balance))
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.ENTER)
+    time.sleep(2)
+    ya.utils.gui.get_by_text('pull-right', 'Done').click()
+
+
+def delete_transactions():
+    load_gui()
+    search('Memo: ' + ya.ynab.ynab.delete_key)
+    select_all()
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.DELETE)
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.ENTER)
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.ENTER)
+
+
+def delete_accounts(accounts):
+    ya.utils.gui.get('navlink-accounts').click()
+    load_gui()
+    for a in accounts:
+        edit_account = ya.utils.gui.get_by_text('nav-account-name', a.name)
+        ya.utils.log_debug(edit_account)
+        ya.utils.gui.scroll_to(edit_account)
+        ya.utils.gui.right_click(edit_account)
+        ya.utils.gui.get('button-red').click()

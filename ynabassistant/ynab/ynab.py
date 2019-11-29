@@ -1,4 +1,4 @@
-from copy import deepcopy
+import copy
 import collections
 import ynab
 import ynab_api
@@ -23,7 +23,7 @@ def add_adjustment_subtransaction(t):
     amount = ynab.utils.calculate_adjustment(t)
     if not amount:
         return
-    adjustment = deepcopy(t.subtransactions[0])
+    adjustment = copy.deepcopy(t.subtransactions[0])
     adjustment.memo = 'Split transaction adjustment'
     adjustment.amount = amount
     adjustment.category_name = ya.settings.default_category  # TODO
@@ -45,7 +45,7 @@ def do_rest():
     for mode, ts in rest_queue.items():
         ya.utils.log_info('%s %s transactions via YNAB REST API' % (mode, len(ts)))
         ya.utils.log_debug(mode, *ts)
-        copied = deepcopy(ts)  # TODO: do we need copy?
+        copied = copy.deepcopy(ts)  # TODO: do we need copy?
         for t in copied:  # TODO: surely we don't need this
             if t.subtransactions:
                 t.subtransactions = []
@@ -83,10 +83,10 @@ def do_gui():
         for m, t in zip(old_memos, ts):
             t.memo = m
             add_adjustment_subtransaction(t)
-        ynab.gui_client.load_gui()
         ynab.gui_client.enter_all_transactions(ts)
         ya.utils.log_info(ya.utils.separator)
     gui_queue.clear()
+    ya.utils.gui.quit()
 
 
 def check_payee(st, payees):
@@ -138,7 +138,11 @@ def enqueue(xs, queue):
         xs = list(xs.values())
     elif type(xs) not in (list, tuple):
         xs = list(xs)
+    null_id = filter(lambda x: x.id is None, xs)
+    has_id = filter(lambda x: x.id is not None, xs)
+    assert len(set(map(lambda x: x.id, has_id))) == len(has_id)
     queue.update(ya.utils.by(xs, lambda x: x.id))
+    queue[None].extend(null_id)
 
 
 def queue_delete_transactions(ts):
@@ -148,38 +152,81 @@ def queue_delete_transactions(ts):
 def queue_delete_accounts(accounts):
     enqueue(accounts, account_delete_queue)
 
+
 def do_delete_accounts():
-    for a in account_delete_queue.values():
-        # find or scroll...
-        #ya.ynab.gui_client.
+    ya.ynab.gui_client.delete_accounts(account_delete_queue.values())
+
+
+delete_key = 'DELETEMEDELETEMEDELETEME'
 
 
 def do_delete_transactions():
-    ya.utils.log_debug('delete', delete_queue)
-    if not delete_queue:
+    ya.utils.log_debug('delete', transaction_delete_queue)
+    if not transaction_delete_queue:
         return
-    ya.utils.log_info('Set deletion memo on %s transactions via YNAB REST API' % len(delete_queue))
-    delete_key = 'DELETEMEDELETEMEDELETEME'
-    for t in delete_queue.values():
+    ya.utils.log_info('Set deletion memo on %s transactions via YNAB REST API' % len(transaction_delete_queue))
+    for t in transaction_delete_queue.values():
         t.memo = delete_key
-    ynab.api_client.update_transactions(delete_queue)
-    ya.utils.log_info('delete %s transactions via YNAB webapp' % len(delete_queue))
-    ynab.gui_client.load_gui()
-    ynab.gui_client.search('Memo: ' + delete_key)
-    ynab.gui_client.select_all()
-    ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
-    ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
-    ynab.gui_client.delete()
-    ya.utils.log_info(ya.utils.separator)
-    delete_queue.clear()
+    ynab.api_client.update_transactions(transaction_delete_queue.values())
+    ya.utils.log_info('delete %s transactions via YNAB webapp' % len(transaction_delete_queue))
+    ynab.gui_client.delete_transactions()
+    transaction_delete_queue.clear()
+
 
 def do_delete():
     for a in account_delete_queue.values():
-        queue_delete_transactions(ya.assistant.utils.get_transactions(a))
+        queue_delete_transactions(ya.assistant.utils.get_transactions(a.name))
     do_delete_transactions()
     do_delete_accounts()
+    ya.utils.gui.quit()
 
 
+def queue_move_transactions(ts, account):
+    ya.utils.log_debug('queue_move_transactions', *ts, account)
+    assert ya.Assistant.accounts.get(account.id)
+    queue_copy_to_account(ts, account)
+    queue_delete_transactions(ts)
+
+
+def modify_transaction_for_moving(t, account):
+    t.account_name = account.name  # matters to gui but not rest
+    t.account_id = account.id
+    t.import_id = None
+    for s in t.subtransactions:
+        # s.category_name = ya.settings.default_category # TODO: surely we just want to leave it alone...
+        if s.payee_id:
+            assert s.payee_id in ya.Assistant.payees
+            s.payee_name = ya.Assistant.payees[s.payee_id].name
+
+
+def queue_copy_to_account(ts, account):
+    ya.utils.log_debug('queue_copy_to_account', *ts, account)
+    assert ya.Assistant.accounts.get(account.id)
+    to_copy = copy.deepcopy(ts)
+    for t in to_copy:
+        modify_transaction_for_moving(t, account)
+    ya.utils.log_debug('to_copy', *to_copy)
+    ya.ynab.queue_create(to_copy)
+
+
+def clone_account(source_account, target_name):
+    assert ya.Assistant.accounts.get(source_account.id)
+    target_account = ya.assistant.utils.get_account(target_name)
+    if target_account:
+        queue_clear_account(target_account)
+    else:
+        add_unlinked_account(target_name)
+    ts = ya.assistant.utils.get_transactions(source_account.name)
+    queue_copy_to_account(ts, target_name)
+
+
+def queue_clear_account(account):
+    queue_delete_transactions(ya.assistant.utils.get_transactions(account.name))
+
+
+def add_unlinked_account(account_name, balance=0, account_type='credit'):
+    ya.ynab.gui_client.add_unlinked_account(account_name, balance, account_type)
+    ya.utils.gui.quit()
 
 
 rest_modes = {'create': ynab.api_client.create_transactions,

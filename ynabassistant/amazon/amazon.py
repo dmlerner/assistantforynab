@@ -68,7 +68,7 @@ def has_blank_or_WIP_memo(t):
 
 
 def matches_account(t):
-    return t.account_name.lower() == ya.settings.account_name.lower()
+    return t.account_name.lower() == ya.settings.account_name.lower() # TODO: remove explicit dependence on settings
 
 
 def newer_than(t, days_ago=30):

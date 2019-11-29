@@ -27,7 +27,6 @@ def download_and_compare(annotated, wait=5, retries=2):
     for ts in annotated, downloaded:  # needed?
         ts.sort(key=lambda t: t.date)
     diffs = ya.backup.utils.diff_transactions(downloaded, annotated)
-    #diffs = [d for d in diffs if 'Starting Balance' not in str(d)]  # TODO
     ya.utils.log_debug(*diffs)
     if all(not x for x in diffs):
         return
@@ -39,14 +38,12 @@ def download_and_compare(annotated, wait=5, retries=2):
 
 def main():
     save_and_load_int()
-    ya.ynab.gui_client.load_gui()
     ya.test.restore_test_data.rename_and_close()
     ya.test.restore_test_data.add_new_account()
     ya.utils.gui.quit()
     ya.Assistant.download_all_ynab()
     annotated = save_and_load_anotated_transactions()
     ya.backup.remote.copy_to_account(annotated, ya.settings.account_name)
-    download_and_compare(annotated)
     ya.utils.log_info('PASS')
 
 

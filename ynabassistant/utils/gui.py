@@ -1,4 +1,5 @@
 import traceback
+import sys
 import time
 import subprocess
 import signal
@@ -33,6 +34,24 @@ def get(class_name, count=None, require=True, predicate=None, wait=30, pause=.25
     return matches
 
 
+def scroll_to(element):
+    ya.utils.log_info(element.rect)
+    driver().execute_script('arguments[0].scrollIntoView(true);', element)
+
+
+def get_width():
+    return window_size()['width']
+
+
+def get_height():
+    ya.utils.log_info('height', window_size()['height'])
+    return window_size()['height']
+
+
+def window_size():
+    return driver().get_window_size(windowHandle='current')
+
+
 def get_by_placeholder(class_name, p, count=None, require=True, wait=30):
     ya.utils.log_debug('get_by_placeholder', class_name, p)
     if isinstance(p, str):
@@ -63,6 +82,7 @@ def right_click(element):
     ya.utils.log_debug('right_click')
     if type(element) in (tuple, list):
         element = element[0]
+    ya.utils.log_info('right_click', element.rect)
     actions = ActionChains(driver())
     actions.context_click(element).perform()
 
@@ -105,8 +125,10 @@ def driver():
         if 'data directory is already in use' in traceback.format_exc():
             ya.utils.log_exception_debug()
             ya.utils.log_error('Must close Selenium-controlled Chrome.')
-            if input('Try again? [Y/n]').lower() != 'n':
+            if input('Try again? [Y/n]\n').lower() != 'n':
+                ya.utils.log_info('Trying again')
                 return driver()
+            sys.exit()
         else:
             ya.utils.log_exception()
     return _driver
