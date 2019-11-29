@@ -126,5 +126,6 @@ def is_alive(d):
         ya.utils.log_exception_debug()
         return False
 
+
 def zoom(z):
     driver().execute_script("document.body.style.zoom='" + str(int(z)) + "%'")

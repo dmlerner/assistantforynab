@@ -5,10 +5,14 @@ import ynab_api
 import ynabassistant as ya
 
 # Needed iff changing subtransactions
-gui_queue = collections.defaultdict(list)  # mode: [TransactionDetail]
+gui_queue = collections.defaultdict(dict)  # mode: { id: TransactionDetail }
 
 # Any changes to subtransactions are ignored
-rest_queue = collections.defaultdict(list)  # mode: [TransactionDetail]
+rest_queue = collections.defaultdict(dict)  # mode: { id: TransactionDetail }
+
+# set memo via rest; search and delete all via GUI
+transaction_delete_queue = {}  # { id: TransactionDetail }
+account_delete_queue = {}  # { id: Accountsomething... }
 
 
 def add_adjustment_subtransaction(t):
@@ -29,6 +33,7 @@ def add_adjustment_subtransaction(t):
 
 
 def do():
+    do_delete()
     do_rest()
     do_gui()
 
@@ -40,8 +45,8 @@ def do_rest():
     for mode, ts in rest_queue.items():
         ya.utils.log_info('%s %s transactions via YNAB REST API' % (mode, len(ts)))
         ya.utils.log_debug(mode, *ts)
-        copied = deepcopy(ts)
-        for t in copied:
+        copied = deepcopy(ts)  # TODO: do we need copy?
+        for t in copied:  # TODO: surely we don't need this
             if t.subtransactions:
                 t.subtransactions = []
                 t.category_id = None
@@ -67,6 +72,7 @@ def do_gui():
     for mode, ts in gui_queue.items():
         ya.utils.log_info('%s %s transactions via YNAB webapp' % (mode, len(ts)))
         ya.utils.log_debug(mode, *ts)
+        assert mode != 'delete'
         for t in ts:
             if len(t.subtransactions) <= 1:
                 ya.utils.log_debug('Warning: no good reason to update via gui with %s subtransaction(s)' %
@@ -104,16 +110,17 @@ def check_category(st, categories):
 
 
 def queue(ts, mode, payees, categories):
+    ya.utils.log_debug('queue', ts, mode, payees, categories)
     assert mode in rest_modes
     if type(ts) not in (tuple, list):
         ts = [ts]
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in ts)
     for t in ts:
-        if payees is not None:
+        if payees is not None:  # TODO: check them all at once. Or even like actually use this...
             check_payee(t, payees)
         if categories is not None:
             check_category(t, categories)
-        (gui_queue if t.subtransactions else rest_queue)[mode].append(t)
+        enqueue((gui_queue if t.subtransactions else rest_queue)[mode], t)
 
 
 def queue_create(ts, payees=None, categories=None):
@@ -124,8 +131,60 @@ def queue_update(ts, payees=None, categories=None):
     queue(ts, 'update', payees, categories)
 
 
+def enqueue(xs, queue):
+    if not xs:
+        return
+    if isinstance(xs, dict):
+        xs = list(xs.values())
+    elif type(xs) not in (list, tuple):
+        xs = list(xs)
+    queue.update(ya.utils.by(xs, lambda x: x.id))
+
+
+def queue_delete_transactions(ts):
+    enqueue(ts, transaction_delete_queue)
+
+
+def queue_delete_accounts(accounts):
+    enqueue(accounts, account_delete_queue)
+
+def do_delete_accounts():
+    for a in account_delete_queue.values():
+        # find or scroll...
+        #ya.ynab.gui_client.
+
+
+def do_delete_transactions():
+    ya.utils.log_debug('delete', delete_queue)
+    if not delete_queue:
+        return
+    ya.utils.log_info('Set deletion memo on %s transactions via YNAB REST API' % len(delete_queue))
+    delete_key = 'DELETEMEDELETEMEDELETEME'
+    for t in delete_queue.values():
+        t.memo = delete_key
+    ynab.api_client.update_transactions(delete_queue)
+    ya.utils.log_info('delete %s transactions via YNAB webapp' % len(delete_queue))
+    ynab.gui_client.load_gui()
+    ynab.gui_client.search('Memo: ' + delete_key)
+    ynab.gui_client.select_all()
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
+    ynab.gui_client.delete()
+    ya.utils.log_info(ya.utils.separator)
+    delete_queue.clear()
+
+def do_delete():
+    for a in account_delete_queue.values():
+        queue_delete_transactions(ya.assistant.utils.get_transactions(a))
+    do_delete_transactions()
+    do_delete_accounts()
+
+
+
+
 rest_modes = {'create': ynab.api_client.create_transactions,
-              'update': ynab.api_client.update_transactions}
+              'update': ynab.api_client.update_transactions,
+              }
 
 no_check_configuration = ynab_api.Configuration()
 no_check_configuration.client_side_validation = False

@@ -18,6 +18,7 @@ payees_api = ynab_api.PayeesApi(api_client)
 
 @utils.save_and_log
 def get_all_accounts():
+    ya.utils.log_debug('get_all_accounts')
     response = accounts_api.get_accounts(ya.settings.budget_id)
     acs = response.data.accounts
     assert all(isinstance(ac, ynab_api.Account) for ac in acs)
@@ -28,6 +29,7 @@ def get_all_accounts():
 
 @utils.save_and_log
 def get_all_transactions():
+    ya.utils.log_debug('get_all_transactions')
     response = transactions_api.get_transactions(ya.settings.budget_id)
     ts = response.data.transactions
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in ts)
@@ -38,6 +40,7 @@ def get_all_transactions():
 
 @utils.save_and_log
 def update_transactions(transactions):
+    ya.utils.log_debug('update_transactions')
     if not transactions:
         return
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in transactions)
@@ -50,6 +53,7 @@ def update_transactions(transactions):
 
 @utils.save_and_log
 def create_transactions(transactions):
+    ya.utils.log_debug('create_transactions')
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in transactions)
     st = ya.utils.convert(transactions, ynab_api.SaveTransaction)
     stw = ynab_api.SaveTransactionsWrapper(transactions=st)
@@ -60,6 +64,7 @@ def create_transactions(transactions):
 
 @utils.save_and_log
 def get_category_groups():
+    ya.utils.log_debug('get_category_groups')
     response = categories_api.get_categories(ya.settings.budget_id)
     groups = response.data.category_groups
     ya.utils.log_info('Found %s category groups' % len(groups or []))
@@ -72,6 +77,7 @@ def get_category_groups():
 
 @utils.save_and_log
 def update_categories(categories):
+    ya.utils.log_debug('update_categories')
     if not categories:
         return
     assert all(isinstance(c, ynab_api.Category) for c in categories)
@@ -87,6 +93,7 @@ def update_categories(categories):
 
 @utils.save_and_log
 def get_payees():
+    ya.utils.log_debug('get_payees')
     response = payees_api.get_payees(ya.settings.budget_id)
     ps = response.data.payees
     assert all(isinstance(p, ynab_api.Payee) for p in ps)

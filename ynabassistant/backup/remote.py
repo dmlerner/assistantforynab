@@ -89,18 +89,3 @@ def copy_to_account(ts, account_name):
     ya.ynab.queue_create(to_upload)
     ya.ynab.do()
 
-
-'''
-    # ynab_api will create payee if needed when id is null
-    # payee_name doesn't actually exist on subtransaction
-    # but rest_client ignores subtransactions
-    # and it's useful to gui_client
-    st.payee_name = get_payee_name(i)
-    st.payee_id = None
-
-    # category_name exists on transaction, but not savetransaction
-    # similarly, ignored by rest_client but used by gui_client
-    st.category_name = get_category_name(i)
-    category = ya.assistant.utils.get_account(st.category_name)
-    st.category_id = category.id if category else None
-'''

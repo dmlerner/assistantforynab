@@ -58,10 +58,25 @@ def enter(st, payee_element, category_element, memo_element, outflow_element, in
 
 def locate_transaction(t):
     ya.utils.log_debug('locate_transaction', t)
+    search('Account: %s, Memo: %s' % (t.account_name, t.id))
+
+
+def search(query):
+    ya.utils.log_debug('search', query)
     search = ya.utils.gui.get('transaction-search-input')
     search.clear()
-    search.send_keys('Account: %s, Memo: %s' % (t.account_name, t.id))
+    search.send_keys(query)
     search.send_keys(ya.utils.gui.Keys.ENTER)
+
+
+def select_all():
+    ya.utils.gui.click(ya.utils.gui.get('ynab-checkbox-button-square'))
+
+
+def delete():
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.DELETE)
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.ENTER)
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.ENTER)
 
 
 def adjust_subtransaction_rows(t):

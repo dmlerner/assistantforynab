@@ -38,10 +38,9 @@ def add_new_account():
     ya.utils.gui.get_by_text('pull-right', 'Done').click()
     time.sleep(1)
     ya.utils.gui.get_by_text('user-entered-text', ya.settings.account_name).click()
-    ya.utils.gui.get('ynab-checkbox-button-square')[0].click()
-    ya.utils.gui.send_keys(ya.utils.gui.Keys.DELETE)
+    ya.ynab.gui_client.select_all()
+    ya.ynab.gui_client.delete()
     time.sleep(1)
-    ya.utils.debug()
 
 
 def load_test_data():
