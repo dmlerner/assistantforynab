@@ -36,11 +36,18 @@ def add_new_account():
     ya.utils.gui.send_keys(ya.utils.gui.Keys.ENTER)
     time.sleep(2)
     ya.utils.gui.get_by_text('pull-right', 'Done').click()
+    time.sleep(1)
+    ya.utils.gui.get_by_text('user-entered-text', ya.settings.account_name).click()
+    ya.utils.gui.get('ynab-checkbox-button-square')[0].click()
+    ya.utils.gui.send_keys(ya.utils.gui.Keys.DELETE)
+    time.sleep(1)
+    ya.utils.debug()
 
 
 def load_test_data():
     ya.utils.log_debug('load_test_data')
-    ts = [t for t in ya.ynab.api_client.get_all_transactions() if t.account_name == 'Test Data']
+    ya.Assistant.download_ynab(transactions=True)
+    ts = ya.assistant.utils.get_transactions('Test Data')
     n = 30
     ts = ts[:n]
     ya.utils.gui.get_by_text('user-entered-text', ya.settings.account_name).click()

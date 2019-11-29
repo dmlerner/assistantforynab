@@ -27,7 +27,7 @@ def download_and_compare(annotated, wait=5, retries=2):
     for ts in annotated, downloaded:  # needed?
         ts.sort(key=lambda t: t.date)
     diffs = ya.backup.utils.diff_transactions(downloaded, annotated)
-    diffs = [d for d in diffs if 'Starting Balance' not in str(d)]  # TODO
+    #diffs = [d for d in diffs if 'Starting Balance' not in str(d)]  # TODO
     ya.utils.log_debug(*diffs)
     if all(not x for x in diffs):
         return
