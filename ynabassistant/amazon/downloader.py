@@ -33,7 +33,7 @@ def parse_items(item_dicts):
 
 def parse_orders(order_dicts):
     ya.utils.log_debug('parse_orders', len(order_dicts))
-    orders = list(map(Order, order_dicts))
+    orders = map(Order, order_dicts)
     return combine_orders(orders)
 
 
@@ -53,6 +53,7 @@ def read(p):
         return list(reader)
 
 
+@ya.utils.listy
 def combine_orders(orders):
     ya.utils.log_debug('combine_orders')
     combined = {}
@@ -61,7 +62,7 @@ def combine_orders(orders):
             combined[order.order_id] += order
         else:
             combined[order.order_id] = order
-    return list(combined.values())
+    return combined
 
 
 def load(data_type):

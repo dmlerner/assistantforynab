@@ -15,9 +15,8 @@ def get_backup_path(t):
     return os.path.join(ya.settings.backup_dir, name)
 
 
+@ya.utils.listy
 def save(x):
-    if type(x) not in (tuple, list):
-        x = [x]
     assert len(set(map(type, x))) == 1
     t = type(x[0])
     existing = load(t)

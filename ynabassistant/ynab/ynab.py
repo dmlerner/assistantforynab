@@ -132,17 +132,23 @@ def queue_update(ts, payees=None, categories=None):
 
 
 def enqueue(xs, queue):
+    xs = copy.deepcopy(xs)
     if not xs:
         return
-    if isinstance(xs, dict):
+    if isinstance(xs, dict): # consider moving this logic to a wrapper in utils
         xs = list(xs.values())
     elif type(xs) not in (list, tuple):
         xs = list(xs)
-    null_id = filter(lambda x: x.id is None, xs)
-    has_id = filter(lambda x: x.id is not None, xs)
+
+    has_id = list(filter(lambda x: x.id is not None, xs))
     assert len(set(map(lambda x: x.id, has_id))) == len(has_id)
     queue.update(ya.utils.by(xs, lambda x: x.id))
-    queue[None].extend(null_id)
+
+    null_id = list(filter(lambda x: x.id is None, xs))
+    if null_id:
+        if None not in queue:
+            queue[None] = []
+        queue[None].extend(null_id)
 
 
 def queue_delete_transactions(ts):
@@ -154,7 +160,7 @@ def queue_delete_accounts(accounts):
 
 
 def do_delete_accounts():
-    ya.ynab.gui_client.delete_accounts(account_delete_queue.values())
+    ya.ynab.gui_client.delete_accounts(list(account_delete_queue.values()))
 
 
 delete_key = 'DELETEMEDELETEMEDELETEME'
@@ -167,7 +173,7 @@ def do_delete_transactions():
     ya.utils.log_info('Set deletion memo on %s transactions via YNAB REST API' % len(transaction_delete_queue))
     for t in transaction_delete_queue.values():
         t.memo = delete_key
-    ynab.api_client.update_transactions(transaction_delete_queue.values())
+    ynab.api_client.update_transactions(list(transaction_delete_queue.values()))
     ya.utils.log_info('delete %s transactions via YNAB webapp' % len(transaction_delete_queue))
     ynab.gui_client.delete_transactions()
     transaction_delete_queue.clear()
@@ -209,7 +215,7 @@ def queue_copy_to_account(ts, account):
     ya.ynab.queue_create(to_copy)
 
 
-def clone_account(source_account, target_name):
+def queue_clone_account(source_account, target_name):
     assert ya.Assistant.accounts.get(source_account.id)
     target_account = ya.assistant.utils.get_account(target_name)
     if target_account:
@@ -217,7 +223,7 @@ def clone_account(source_account, target_name):
     else:
         add_unlinked_account(target_name)
     ts = ya.assistant.utils.get_transactions(source_account.name)
-    queue_copy_to_account(ts, target_name)
+    queue_copy_to_account(ts, target_account)
 
 
 def queue_clear_account(account):

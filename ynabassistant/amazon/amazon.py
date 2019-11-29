@@ -51,10 +51,11 @@ def get_payee_name(item):
     return item.seller
 
 
+@ya.utils.listy
 def get_eligible_transactions(transactions):
     ya.utils.log_debug('get_eligible_transactions')
     predicates = newer_than, has_blank_or_WIP_memo, matches_account
-    eligible = ya.utils.multi_filter(predicates, transactions.values())
+    eligible = ya.utils.multi_filter(predicates, transactions)
     ya.utils.log_info('Found %s transactions to attempt to match with Amazon orders' % len(eligible))
     return ya.utils.by(eligible, lambda t: t.id)
 
@@ -68,7 +69,7 @@ def has_blank_or_WIP_memo(t):
 
 
 def matches_account(t):
-    return t.account_name.lower() == ya.settings.account_name.lower() # TODO: remove explicit dependence on settings
+    return t.account_name.lower() == ya.settings.account_name.lower()  # TODO: remove explicit dependence on settings
 
 
 def newer_than(t, days_ago=30):

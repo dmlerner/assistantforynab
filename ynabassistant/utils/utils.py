@@ -164,7 +164,21 @@ def now():
     return datetime.datetime.now()
 
 
-def _convert(obj, t):
+def listy(f):
+    # Takes and returns a list
+    def flexible_f(xs, *args, **kwargs):
+        if isinstance(xs, dict):
+            xs = list(xs.values())
+        try:
+            xs = list(xs)
+        except:
+            xs = [xs]
+        return f(xs, *args, **kwargs)
+    return flexible_f
+
+
+@listy
+def convert(obj, t):
     init_params = t.__init__.__code__.co_varnames
     d = obj.__dict__
     # [1:] slices off the `_` at start of variable names
@@ -173,13 +187,7 @@ def _convert(obj, t):
     cast = {k: int(v) if type(v) is float else v for (k, v) in filtered.items()}
     return t(**cast)
 
-
-def convert(obj, t):
-    if type(obj) in (tuple, list):
-        return list(map(lambda o: _convert(o, t), obj))
-    return _convert(obj, t)
-
-
+@listy
 def multi_filter(predicates, collection):
     return list(filter(lambda t: all(p(t) for p in predicates), collection))
 

@@ -79,7 +79,7 @@ def select_all():
 def adjust_subtransaction_rows(t):
     ya.utils.log_debug('add_subtransactions_rows', len(t.subtransactions))
     # Remove existing subtransactions
-    memo = ya.utils.gui.get_by_text('user-entered-text', t.id, count=1, partial=True)
+    memo = ya.utils.gui.get_by_text('user-entered-text', t.id, count=1)  # TODO: why was this partial?
     ya.utils.gui.click(memo, 2)
     removes = ya.utils.gui.get('ynab-grid-sub-remove', require=False, wait=1)
     while removes:
@@ -174,7 +174,7 @@ def add_unlinked_account(account_name, balance=0, account_type='credit'):
 
 def delete_transactions():
     load_gui()
-    search('Memo: ' + ya.ynab.ynab.delete_key)
+    search('Memo: ' + ya.ynab.delete_key)
     select_all()
     ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
     ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
@@ -184,11 +184,13 @@ def delete_transactions():
 
 
 def delete_accounts(accounts):
-    ya.utils.gui.get('navlink-accounts').click()
     load_gui()
+    navlink_accounts = ya.utils.gui.get('navlink-accounts')
+    ya.utils.gui.scroll_to(navlink_accounts)
+    ya.utils.gui.click(navlink_accounts)
     for a in accounts:
         edit_account = ya.utils.gui.get_by_text('nav-account-name', a.name)
         ya.utils.log_debug(edit_account)
         ya.utils.gui.scroll_to(edit_account)
         ya.utils.gui.right_click(edit_account)
-        ya.utils.gui.get('button-red').click()
+        ya.utils.gui.get_by_text('button-red', ['Close Account', 'Delete'], partial=True).click()
