@@ -11,18 +11,18 @@ class Assistant:
         ya.utils.log_info(ya.utils.separator)
 
     @staticmethod
-    def download_ynab(accounts=False, transactions=False, category_groups=False, categories=False, payees=False):
+    def download_ynab(accounts=False, transactions=False, categories=False, payees=False):
         ya.utils.log_info('Downloading YNAB')
-        assert accounts or transactions or category_groups or category_groups or payees
+        assert accounts or transactions or categories or payees
         Assistant.accounts = accounts and ya.utils.by(ya.ynab.api_client.get_all_accounts(), lambda ac: ac.id) or {}
         Assistant.transactions = transactions and ya.utils.by(
             ya.ynab.api_client.get_all_transactions(), lambda t: t.id) or {}
-        Assistant.category_groups = (category_groups or categories) and ya.utils.by(
+        Assistant.category_groups = categories and ya.utils.by(
             ya.ynab.api_client.get_category_groups(), lambda g: g.id) or {}
         Assistant.categories = categories and ya.utils.by(
             (c for g in Assistant.category_groups.values() for c in g.categories), lambda c: c.id) or {}
         Assistant.payees = payees and ya.utils.by(ya.ynab.api_client.get_payees(), lambda p: p.id) or {}
-        ya.assistant.utils._build_get_maps()
+        ya.assistant.utils._build_get_maps(accounts, transactions, categories, payees)
         ya.utils.log_info(ya.utils.separator)
 
     @staticmethod

@@ -1,5 +1,5 @@
 import datetime
-from functools import wraps
+import functools
 import re
 
 import ynab_api
@@ -78,7 +78,7 @@ def type_assert_st(st):
 
 
 def save_and_log(f):
-    @wraps(f)
+    @functools.wraps(f)
     def save_and_log_f(*args, **kwargs):
         ya.utils.log_debug(*args, **kwargs)
         ret = f(*args, **kwargs)

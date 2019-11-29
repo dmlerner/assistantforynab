@@ -129,6 +129,7 @@ def enter_transaction(t):
         outflows[-1].send_keys(ya.utils.gui.Keys.ENTER)
 
 
+@ya.utils.listy
 def enter_all_transactions(transactions):
     ya.utils.log_debug('enter_all_transactions', len(transactions))
     load_gui()
@@ -174,6 +175,7 @@ def add_unlinked_account(account_name, balance=0, account_type='credit'):
 
 def delete_transactions():
     load_gui()
+    ya.utils.debug()
     search('Memo: ' + ya.ynab.delete_key)
     select_all()
     ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
@@ -183,8 +185,10 @@ def delete_transactions():
     ya.utils.gui.send_keys(ya.utils.gui.Keys.ENTER)
 
 
+@ya.utils.listy
 def delete_accounts(accounts):
     load_gui()
+    ya.utils.debug()
     navlink_accounts = ya.utils.gui.get('navlink-accounts')
     ya.utils.gui.scroll_to(navlink_accounts)
     ya.utils.gui.click(navlink_accounts)
@@ -193,4 +197,4 @@ def delete_accounts(accounts):
         ya.utils.log_debug(edit_account)
         ya.utils.gui.scroll_to(edit_account)
         ya.utils.gui.right_click(edit_account)
-        ya.utils.gui.get_by_text('button-red', ['Close Account', 'Delete'], partial=True).click()
+        ya.utils.gui.get_by_text('button-red', ['Close Account', 'Delete', 'Delete Account'], partial=True).click()

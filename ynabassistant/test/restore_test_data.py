@@ -20,6 +20,8 @@ def delete_extra_accounts():
 def main():
     ya.Assistant.download_ynab(accounts=True, transactions=True)
     delete_extra_accounts()
+    ya.ynab.do()
+    ya.Assistant.download_ynab(accounts=True)
     ya.ynab.queue_clone_account(ya.assistant.utils.get_account('Test Data'), ya.settings.account_name)
     ya.ynab.do()
 

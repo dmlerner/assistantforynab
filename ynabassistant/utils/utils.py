@@ -7,6 +7,7 @@ import os
 import pdb
 import traceback
 import inspect
+import functools
 
 
 def get_location(n=2):
@@ -79,6 +80,22 @@ def clear_old_logs():
 clear_old_logs()
 
 
+def listy(f):
+    @functools.wraps(f)
+    def flexible_f(xs, *args, **kwargs):
+        if xs is None:
+            return f(xs, *args, **kwargs)
+        if isinstance(xs, dict):
+            xs = list(xs.values())
+        try:
+            xs = list(xs)
+        except BaseException:
+            xs = [xs]
+        return f(xs, *args, **kwargs)
+    return flexible_f
+
+
+@listy
 def group_by(collection, key):
     grouped = collections.defaultdict(list)
     for c in collection:
@@ -86,7 +103,8 @@ def group_by(collection, key):
     return grouped
 
 
-def by(collection, key):  # TODO reverse arg order on all these to be function, iterable
+@listy
+def by(collection, key):
     d = collections.OrderedDict()
     for c in collection:
         k = key(c)
@@ -164,28 +182,19 @@ def now():
     return datetime.datetime.now()
 
 
-def listy(f):
-    # Takes and returns a list
-    def flexible_f(xs, *args, **kwargs):
-        if isinstance(xs, dict):
-            xs = list(xs.values())
-        try:
-            xs = list(xs)
-        except:
-            xs = [xs]
-        return f(xs, *args, **kwargs)
-    return flexible_f
-
-
 @listy
-def convert(obj, t):
+def convert(objs, t):
     init_params = t.__init__.__code__.co_varnames
-    d = obj.__dict__
-    # [1:] slices off the `_` at start of variable names
-    # because (I think) generated classes are overriding to_dict
-    filtered = {k[1:]: d[k] for k in d if k[1:] in init_params}
-    cast = {k: int(v) if type(v) is float else v for (k, v) in filtered.items()}
-    return t(**cast)
+    converted = []
+    for obj in objs:
+        d = obj.__dict__
+        # [1:] slices off the `_` at start of variable names
+        # because (I think) generated classes are overriding to_dict
+        filtered = {k[1:]: d[k] for k in d if k[1:] in init_params}
+        cast = {k: int(v) if type(v) is float else v for (k, v) in filtered.items()}
+        converted.append(t(**cast))
+    return converted
+
 
 @listy
 def multi_filter(predicates, collection):

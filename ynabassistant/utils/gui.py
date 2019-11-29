@@ -35,7 +35,6 @@ def get(class_name, count=None, require=True, predicate=None, wait=30, pause=.25
 
 
 def scroll_to(element):
-    ya.utils.log_info(element.rect)
     driver().execute_script('arguments[0].scrollIntoView(true);', element)
 
 
@@ -82,7 +81,6 @@ def right_click(element):
     ya.utils.log_debug('right_click')
     if type(element) in (tuple, list):
         element = element[0]
-    ya.utils.log_info('right_click', element.rect)
     actions = ActionChains(driver())
     actions.context_click(element).perform()
 

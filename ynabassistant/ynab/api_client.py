@@ -38,6 +38,7 @@ def get_all_transactions():
     return ts
 
 
+@ya.utils.listy
 @utils.save_and_log
 def update_transactions(transactions):
     ya.utils.log_debug('update_transactions')
@@ -51,9 +52,12 @@ def update_transactions(transactions):
     return ts
 
 
+@ya.utils.listy
 @utils.save_and_log
 def create_transactions(transactions):
     ya.utils.log_debug('create_transactions')
+    if not transactions:
+        return
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in transactions)
     st = ya.utils.convert(transactions, ynab_api.SaveTransaction)
     stw = ynab_api.SaveTransactionsWrapper(transactions=st)
@@ -75,6 +79,7 @@ def get_category_groups():
     return groups
 
 
+@ya.utils.listy
 @utils.save_and_log
 def update_categories(categories):
     ya.utils.log_debug('update_categories')

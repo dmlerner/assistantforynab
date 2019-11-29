@@ -70,5 +70,3 @@ def get_unique(x, key, order='first'):
         assert all(len(v) == 1 for v in grouped.values())
     index = 0 if order == 'first' else -1
     return [grouped[k][index] for k in grouped]
-
-
