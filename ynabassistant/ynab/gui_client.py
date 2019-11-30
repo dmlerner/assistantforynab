@@ -175,20 +175,20 @@ def add_unlinked_account(account_name, balance=0, account_type='credit'):
 
 def delete_transactions():
     load_gui()
-    ya.utils.debug()
     search('Memo: ' + ya.ynab.delete_key)
+    if not isinstance(ya.utils.gui.get('ynab-checkbox-button-square'), list):
+        return
     select_all()
     ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
     ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
     ya.utils.gui.send_keys(ya.utils.gui.Keys.DELETE)
-    ya.utils.gui.send_keys(ya.utils.gui.Keys.ENTER)
-    ya.utils.gui.send_keys(ya.utils.gui.Keys.ENTER)
+    ya.utils.gui.get_by_text('button-primary', 'Delete').click()
 
 
 @ya.utils.listy
 def delete_accounts(accounts):
+    ya.utils.log_info('Deleting %s accounts via Web App' % len(accounts))
     load_gui()
-    ya.utils.debug()
     navlink_accounts = ya.utils.gui.get('navlink-accounts')
     ya.utils.gui.scroll_to(navlink_accounts)
     ya.utils.gui.click(navlink_accounts)

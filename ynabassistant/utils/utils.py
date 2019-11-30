@@ -84,7 +84,8 @@ def listy(f):
     @functools.wraps(f)
     def flexible_f(xs, *args, **kwargs):
         if xs is None:
-            return f(xs, *args, **kwargs)
+            ya.utils.log_debug('argument to listy is None, returning')
+            return
         if isinstance(xs, dict):
             xs = list(xs.values())
         try:

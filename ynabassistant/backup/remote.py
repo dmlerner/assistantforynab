@@ -1,4 +1,3 @@
-import copy
 import ynab_api
 
 import ynabassistant as ya
@@ -23,7 +22,6 @@ def diff_with_backup(predicates, timestamp=ya.settings.start_time, order='first'
             ya.Assistant.transactions.values()),
         key)
     current_keys = set(current_transactions.keys())
-    ya.utils.debug()
     modified = unique_keys.intersection(current_keys)
     deleted = unique_keys - current_keys
     added = current_keys - unique_keys

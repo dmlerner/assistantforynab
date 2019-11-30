@@ -9,6 +9,15 @@ _payees = {}  # by name
 # TODO make a FooCache class, this is terrible
 
 
+@ya.utils.listy
+def remove_spurious_transactions(ts):
+    ya.utils.log_debug('remove_spurious_transactions', ts)
+    # TODO: also check if t.memo == ya.ynab.delete_key?
+    to_remove = filter(lambda t: t.account_id not in ya.Assistant.accounts, ts)
+    for t in to_remove:
+        del ya.Assistant.transactions[t.id]
+
+
 def _build_get_maps(accounts, transactions, categories, payees):
     global _accounts, _transactions, _category_groups, _categories, _payees
 

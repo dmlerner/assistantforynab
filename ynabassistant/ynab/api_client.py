@@ -22,7 +22,6 @@ def get_all_accounts():
     response = accounts_api.get_accounts(ya.settings.budget_id)
     acs = response.data.accounts
     assert all(isinstance(ac, ynab_api.Account) for ac in acs)
-    ya.utils.log_info('Found %s accounts' % len(acs or []))
     acs.sort(key=lambda ac: ac.name, reverse=True)
     return acs
 
@@ -33,7 +32,6 @@ def get_all_transactions():
     response = transactions_api.get_transactions(ya.settings.budget_id)
     ts = response.data.transactions
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in ts)
-    ya.utils.log_info('Found %s transactions' % len(ts or []))
     ts.sort(key=lambda t: t.date, reverse=True)
     return ts
 
@@ -42,8 +40,6 @@ def get_all_transactions():
 @utils.save_and_log
 def update_transactions(transactions):
     ya.utils.log_debug('update_transactions')
-    if not transactions:
-        return
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in transactions)
     ut = ya.utils.convert(transactions, ynab_api.UpdateTransaction)
     utw = ynab_api.UpdateTransactionsWrapper(transactions=ut)
@@ -56,8 +52,6 @@ def update_transactions(transactions):
 @utils.save_and_log
 def create_transactions(transactions):
     ya.utils.log_debug('create_transactions')
-    if not transactions:
-        return
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in transactions)
     st = ya.utils.convert(transactions, ynab_api.SaveTransaction)
     stw = ynab_api.SaveTransactionsWrapper(transactions=st)
@@ -71,11 +65,9 @@ def get_category_groups():
     ya.utils.log_debug('get_category_groups')
     response = categories_api.get_categories(ya.settings.budget_id)
     groups = response.data.category_groups
-    ya.utils.log_info('Found %s category groups' % len(groups or []))
     assert all(isinstance(g, ynab_api.CategoryGroupWithCategories) for g in groups)
     categories = [c for g in groups for c in g.categories]
     assert all(isinstance(c, ynab_api.Category) for c in categories)
-    ya.utils.log_info('Found %s categories' % len(categories or []))
     return groups
 
 
@@ -83,8 +75,6 @@ def get_category_groups():
 @utils.save_and_log
 def update_categories(categories):
     ya.utils.log_debug('update_categories')
-    if not categories:
-        return
     assert all(isinstance(c, ynab_api.Category) for c in categories)
     updated_categories = []
     for c in categories:
@@ -102,6 +92,5 @@ def get_payees():
     response = payees_api.get_payees(ya.settings.budget_id)
     ps = response.data.payees
     assert all(isinstance(p, ynab_api.Payee) for p in ps)
-    ya.utils.log_info('Found %s payees' % len(ps or []))
     ps.sort(key=lambda p: p.name)
     return ps

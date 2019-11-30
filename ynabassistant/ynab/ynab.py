@@ -76,15 +76,14 @@ def do_gui():
     for mode, ts in gui_queue.items():
         ya.utils.log_info('%s %s transactions via YNAB webapp' % (mode, len(ts)))
         ya.utils.log_debug(mode, ts)
-        assert mode != 'delete'
-        for t in ts:
+        for t in ts.values():  # TODO: can this be simplified?
             if len(t.subtransactions) <= 1:
                 ya.utils.log_debug('Warning: no good reason to update via gui with %s subtransaction(s)' %
                                    len(t.subtransactions), t)
             # Ensures that we can find it in the gui
             old_memos.append(annotate_for_locating(t))
         rest_modes[mode](ts)
-        for m, t in zip(old_memos, ts):
+        for m, t in zip(old_memos, ts.values()):  # simplify out the .values? listy?
             t.memo = m
             add_adjustment_subtransaction(t)
         ynab.gui_client.enter_all_transactions(ts)
@@ -119,8 +118,6 @@ def check_category(st, categories):
 def queue(ts, mode, payees, categories):
     ya.utils.log_debug('queue', ts, mode)
     assert mode in rest_modes
-    if type(ts) not in (tuple, list):
-        ts = [ts]
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in ts)
     for t in ts:
         if payees is not None:  # TODO: check them all at once. Or even like actually use this...
@@ -146,8 +143,6 @@ def queue_update(ts, payees=None, categories=None):
 def enqueue(xs, queue):
     ya.utils.log_debug('enqueue', xs, queue)
     xs = copy.deepcopy(xs)
-    if not xs:
-        return
 
     has_id = list(filter(lambda x: x.id is not None, xs))
     assert len(set(map(lambda x: x.id, has_id))) == len(has_id)
@@ -172,10 +167,24 @@ def queue_delete_accounts(accounts):
     enqueue(accounts, account_delete_queue)
 
 
-def do_delete_accounts():
+def do_delete_accounts(wait=30, sleep=5):
     if not account_delete_queue:
         return
+    ya.utils.log_debug('do_delete_accounts')
     ya.ynab.gui_client.delete_accounts(account_delete_queue)
+    start = time.time()
+    while time.time() - start < wait:  # TODO: consider fixing this instead or also in api_client
+        ya.Assistant.download_ynab(accounts=True)
+        ya.utils.log_debug(
+            'account keys, delete queue keys', set(
+                ya.Assistant.accounts.keys()), set(
+                account_delete_queue.keys()))
+        if set(ya.Assistant.accounts.keys()).intersection(set(account_delete_queue.keys())):
+            time.sleep(sleep)
+        else:
+            account_delete_queue.clear()
+            return
+    assert False
 
 
 delete_key = 'DELETEMEDELETEMEDELETEME'
@@ -257,6 +266,13 @@ def add_unlinked_account(account_name, balance=0, account_type='credit'):
     ya.utils.log_debug('add_unlinked_account', account_name, balance, account_type)
     ya.ynab.gui_client.add_unlinked_account(account_name, balance, account_type)
     ya.utils.gui.quit()
+    ya.Assistant.download_ynab(accounts=True)
+    start = time.time()
+    while time.time() - start < 30:  # TODO: generic retrier
+        new_account = ya.assistant.utils.get_account(account_name)
+        if new_account:
+            return new_account
+    assert False
 
 
 rest_modes = {'create': ynab.api_client.create_transactions,
