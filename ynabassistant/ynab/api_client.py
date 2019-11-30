@@ -74,15 +74,17 @@ def get_category_groups():
 @ya.utils.listy
 @utils.save_and_log
 def update_categories(categories):
-    ya.utils.log_debug('update_categories')
+    ya.utils.log_debug('update_categories', categories)
     assert all(isinstance(c, ynab_api.Category) for c in categories)
     updated_categories = []
     for c in categories:
-        sc = ya.utils.convert(c, ynab_api.SaveMonthCategory)
+        sc = ya.utils.convert(c, ynab_api.SaveMonthCategory).pop()
         scw = ynab_api.SaveMonthCategoryWrapper(sc)
-        updated_categories.append(categories_api.update_month_category(
-            ya.settings.budget_id, "current", c.id, scw).data.category)
-    updated_categories.sort(lambda c: c.name)
+        ya.utils.log_debug('c sc scw', c, sc, scw)
+        updated = categories_api.update_month_category(ya.settings.budget_id, "current", c.id, scw).data.category
+        ya.utils.log_debug('updated', updated)
+        updated_categories.append(updated)
+    updated_categories.sort(key=lambda c: c.name)
     return updated_categories
 
 
