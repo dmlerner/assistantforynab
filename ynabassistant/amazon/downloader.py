@@ -58,10 +58,10 @@ def combine_orders(orders):
     ya.utils.log_debug('combine_orders')
     combined = {}
     for order in orders:
-        if order.order_id in combined:
-            combined[order.order_id] += order
+        if order.id in combined:
+            combined[order.id] += order # overloaded operator
         else:
-            combined[order.order_id] = order
+            combined[order.id] = order
     return combined
 
 

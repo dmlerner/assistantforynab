@@ -3,8 +3,9 @@ import ynab_api
 
 
 def main():
-    ya.Assistant.download_all_ynab()
-    #ya.test.restore_test_data.main()
+    c = ya.ynab.cache.Cache()
+    x = ya.ynab.cache.X()
+    return c, x
 
 if __name__ == '__main__':
-    main()
+    c, x = main()

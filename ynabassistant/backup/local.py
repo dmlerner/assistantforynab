@@ -2,6 +2,7 @@ import jsonpickle
 import os
 import glob
 import datetime
+import functools
 
 import ynab_api
 
@@ -10,18 +11,19 @@ import ynabassistant as ya
 # Local Backup
 
 
-def get_backup_path(t):
-    name = str(ya.settings.start_time) + '-' + str(t) + '.jsonpickle'
+def get_backup_path(t, n):
+    name = '%s-%s-%s.jsonpickle' % (ya.settings.start_time, t, n)
     return os.path.join(ya.settings.backup_dir, name)
 
 
 @ya.utils.listy
-def save(x):
+def save(x, n):
     assert len(set(map(type, x))) == 1
     t = type(x[0])
-    existing = load(t)
-    with open(get_backup_path(t), 'w+') as f:
-        f.write(jsonpickle.encode(existing + x))
+    path = get_backup_path(t, n)
+    with open(path, 'w+') as f:
+        f.write(jsonpickle.encode(x))
+    return path
 
 
 def load_before(t, timestamp=ya.settings.start_time):
@@ -40,18 +42,17 @@ def load_before(t, timestamp=ya.settings.start_time):
     return load_path(path)
 
 
-def load(t, predicates=()):
-    ''' Load the current session's backup '''
-    loaded = load_path(get_backup_path(t))
-    return list(ya.utils.multi_filter(predicates, loaded))
+def load(t, n, predicates=()):
+    loaded = load_path(get_backup_path(t, n))
+    return ya.utils.multi_filter(predicates, loaded)
 
 
-def load_transactions(predicates=()):
-    return load(ynab_api.TransactionDetail, predicates)
+def load_transactions(n, predicates=()):
+    return load(ynab_api.TransactionDetail, n, predicates)
 
 
-def load_account_transactions(account_name, predicates=()):
-    return load_transactions((lambda t: t.account_name == account_name,) + predicates)
+def load_account_transactions(account_name, n, predicates=()):
+    return load_transactions(n, (lambda t: t.account_name == account_name,) + predicates)
 
 
 def load_path(path):
@@ -62,3 +63,20 @@ def load_path(path):
         raw = f.read()
         decoded = jsonpickle.decode(raw)
         return decoded
+
+
+def save_and_log(f):
+    f.n_calls = 0
+
+    @functools.wraps(f)
+    def save_and_log_f(*args, **kwargs):
+        ya.utils.log_debug(*args, **kwargs)
+        f.n_calls += 1
+        ret = f(*args, **kwargs)
+        if not ret:
+            ya.utils.log_debug('null ret', ret)
+            return
+        ya.utils.log_debug(*ret)
+        ya.backup.local.save(ret, f.n_calls)
+        return ret
+    return save_and_log_f

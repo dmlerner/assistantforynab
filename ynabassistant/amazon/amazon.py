@@ -7,9 +7,9 @@ def annotate(t, order, items):
     t.date = order.order_date
     if len(items) == 1:
         annotate_with_item(t, items[0])
-        t.memo += ' ' + order.order_id
+        t.memo += ' ' + order.id
     else:
-        t.memo = order.order_id
+        t.memo = order.id
         t.subtransactions = [ynab_api.SubTransaction(
             local_vars_configuration=ya.ynab.no_check_configuration)
             for i in items]

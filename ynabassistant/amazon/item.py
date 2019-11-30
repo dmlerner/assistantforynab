@@ -7,7 +7,7 @@ class Item:
 
     def __init__(self, d):
         self._parent_dict = d
-        self.order_id = d['Order ID']
+        self.id = d['Order ID']
 
         self.order_date = utils.parse_date(d['Order Date'])
         self.item_total = utils.parse_money(d['Item Total'])

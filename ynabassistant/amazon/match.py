@@ -20,17 +20,17 @@ def get_order(t, orders):
             return None
         else:
             ya.utils.log_debug('Skipping ambiguous transaction', t, possible_orders)
-        unused_orders = [o for o in possible_orders if o.order_id not in assigned_order_ids]
+        unused_orders = [o for o in possible_orders if o.id not in assigned_ids]
         # TODO want shipment_date change parser property
         unused_orders.sort(key=lambda o: ya.utils.day_delta(t.date, o.order_date))
         order = unused_orders[0]
-    assigned_order_ids.add(order.order_id)
+    assigned_ids.add(order.id)
     ya.utils.log_info('Matched transaction with order', t, order)
     return order
 
 
 # Used to avoid reusing an order for multiple transactions
-assigned_order_ids = set()
+assigned_ids = set()
 
 
 def match_all(transactions, orders):

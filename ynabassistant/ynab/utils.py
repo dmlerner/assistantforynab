@@ -75,17 +75,3 @@ def format_subtransaction(s):
 
 def type_assert_st(st):
     assert type(st) in (ynab_api.TransactionDetail, ynab_api.SubTransaction)
-
-
-def save_and_log(f):
-    @functools.wraps(f)
-    def save_and_log_f(*args, **kwargs):
-        ya.utils.log_debug(*args, **kwargs)
-        ret = f(*args, **kwargs)
-        if not ret:
-            ya.utils.log_debug('null ret', ret)
-            return
-        ya.utils.log_debug(*ret)
-        ya.backup.local.save(ret)
-        return ret
-    return save_and_log_f

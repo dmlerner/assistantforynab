@@ -9,13 +9,13 @@ class Order:
         self._parent_dict = d
         ya.utils.log_debug(d)
         self.order_date = utils.parse_date(d['Order Date'])
-        self.order_id = d['Order ID']
+        self.id = d['Order ID']
         self.shipment_date = utils.parse_date(d['Shipment Date'])
         self.total_charged = utils.parse_money(d['Total Charged'])
 
     def __repr__(self):
         fields = utils.format_date(self.order_date),\
-            ya.utils.format_money(self.total_charged), self.order_id
+            ya.utils.format_money(self.total_charged), self.id
         return ' | '.join(map(str, fields))
 
     # used to combine orders that shipped separately
@@ -23,7 +23,7 @@ class Order:
         ya.utils.log_debug(self, other)
         ya.utils.log_debug(self.__dict__, other.__dict__)
         assert isinstance(other, Order)
-        assert other.order_id == self.order_id
+        assert other.id == self.id
         ya.utils.log_debug(self.__dict__.keys(), other.__dict__.keys())
         assert set(self.__dict__.keys()) == set(other.__dict__.keys())
         ya.utils.log_debug(self._parent_dict.keys(), other._parent_dict.keys())
