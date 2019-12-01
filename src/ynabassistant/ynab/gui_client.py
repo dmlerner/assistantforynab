@@ -175,7 +175,7 @@ def add_unlinked_account(account_name, balance=0, account_type='credit'):
 
 def delete_transactions():
     load_gui()
-    search('Memo: ' + ya.ynab.delete_key)
+    search('Memo: ' + ya.ynab.ynab.delete_key)
     if not isinstance(ya.utils.gui.get('ynab-checkbox-button-square'), list):
         return  # Means no transactions in results to delete, because only one element
     select_all()
@@ -183,7 +183,9 @@ def delete_transactions():
     ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
     ya.utils.gui.send_keys(ya.utils.gui.Keys.DELETE)
     # Only gives confirm modal over some number of transactions. TODO: cut down this wait.
-    ya.utils.gui.get_by_text('button-primary', 'Delete', require=False, wait=7).click()
+    confirm_delete = ya.utils.gui.get_by_text('button-primary', 'Delete', require=False, wait=7)
+    if confirm_delete:
+        ya.utils.gui.click(confirm_delete)
 
 
 @ya.utils.listy

@@ -1,8 +1,5 @@
 from ynabassistant.ynab import ynab
 from ynabassistant import settings
-import ynabassistant
-from ynabassistant import settings
-import ynabassistant.ynab as ynab
 from ynabassistant.assistant import Assistant
 
 '''
@@ -21,7 +18,7 @@ def delete_extra_accounts():
     return whitelist
 
 
-def test():
+def main():
     Assistant.download_ynab(accounts=True, transactions=True)
     test_data, annotated = delete_extra_accounts()
     ynab.do()
@@ -31,4 +28,4 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    main()

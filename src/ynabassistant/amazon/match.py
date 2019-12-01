@@ -9,6 +9,7 @@ def get_order(t, orders):
         # need negative because YNAB outflows have negative amount
         if ya.utils.equalish(order.total_charged, -ya.ynab.utils.amount(t)):
             possible_orders.append(order)
+    ya.utils.log_debug('possible_orders', possible_orders)
     if len(possible_orders) == 0:
         ya.utils.log_debug('No matching order for transaction')
         return None
@@ -22,6 +23,8 @@ def get_order(t, orders):
             ya.utils.log_debug('Skipping ambiguous transaction', t, possible_orders)
         unused_orders = [o for o in possible_orders if o.id not in assigned_ids]
         # TODO want shipment_date change parser property
+        if not unused_orders:
+            return None
         unused_orders.sort(key=lambda o: ya.utils.day_delta(t.date, o.order_date))
         order = unused_orders[0]
     assigned_ids.add(order.id)

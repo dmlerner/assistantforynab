@@ -1,7 +1,6 @@
 import ynab_api
 
 import ynabassistant as ya
-from . import utils
 
 
 configuration = ynab_api.configuration.Configuration()

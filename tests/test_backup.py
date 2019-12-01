@@ -1,4 +1,5 @@
 import ynabassistant as ya
+from tests import setup_data
 import time
 
 
@@ -42,13 +43,13 @@ def download_and_compare(annotated, wait=5, retries=2):
 def test():
     save_and_load_int()
     ya.Assistant.download_all_ynab()  # TODO probably don't need all of that
-    ya.test.test_data_setup.delete_extra_accounts()
-    ya.ynab.do()
+    setup_data.delete_extra_accounts()
+    ya.ynab.ynab.do()
     # ya.utils.gui.quit()
     annotated = save_and_load_anotated_transactions()
     new_account = ya.ynab.add_unlinked_account(ya.settings.account_name)
     ya.ynab.queue_copy_to_account(annotated, new_account)
-    ya.ynab.do()
+    ya.ynab.ynab.do()
     download_and_compare(annotated)
 
 

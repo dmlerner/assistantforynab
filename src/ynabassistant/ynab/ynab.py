@@ -1,7 +1,5 @@
-import copy
 import time
 import collections
-import ynab
 import ynab_api
 import ynabassistant as ya
 
