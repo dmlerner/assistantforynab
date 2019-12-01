@@ -96,6 +96,22 @@ def listy(f):
     return flexible_f
 
 
+def listy_method(f):  # TODO: DRY
+    @functools.wraps(f)
+    def flexible_f(self, xs, *args, **kwargs):
+        if xs is None:
+            ya.utils.log_debug('argument to listy is None, returning')
+            return
+        if isinstance(xs, dict):
+            xs = list(xs.values())
+        try:
+            xs = list(xs)
+        except BaseException:
+            xs = [xs]
+        return f(self, xs, *args, **kwargs)
+    return flexible_f
+
+
 @listy
 def group_by(collection, key):
     grouped = collections.defaultdict(list)

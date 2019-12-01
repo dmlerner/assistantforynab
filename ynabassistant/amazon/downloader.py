@@ -28,7 +28,7 @@ def wait_for_download(timeout=30):
 
 def parse_items(item_dicts):
     ya.utils.log_debug('parse_items', len(item_dicts))
-    return ya.utils.group_by(map(Item, item_dicts), lambda i: i.order_id)
+    return ya.utils.group_by(map(Item, item_dicts), lambda i: i.id) # this is an Order.id
 
 
 def parse_orders(order_dicts):

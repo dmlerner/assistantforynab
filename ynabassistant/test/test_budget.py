@@ -5,7 +5,7 @@ def main():
     ya.Assistant.download_ynab(categories=True)
     goals = list(filter(lambda g: g.days_remaining(),
                         map(ya.budgeter.Goal,
-                            ya.Assistant.categories.values())))
+                            ya.Assistant.categories)))
     p = ya.budgeter.Priority(goals[:3], (1, 1, 2))
     a, b, c = p.goals
     a.name = 'a'

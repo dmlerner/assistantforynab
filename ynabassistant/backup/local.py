@@ -1,4 +1,5 @@
 import jsonpickle
+import collections
 import os
 import glob
 import datetime
@@ -10,17 +11,20 @@ import ynabassistant as ya
 
 # Local Backup
 
+versions = collections.defaultdict(lambda: -1)
+
 
 def get_backup_path(t, n):
-    name = '%s-%s-%s.jsonpickle' % (ya.settings.start_time, t, n)
+    name = '%s-%s-%s.jsonpickle' % (ya.settings.start_time, t, n)  # TODO: DRY
     return os.path.join(ya.settings.backup_dir, name)
 
 
 @ya.utils.listy
-def save(x, n):
+def store(x):
     assert len(set(map(type, x))) == 1
     t = type(x[0])
-    path = get_backup_path(t, n)
+    versions[t] += 1
+    path = get_backup_path(t, versions[t])
     with open(path, 'w+') as f:
         f.write(jsonpickle.encode(x))
     return path
@@ -29,7 +33,7 @@ def save(x, n):
 def load_before(t, timestamp=ya.settings.start_time):
     ''' Load the newest file made before timestamp '''
     assert isinstance(timestamp, datetime.datetime)
-    paths = glob.glob(ya.settings.backup_dir + '/*-' + str(t) + '.jsonpickle')
+    paths = glob.glob(ya.settings.backup_dir + '/*-' + str(t) + '-*.jsonpickle')
     for path in sorted(paths, reverse=True):
         filename = path.replace(ya.settings.backup_dir + '/', '')
         file_timestamp = filename[:filename.index('-<')]
@@ -42,16 +46,21 @@ def load_before(t, timestamp=ya.settings.start_time):
     return load_path(path)
 
 
-def load(t, n, predicates=()):
+def load(t, n=None, predicates=()):
+    ya.utils.log_debug('load', t, n)
+    if n is None:
+        return sum(map(lambda n: load(t, n), range(versions[t] + 1)), [])
+    if n == -1:  # ie, most recent
+        n = versions[t]
     loaded = load_path(get_backup_path(t, n))
     return ya.utils.multi_filter(predicates, loaded)
 
 
-def load_transactions(n, predicates=()):
+def load_transactions(n=None, predicates=()):
     return load(ynab_api.TransactionDetail, n, predicates)
 
 
-def load_account_transactions(account_name, n, predicates=()):
+def load_account_transactions(account_name, n=None, predicates=()):
     return load_transactions(n, (lambda t: t.account_name == account_name,) + predicates)
 
 
@@ -65,18 +74,16 @@ def load_path(path):
         return decoded
 
 
-def save_and_log(f):
-    f.n_calls = 0
+def save(f):
 
     @functools.wraps(f)
-    def save_and_log_f(*args, **kwargs):
+    def _f(*args, **kwargs):
         ya.utils.log_debug(*args, **kwargs)
-        f.n_calls += 1
         ret = f(*args, **kwargs)
         if not ret:
             ya.utils.log_debug('null ret', ret)
             return
         ya.utils.log_debug(*ret)
-        ya.backup.local.save(ret, f.n_calls)
+        ya.backup.local.store(ret)
         return ret
-    return save_and_log_f
+    return _f

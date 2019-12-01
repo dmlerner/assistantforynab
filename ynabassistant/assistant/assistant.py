@@ -10,7 +10,7 @@ class Assistant:
     category_groups = ya.utils.Cache()
     payees = ya.utils.Cache()
 
-    orders = collections.defaultidict(list)
+    orders = collections.defaultdict(list)
     items = {}
 
     def load_amazon_data():
@@ -56,9 +56,10 @@ class Assistant:
             order = orders_by_transaction_id[t_id]
             i = Assistant.items[order.id]
             assert i
-            t = Assistant.transactions[t_id]
+            t = Assistant.transactions.get(t_id)
             ya.amazon.annotate(t, order, i)
-            ya.ynab.queue_update(t, Assistant.payees, Assistant.categories)
+            # ya.ynab.queue_update(t, Assistant.payees, Assistant.categories)
+            ya.ynab.queue_update(t)
         ya.utils.log_info(ya.utils.separator)
 
     def update_ynab():

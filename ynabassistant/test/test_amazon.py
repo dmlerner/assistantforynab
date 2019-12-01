@@ -2,7 +2,7 @@ import ynabassistant as ya
 
 
 def main():
-    ya.test.restore_test_data.main()
+    ya.test.test_data_setup.main()
     a = ya.Assistant
     a.download_all_ynab()
     a.load_amazon_data()

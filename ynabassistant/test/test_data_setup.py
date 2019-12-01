@@ -10,18 +10,18 @@ Restore state for start of tests:
 
 
 def delete_extra_accounts():
-    account_names = set(ya.assistant.utils._accounts.keys())
-    whitelist = {'Test Data', 'Annotated'}
-    to_delete = list(filter(lambda n: n not in whitelist, account_names))
-    ya.ynab.queue_delete_accounts(list(map(ya.assistant.utils.get_account, to_delete)))
+    whitelist = list(map(ya.Assistant.accounts.by_name, ('Test Data', 'Annotated')))
+    to_delete = filter(lambda a: a not in whitelist, ya.Assistant.accounts)
+    ya.ynab.queue_delete_accounts(to_delete)
+    return whitelist
 
 
 def main():
     ya.Assistant.download_ynab(accounts=True, transactions=True)
-    delete_extra_accounts()
+    test_data, annotated = delete_extra_accounts()
     ya.ynab.do()
     ya.Assistant.download_ynab(accounts=True)
-    ya.ynab.queue_clone_account(ya.assistant.utils.get_account('Test Data'), ya.settings.account_name)
+    ya.ynab.queue_clone_account(test_data, ya.settings.account_name)
     ya.ynab.do()
 
 

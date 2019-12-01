@@ -1,11 +1,10 @@
 import ynabassistant as ya
 import ynab_api
-
+from . import test
 
 def main():
-    c = ya.ynab.cache.Cache()
-    x = ya.ynab.cache.X()
-    return c, x
+    test.test_budget.main()
+
 
 if __name__ == '__main__':
-    c, x = main()
+    main()

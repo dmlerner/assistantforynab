@@ -16,7 +16,7 @@ transactions_api = ynab_api.TransactionsApi(api_client)
 payees_api = ynab_api.PayeesApi(api_client)
 
 
-@ya.backup.local.save_and_log
+@ya.backup.local.save
 def get_all_accounts():
     ya.utils.log_debug('get_all_accounts')
     response = accounts_api.get_accounts(ya.settings.budget_id)
@@ -26,7 +26,7 @@ def get_all_accounts():
     return acs
 
 
-@ya.backup.local.save_and_log
+@ya.backup.local.save
 def get_all_transactions():
     ya.utils.log_debug('get_all_transactions')
     response = transactions_api.get_transactions(ya.settings.budget_id)
@@ -37,7 +37,7 @@ def get_all_transactions():
 
 
 @ya.utils.listy
-@ya.backup.local.save_and_log
+@ya.backup.local.save
 def update_transactions(transactions):
     ya.utils.log_debug('update_transactions')
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in transactions)
@@ -49,7 +49,7 @@ def update_transactions(transactions):
 
 
 @ya.utils.listy
-@ya.backup.local.save_and_log
+@ya.backup.local.save
 def create_transactions(transactions):
     ya.utils.log_debug('create_transactions')
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in transactions)
@@ -60,7 +60,7 @@ def create_transactions(transactions):
     return ts
 
 
-@ya.backup.local.save_and_log
+@ya.backup.local.save
 def get_category_groups():
     ya.utils.log_debug('get_category_groups')
     response = categories_api.get_categories(ya.settings.budget_id)
@@ -72,7 +72,7 @@ def get_category_groups():
 
 
 @ya.utils.listy
-@ya.backup.local.save_and_log
+@ya.backup.local.save
 def update_categories(categories):
     ya.utils.log_debug('update_categories', categories)
     assert all(isinstance(c, ynab_api.Category) for c in categories)
@@ -88,7 +88,7 @@ def update_categories(categories):
     return updated_categories
 
 
-@ya.backup.local.save_and_log
+@ya.backup.local.save
 def get_payees():
     ya.utils.log_debug('get_payees')
     response = payees_api.get_payees(ya.settings.budget_id)

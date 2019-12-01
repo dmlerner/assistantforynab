@@ -176,13 +176,14 @@ def add_unlinked_account(account_name, balance=0, account_type='credit'):
 def delete_transactions():
     load_gui()
     search('Memo: ' + ya.ynab.delete_key)
+    ya.utils.debug()
     if not isinstance(ya.utils.gui.get('ynab-checkbox-button-square'), list):
-        return
+        return  # Means no transactions in results to delete, because only one element
     select_all()
     ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
     ya.utils.gui.send_keys(ya.utils.gui.Keys.TAB)
     ya.utils.gui.send_keys(ya.utils.gui.Keys.DELETE)
-    ya.utils.gui.get_by_text('button-primary', 'Delete').click()
+    ya.utils.gui.get_by_text('button-primary', 'Delete').click()  # Yet somehow this was reached with no results??
 
 
 @ya.utils.listy
