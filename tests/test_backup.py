@@ -39,7 +39,7 @@ def download_and_compare(annotated, wait=5, retries=2):
     download_and_compare(annotated, wait, retries - 1)
 
 
-def main():
+def test():
     save_and_load_int()
     ya.Assistant.download_all_ynab()  # TODO probably don't need all of that
     ya.test.test_data_setup.delete_extra_accounts()
@@ -53,4 +53,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    test()

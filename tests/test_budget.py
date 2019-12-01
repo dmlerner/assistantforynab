@@ -1,7 +1,7 @@
 import ynabassistant as ya
 
 
-def main():
+def test():
     ya.Assistant.download_ynab(categories=True)
     goals = list(filter(lambda g: g.days_remaining(),
                         map(ya.budgeter.Goal,
@@ -46,4 +46,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    test()

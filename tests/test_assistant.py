@@ -1,7 +1,7 @@
 import ynabassistant as ya
 
 
-def main():
+def test():
     ya.Assistant.download_all_ynab()
     ya.Assistant.load_amazon_data()
     ya.Assistant.update_amazon_transactions()
@@ -9,4 +9,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    test()
