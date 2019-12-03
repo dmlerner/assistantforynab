@@ -29,17 +29,30 @@ class Goal:
         return self.amount_remaining() / self.days_remaining()
 
     def __repr__(self):
-        money_fields = tuple(map(ya.utils.format_money,
+        money_fields = tuple(map(ya.ynab.utils.parse_money,
                                  (self.amount_remaining(),
                                   self.category.balance,
                                   self.category.budgeted,
                                   self.budget_rate_required())))
-        str_fields = (self.category.name, self.days_remaining()) + money_fields
+        str_fields = (self.category.name, round(self.days_remaining(), 2)) + money_fields
         return ' | '.join(map(str, str_fields))
 
-    def adjust_budget(self, amount):
+    def adjust_budget(self, amount, allow_noninteger=False):
+        ya.utils.log_info('adjust_budget', amount, self)
+        if not allow_noninteger:
+            assert isinstance(amount, int)
+        amount = amount
         self.category.balance += amount
         self.category.budgeted += amount
+
+    def fix_fractional_cents(self):
+        ya.utils.log_info(self, self.category)
+        ya.utils.log_info(self.category.balance, round(self.category.balance))
+        ya.utils.log_info(self.category.budgeted, round(self.category.budgeted))
+        assert ya.utils.equalish(self.category.balance, round(self.category.balance, -1), -1)
+        assert ya.utils.equalish(self.category.budgeted, round(self.category.budgeted, -1), -1)
+        self.category.budgeted = int(self.category.budgeted)
+        self.category.balance = int(self.category.balance)
 
     def available(self):
         return self.category.balance  # TODO

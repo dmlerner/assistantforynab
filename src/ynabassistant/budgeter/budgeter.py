@@ -23,7 +23,7 @@ class Budgeter:
             source.distribute(-use)
             sink.distribute(use)
             after = source.total_available() + sink.total_available()
-            assert ya.utils.equalish(after, before)
+            assert ya.utils.equalish(after, before, -1)
 
     def confirm(self):
         pass

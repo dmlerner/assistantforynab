@@ -10,7 +10,6 @@ import ynabassistant as ya
 def parse_money(price):
     if price is None:
         return None
-    assert isinstance(price, int)
     return price / 1000
 
 
