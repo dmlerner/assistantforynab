@@ -140,6 +140,12 @@ def equalish(a, b, precision=4):
     return round(a, precision) == round(b, precision)
 
 
+def maybe_round(x, precision=0):
+    if x is None:
+        return None
+    return round(x, precision)
+
+
 def debug():
     pdb.set_trace()
 
@@ -228,7 +234,7 @@ def debug_assert(x):
 def is_myobj(o):
     try:
         return 'ynab_api' in o.__module__ or 'ynabassistant' in o.__module__
-    except:
+    except BaseException:
         return False
 
 
