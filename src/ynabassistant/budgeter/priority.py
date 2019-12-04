@@ -18,7 +18,7 @@ class Priority:
         self.weights = list(weights)
 
     def total_need(self):
-        return sum(g.amount_remaining() for g in self.goals)
+        return sum(g.need() for g in self.goals)
 
     def normalized_rates(self):
         # or 1 handles the days_remaining is None case
@@ -28,11 +28,21 @@ class Priority:
     def total_available(self):
         return sum(g.available() for g in self.goals)
 
+    def withdraw_all(self):
+        self.fix_negative_available()  # TODO speed this up, or manage to need it less
+        return sum(g.withdraw_all() for g in self.goals)
+
+    def withdraw_surplus(self):
+        self.fix_negative_available()
+        return sum(g.withdraw_surplus() for g in self.goals)
+
+    def surplus(self):
+        return sum(g.surplus() for g in self.goals)
+
     @staticmethod
     def to_integer_cents(vals):
         # vals in milliunits, ie tenths of a cent
         initial_total = sum(vals)
-        #ya.utils.log_debug('vals, initial_total', vals, initial_total)
 
         def sign(x):
             return 1 if x > 0 else -1
@@ -67,14 +77,15 @@ class Priority:
         '''
         ya.utils.log_debug('dist', self, amount)
         ya.utils.log_debug(self, amount)
-        #if int(amount) == 0:
+        # if int(amount) == 0:
         #    return
+        ya.utils.log_info(self, self.total_available(), amount)
         assert self.total_available() + amount >= 0
         self.goals[0].adjust_budget(amount)
 
         need = self.total_need()
         rates = self.normalized_rates()
-        adjustments = [g.amount_remaining() - r * need for r, g in zip(rates, self.goals)]
+        adjustments = [g.need() - r * need for r, g in zip(rates, self.goals)]
         for a, g in zip(adjustments, self.goals):
             g.adjust_budget(a, True)
 

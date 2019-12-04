@@ -95,9 +95,11 @@ def f():
 def g():
     return f(), sum(a[0] for a in f()), sum(a[1] for a in f())
 
+
 g0 = g()
 ya.utils.log_info(bud)
-bud.budget()
-ya.utils.log_info(bud)
 print(g0)
-print(g())
+bud.budget3()
+#ya.utils.log_info(bud)
+#print(g0)
+#print(g())

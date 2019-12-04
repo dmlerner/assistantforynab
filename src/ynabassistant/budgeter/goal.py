@@ -18,19 +18,19 @@ class Goal:
         deadline = self.category.goal_target_month or ya.ynab.utils.first_of_coming_month()
         return ya.utils.day_delta(deadline)
 
-    def amount_remaining(self):
-        if not self.category.goal_type:
-            return 0
+    def need(self):
+        if not self.is_goal():
+            return min(0, -self.available())
         progress = self.category.balance if self.category.goal_type == 'TBD' else self.category.budgeted
         return self.category.goal_target - progress
 
     def budget_rate_required(self):
         days = self.days_remaining() or 1  # works out well/proportionally for static goals
-        return self.amount_remaining() / days
+        return self.need() / days
 
     def __repr__(self):
         money_fields = tuple(map(ya.ynab.utils.parse_money,
-                                 (self.amount_remaining(),
+                                 (self.need(),
                                   self.category.balance,
                                   self.category.budgeted,
                                   self.delta,
@@ -55,14 +55,27 @@ class Goal:
         self.category.budgeted = int(self.category.budgeted)
         self.category.balance = int(self.category.balance)
 
+    def withdraw_all(self):
+        available = self.available()
+        self.adjust_budget(-available)
+        return available
+
+    def withdraw_surplus(self):
+        surplus = self.surplus()
+        self.adjust_budget(-surplus)
+        return surplus
+
     def available(self):
-        return self.category.balance  # TODO
+        return max(0, self.category.balance)  # TODO
+
+    def surplus(self):
+        return max(0, -self.need())
 
     def is_static(self):
-        return bool(self.category.goal_type and (self.days_remaining() is None))
+        return self.is_goal() and (self.days_remaining() is None)
 
     def is_timed(self):
-        return bool(self.category.goal_type and (self.days_remaining() is not None))
+        return self.is_goal() and (self.days_remaining() is not None)
 
     def is_goal(self):
         return bool(self.category.goal_type)

@@ -11,7 +11,7 @@ class Budgeter:
         unimportant = reversed(self.priorities)
         sink = next(important)
         source = next(unimportant)
-        #ya.utils.debug()
+        # ya.utils.debug()
         while source is not sink:
             ya.utils.log_info(source, sink)
             need = sink.total_need()
@@ -52,6 +52,16 @@ class Budgeter:
             after = p1.total_available() + p2.total_available()
             assert ya.utils.equalish(after, before, -1)
 
+    def budget3(self):
+        avail = sum(p.withdraw_all() for p in self.priorities)
+        self.priorities[0].distribute(avail)
+        surplus = self.priorities[0].withdraw_surplus()
+        for p in self.priorities[1:]:
+            p.distribute(surplus)
+            surplus = p.withdraw_surplus()
+        self.priorities[0].distribute(surplus)
+        self.priorities[0].distribute(sum(p.withdraw_surplus() for p in self.priorities[1:]))
+
     def confirm(self):
         pass
 
@@ -61,5 +71,5 @@ class Budgeter:
         ya.ynab.api_client.update_categories(categories)  # TODO: queue via ynab.ynab
 
     def __repr__(self):
-        out = ['%s:\n%s'%(i, str(self.priorities[i])) for i in range(len(self.priorities))]
+        out = ['%s:\n%s' % (i, str(self.priorities[i])) for i in range(len(self.priorities))]
         return '\n'.join(out)
