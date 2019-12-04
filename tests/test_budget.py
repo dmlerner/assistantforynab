@@ -29,12 +29,18 @@ def test():
     p0, p1, p2, p3, p4, p5 = priorities =\
         [ya.budgeter.Priority(get(x)) for x in
          (
+            'boa visa 5071',
             'chase 1.5%, chase amazon',
             'irs, interest & fees',
-            'boa visa 5071',
             'digital subscription, electric, groceries, phone, renter\'s insurance',
             'housekeeping, xiaolu',
         )] + [ya.budgeter.Priority(nongoals)]
 
     bud = ya.budgeter.Budgeter(*priorities)
     bud.budget3()
+    ya.utils.log_info(bud)
+    ya.utils.debug()
+
+
+if __name__ == '__main__':
+    test()

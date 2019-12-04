@@ -39,14 +39,25 @@ class Goal:
         return self.need() / days
 
     def __repr__(self):
-        money_fields = tuple(map(ya.ynab.utils.parse_money,
-                                 (self.need(),
-                                  self.category.balance,
-                                  self.category.budgeted,
-                                  self.delta,
-                                  ya.utils.maybe_round(self.budget_rate_required()))))
-        str_fields = (self.category.name, ya.utils.maybe_round(self.days_remaining(), 1)) + money_fields
-        return ' | '.join(map(str, str_fields))
+        return str(vars(self))
+
+    def to_record(self):
+        money_fields = ya.utils.formatter.Field.make_fields({
+            'Need': self.need(),
+            'Surplus': self.surplus(),
+            'Balance': self.category.balance,
+            'Budgeted': self.category.budgeted,
+            'Delta': self.delta,
+            'BRR': self.budget_rate_required()
+        }, ya.ynab.utils.format_money)
+        string_fields = ya.utils.formatter.Field.make_fields({
+            'Name': self.category.name,
+            'Days': ya.utils.maybe_round(self.days_remaining(), 1),
+        })
+        return ya.utils.formatter.Record(money_fields + string_fields)
+
+    def __str__(self):
+        return str(self.to_record())
 
     def adjust_budget(self, amount, allow_noninteger=False):
         ya.utils.log_debug('adjust_budget', amount, self)
@@ -57,9 +68,6 @@ class Goal:
         self.category.budgeted += amount
 
     def fix_fractional_cents(self):
-        ya.utils.log_debug(self, self.category)
-        ya.utils.log_debug(self.category.balance, round(self.category.balance))
-        ya.utils.log_debug(self.category.budgeted, round(self.category.budgeted))
         assert ya.utils.equalish(self.category.balance, round(self.category.balance, -1), -1)
         assert ya.utils.equalish(self.category.budgeted, round(self.category.budgeted, -1), -1)
         self.category.budgeted = int(self.category.budgeted)
@@ -76,7 +84,7 @@ class Goal:
         return surplus
 
     def available(self):
-        return max(0, self.category.balance)  # TODO
+        return max(0, self.category.balance)  # TODO: allow credit cards to accrue debt
 
     def surplus(self):
         return max(0, -self.need())

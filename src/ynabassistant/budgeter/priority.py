@@ -125,5 +125,6 @@ class Priority:
         ya.utils.log_debug('total_need after, before', self.total_need(), need)
         assert ya.utils.equalish(self.total_need(), need, -1)
 
-    def __repr__(self):
-        return '\n'.join(map(str, self.goals))
+    def __str__(self):
+        table = ya.utils.formatter.Table([g.to_record() for g in self.goals], 'TITLE')
+        return str(table)

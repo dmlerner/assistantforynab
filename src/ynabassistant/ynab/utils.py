@@ -1,5 +1,4 @@
 import datetime
-import functools
 import re
 
 import ynab_api
@@ -11,6 +10,13 @@ def parse_money(price):
     if price is None:
         return None
     return price / 1000
+
+
+def format_money(price):
+    parsed = parse_money(price)
+    if price is None:
+        return ''
+    return str(round(parsed, 2))
 
 
 def amount(st):
