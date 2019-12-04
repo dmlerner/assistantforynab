@@ -16,8 +16,8 @@ payees_api = ynab_api.PayeesApi(api_client)
 
 
 @ya.backup.local.save
-def get_all_accounts():
-    ya.utils.log_debug('get_all_accounts')
+def get_accounts():
+    ya.utils.log_debug('get_accounts')
     response = accounts_api.get_accounts(ya.settings.budget_id)
     acs = response.data.accounts
     assert all(isinstance(ac, ynab_api.Account) for ac in acs)
@@ -26,8 +26,8 @@ def get_all_accounts():
 
 
 @ya.backup.local.save
-def get_all_transactions():
-    ya.utils.log_debug('get_all_transactions')
+def get_transactions():
+    ya.utils.log_debug('get_transactions')
     response = transactions_api.get_transactions(ya.settings.budget_id)
     ts = response.data.transactions
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in ts)

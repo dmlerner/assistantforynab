@@ -39,6 +39,9 @@ class Priority:
     def surplus(self):
         return sum(g.surplus() for g in self.goals)
 
+    def delta(self):
+        return sum(g.delta for g in self.goals)
+
     @staticmethod
     def to_integer_cents(vals):
         # vals in milliunits, ie tenths of a cent

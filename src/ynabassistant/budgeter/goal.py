@@ -4,25 +4,35 @@ import ynabassistant as ya
 
 
 class Goal:
+
     def __init__(self, category):
         assert isinstance(category, ynab_api.Category)
         self.category = category
-        self.is_credit_card_payment = category.name in ya.settings.credit_card_group_names
+        self.credit_card = ya.Assistant.accounts.by_name(category.name)
         self.delta = 0
 
     def days_remaining(self):
-        if not self.category.goal_type:
+        if not self.is_goal():
             return None
         if self.category.goal_type == 'TB' and not self.category.goal_target_month:
             return None
         deadline = self.category.goal_target_month or ya.ynab.utils.first_of_coming_month()
         return ya.utils.day_delta(deadline)
 
-    def need(self):
+    def need(self):  # TODO: custom credit card goal types: net budgeted per month, always pay off
         if not self.is_goal():
             return min(0, -self.available())
-        progress = self.category.balance if self.category.goal_type == 'TBD' else self.category.budgeted
-        return self.category.goal_target - progress
+        if self.category.goal_type == 'TBD':  # Target By Date
+            progress = self.category.balance
+            if self.credit_card:
+                progress += self.credit_card.balance  # negative in general
+        else:  # TB = Target Budgeted
+            progress = self.category.budgeted
+            # if self.credit_card: # This seems reasonable, but isn't how the official goal type works
+            #     progress += self.category.activity
+
+        need = self.category.goal_target - progress
+        return need
 
     def budget_rate_required(self):
         days = self.days_remaining() or 1  # works out well/proportionally for static goals

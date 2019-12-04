@@ -87,3 +87,19 @@ def save(f):
         ya.backup.local.store(ret)
         return ret
     return _f
+
+
+def get_accounts():
+    return load_before(ynab_api.Account)
+
+
+def get_transactions():
+    return load_before(ynab_api.TransactionDetail)
+
+
+def get_category_groups():
+    return load_before(ynab_api.CategoryGroupWithCategories)
+
+
+def get_payees():
+    return load_before(ynab_api.Payee)
