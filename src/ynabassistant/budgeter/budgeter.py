@@ -71,5 +71,5 @@ class Budgeter:
         ya.ynab.api_client.update_categories(categories)  # TODO: queue via ynab.ynab
 
     def __repr__(self):
-        out = ['%s:\n%s' % (i, str(self.priorities[i])) for i in range(len(self.priorities))]
+        out = ['%s:%s\n' % (i, str(self.priorities[i])) for i in range(len(self.priorities))]
         return '\n'.join(out)

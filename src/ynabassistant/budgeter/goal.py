@@ -54,7 +54,7 @@ class Goal:
             'Name': self.category.name,
             'Days': ya.utils.maybe_round(self.days_remaining(), 1),
         })
-        return ya.utils.formatter.Record(money_fields + string_fields)
+        return ya.utils.formatter.Record(string_fields + money_fields)
 
     def __str__(self):
         return str(self.to_record())

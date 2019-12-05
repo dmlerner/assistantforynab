@@ -39,7 +39,7 @@ def test():
     bud = ya.budgeter.Budgeter(*priorities)
     bud.budget3()
     ya.utils.log_info(bud)
-    ya.utils.debug()
+    #ya.utils.debug()
 
 
 if __name__ == '__main__':

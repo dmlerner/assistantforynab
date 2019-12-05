@@ -126,5 +126,5 @@ class Priority:
         assert ya.utils.equalish(self.total_need(), need, -1)
 
     def __str__(self):
-        table = ya.utils.formatter.Table([g.to_record() for g in self.goals], 'TITLE')
+        table = ya.utils.formatter.Table([g.to_record() for g in self.goals])
         return str(table)
