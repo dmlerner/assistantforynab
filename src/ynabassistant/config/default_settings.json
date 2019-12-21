@@ -1,0 +1,18 @@
+{
+	"debug_verbosity" : 2,
+	"info_verbosity" : 1,
+	"error_verbosity" : 0,
+
+	"log_verbosity" : 2,
+	"print_verbosity" : 1,
+
+	"max_log_age_days" : 90,
+
+
+	"fail_on_ambiguous_transaction" : false,
+	"default_category" : "ynabassistant",
+
+	"force_download_amazon" : false,
+
+	"credit_card_group_names" : ["Credit Card Payments"]
+}

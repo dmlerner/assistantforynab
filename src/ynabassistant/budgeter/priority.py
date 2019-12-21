@@ -110,12 +110,12 @@ class Priority:
 
     def fix_negative_available(self):
         ''' Want distribute to never make sum of negative balances worse '''
-        need_fixing = [g for g in self.goals if g.available() < 0]
+        need_fixing = [g for g in self.goals if g.deficit()]
         assert len(need_fixing) != len(self.goals)
         ya.utils.log_info(len(need_fixing), len(self.goals))
         if not need_fixing:
             return
-        deficit = sum(g.available() for g in need_fixing)
+        deficit = sum(g.deficit() for g in need_fixing)
         need = self.total_need()
         for g in need_fixing:
             self.goals.remove(g)
@@ -124,6 +124,7 @@ class Priority:
         self.goals.extend(need_fixing)
         ya.utils.log_debug('total_need after, before', self.total_need(), need)
         assert ya.utils.equalish(self.total_need(), need, -1)
+        assert not [g for g in self.goals if g.deficit()]
 
     def __str__(self):
         table = ya.utils.formatter.Table([g.to_record() for g in self.goals])

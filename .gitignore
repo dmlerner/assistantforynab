@@ -16,3 +16,6 @@ dist
 **/*~*
 **/backups
 *egg-info*
+**/settings.json
+chromedriver.exe
+**/backupsettings.json

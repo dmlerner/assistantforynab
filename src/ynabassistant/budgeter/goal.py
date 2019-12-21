@@ -9,6 +9,7 @@ class Goal:
         assert isinstance(category, ynab_api.Category)
         self.category = category
         self.credit_card = ya.Assistant.accounts.by_name(category.name)
+        self.min_balance = 0  # TODO: credit cards
         self.delta = 0
 
     def days_remaining(self):
@@ -84,10 +85,13 @@ class Goal:
         return surplus
 
     def available(self):
-        return max(0, self.category.balance)  # TODO: allow credit cards to accrue debt
+        return max(0, self.category.balance - self.min_balance)
 
     def surplus(self):
         return max(0, -self.need())
+
+    def deficit(self):
+        return max(0, self.min_balance - self.category.balance)
 
     def is_static(self):
         return self.is_goal() and (self.days_remaining() is None)

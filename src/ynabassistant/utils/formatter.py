@@ -3,7 +3,7 @@ from copy import deepcopy
 
 
 class Field:
-    def __init__(self, name, value, formatter):
+    def __init__(self, name, value, formatter=lambda x: str(x) if x is not None else ''):
         self.name = name
         self.value = value
         self.formatter = formatter
@@ -12,7 +12,7 @@ class Field:
         self.width = None
 
     def __str__(self):
-        self.formatted = self.formatter(self.value)
+        self.formatted = self.value is not None and self.formatter(self.value) or ''
         self.width = self.width or len(self.formatted)
         return ('%-' + str(self.width) + 's') % self.formatted
 

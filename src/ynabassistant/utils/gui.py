@@ -5,11 +5,7 @@ import subprocess
 import signal
 
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.remote.command import Command
 
@@ -117,6 +113,7 @@ def driver():
         options = Options()
         options.add_argument('user-data-dir={}'.format(ya.settings.chrome_data_dir))
         options.add_argument('--disable-extensions')
+        options.add_argument('executable_path={}'.format(ya.settings.chromedriver_path))
         _driver = webdriver.Chrome(options=options)
     except BaseException:
         quit()

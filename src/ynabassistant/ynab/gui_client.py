@@ -135,7 +135,7 @@ def enter_all_transactions(transactions):
     load_gui()
     for t in transactions:
         ya.utils.log_info(t)
-        if len(t.subtransactions) > 3:
+        if len(t.subtransactions) > 300:
             ya.utils.log_info(
                 '''Skipping puchase with %s items for speed reasons during alpha test.
                    Feel free to remove this check.''' % len(t.subtransactions)

@@ -53,6 +53,7 @@ class Budgeter:
             assert ya.utils.equalish(after, before, -1)
 
     def budget3(self):
+        ya.utils.debug()
         avail = sum(p.withdraw_all() for p in self.priorities)
         self.priorities[0].distribute(avail)
         surplus = self.priorities[0].withdraw_surplus()
