@@ -3,6 +3,8 @@ import ynabassistant as ya
 
 def test():
     pass
+
+
 ya.Assistant.load_ynab(categories=True, accounts=True, local=True)
 
 goals = list(filter(lambda g: g.category.name != 'Miscasdf', map(ya.budgeter.Goal, ya.Assistant.categories)))
@@ -24,8 +26,10 @@ buf = [g for g in goals if 'Buffer' in g.category.name].pop()
 ho = [g for g in goals if 'Housekeeping' in g.category.name].pop()
 ya.utils.log_info(visa, buf, ho)
 
+
 def get(x):
     return [names[name.lower().strip()] for name in x.split(',')]
+
 
 #    p0, p1, p2, p3, p4, p5 =\
 p0, p1 = priorities =\
@@ -36,7 +40,7 @@ p0, p1 = priorities =\
         'irs, interest & fees',
         'digital subscription, electric, groceries, phone, renter\'s insurance',
         #'housekeeping, xiaolu',
-    )] #+ [ya.budgeter.Priority(nongoals)]
+    )]  # + [ya.budgeter.Priority(nongoals)]
 
 bud = ya.budgeter.Budgeter(*priorities)
 ya.utils.debug()

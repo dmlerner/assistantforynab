@@ -2,7 +2,6 @@ from . import paths
 import json
 import shutil
 import os
-import sys
 
 
 class Settings:
@@ -30,9 +29,11 @@ class Settings:
 
 def copy_default_settings(clean=False):
     if clean or not os.path.exists(paths.settings_path):
+        print('copying default settings')
         shutil.copy(paths.default_settings_path, paths.settings_path)
 
-#copy_default_settings(True)
+
+# copy_default_settings(True)
 copy_default_settings()
 _s = Settings()
 _s.load_json()

@@ -2,12 +2,10 @@ import time
 import collections
 import ynab_api
 
-from ynabassistant import settings
-from ynabassistant.utils import utils
-import pdb
-#pdb.set_trace()
-from ynabassistant.assistant import Assistant
-from . import calculate_adjustment, api_client, gui_client, ynab
+import ynabassistant as ya
+from ynabassistant.utils import utils, gui
+from . import api_client, gui_client
+from .utils import calculate_adjustment, get_amount
 
 # Needed iff changing subtransactions
 gui_queue = collections.defaultdict(dict)  # mode: { id: TransactionDetail }
@@ -17,7 +15,7 @@ rest_queue = collections.defaultdict(dict)  # mode: { id: TransactionDetail }
 
 # set memo via rest; search and delete all via GUI
 transaction_delete_queue = {}  # { id: TransactionDetail }
-account_delete_queue = {}  # { id: Accountsomething... }
+account_delete_queue = {}  # { id: Accountsomething.. }
 
 
 def add_adjustment_subtransaction(t):
@@ -31,8 +29,8 @@ def add_adjustment_subtransaction(t):
     adjustment = utils.copy(t.subtransactions[0])
     adjustment.memo = 'Split transaction adjustment'
     adjustment.amount = amount
-    adjustment.category_name = settings.default_category  # TODO
-    utils.log_info('Warning, adjusting: subtransactions do not add up, by $%s' % -amount(adjustment))
+    adjustment.category_name = ya.settings.default_category  # TODO
+    utils.log_info('Warning, adjusting: subtransactions do not add up, by $%s' % -get_amount(adjustment))
     t.subtransactions.append(adjustment)
     assert utils.equalish(t.amount, sum(s.amount for s in t.subtransactions))
 
@@ -93,7 +91,7 @@ def do_gui():
         gui_client.enter_all_transactions(ts)
         utils.log_info(utils.separator)
     gui_queue.clear()
-    utils.gui.quit()
+    gui.quit()
 
 
 def check_payee(st, payees):
@@ -124,7 +122,7 @@ def queue(ts, mode, payees, categories):
     assert mode in rest_modes
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in ts)
     for t in ts:
-        if payees is not None:  # TODO: check them all at once. Or even like actually use this...
+        if payees is not None:  # TODO: check them all at once. Or even like actually use this..
             check_payee(t, payees)
         if categories is not None:
             check_category(t, categories)
@@ -178,12 +176,12 @@ def do_delete_accounts(wait=30, sleep=5):
     gui_client.delete_accounts(account_delete_queue)
     start = time.time()
     while time.time() - start < wait:  # TODO: consider fixing this instead or also in api_client
-        Assistant.download_ynab(accounts=True)
+        ya.Assistant.download_ynab(accounts=True)
         utils.log_debug(
             'account keys, delete queue keys', set(
-                Assistant.accounts.ids), set(
+                ya.Assistant.accounts.ids), set(
                 account_delete_queue.keys()))
-        if set(Assistant.accounts.ids).intersection(set(account_delete_queue.keys())):
+        if set(ya.Assistant.accounts.ids).intersection(set(account_delete_queue.keys())):
             time.sleep(sleep)
         else:
             account_delete_queue.clear()
@@ -210,16 +208,16 @@ def do_delete_transactions():
 def do_delete():
     utils.log_debug('do_delete')
     for a in account_delete_queue.values():
-        queue_delete_transactions(Assistant.transactions.by_name(a.name))
+        queue_delete_transactions(ya.Assistant.transactions.by_name(a.name))
     do_delete_transactions()
     do_delete_accounts()
-    utils.gui.quit()
+    gui.quit()
 
 
 @utils.listy
 def queue_move_transactions(ts, account):
     utils.log_debug('queue_move_transactions', ts, account)
-    assert Assistant.accounts.get(account.id)
+    assert ya.Assistant.accounts.get(account.id)
     queue_copy_to_account(ts, account)
     queue_delete_transactions(ts)
 
@@ -229,51 +227,51 @@ def modify_transaction_for_moving(t, account):
     t.account_id = account.id
     t.import_id = None
     for s in t.subtransactions:
-        # s.category_name = settings.default_category # TODO: surely we just want to leave it alone...
+        # s.category_name = ya.settings.default_category # TODO: surely we just want to leave it alone..
         if s.payee_id:
-            assert s.payee_id in Assistant.payees.ids
-            s.payee_name = Assistant.payees.get(s.payee_id).name
+            assert s.payee_id in ya.Assistant.payees.ids
+            s.payee_name = ya.Assistant.payees.get(s.payee_id).name
 
 
 @utils.listy
 def queue_copy_to_account(ts, account):
     utils.log_debug('queue_copy_to_account', ts, account)
-    assert Assistant.accounts.get(account.id)
+    assert ya.Assistant.accounts.get(account.id)
     to_copy = utils.copy(ts)
     for t in to_copy:
         modify_transaction_for_moving(t, account)
     utils.log_debug('to_copy', to_copy)
-    ynab.queue_create(to_copy)
+    queue_create(to_copy)
 
 
 def queue_clone_account(source_account, target_name):
     utils.log_debug('queue_clone_account', source_account, target_name)
-    assert Assistant.accounts.get(source_account.id)
-    target_account = Assistant.accounts.by_name(target_name)
+    assert ya.Assistant.accounts.get(source_account.id)
+    target_account = ya.Assistant.accounts.by_name(target_name)
     if target_account:
         queue_clear_account(target_account)
     else:
         add_unlinked_account(target_name)
         time.sleep(3)
-        Assistant.download_ynab(accounts=True)
-        target_account = Assistant.accounts.by_name(target_name)
-    ts = Assistant.transactions.by_name(source_account.name)
+        ya.Assistant.download_ynab(accounts=True)
+        target_account = ya.Assistant.accounts.by_name(target_name)
+    ts = ya.Assistant.transactions.by_name(source_account.name)
     queue_copy_to_account(ts, target_account)
 
 
 def queue_clear_account(account):
     utils.log_debug('queue_clear_account', account)
-    queue_delete_transactions(Assistant.transactions.by_name(account.name))
+    queue_delete_transactions(ya.Assistant.transactions.by_name(account.name))
 
 
 def add_unlinked_account(account_name, balance=0, account_type='credit'):
     utils.log_debug('add_unlinked_account', account_name, balance, account_type)
     gui_client.add_unlinked_account(account_name, balance, account_type)
-    utils.gui.quit()
-    Assistant.download_ynab(accounts=True)
+    gui.quit()
+    ya.Assistant.download_ynab(accounts=True)
     start = time.time()
     while time.time() - start < 30:  # TODO: generic retrier
-        new_account = Assistant.accounts.by_name(account_name)
+        new_account = ya.Assistant.accounts.by_name(account_name)
         if new_account:
             return new_account
     assert False

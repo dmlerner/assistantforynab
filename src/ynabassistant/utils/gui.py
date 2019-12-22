@@ -8,11 +8,9 @@ from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.remote.command import Command
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.keys import Keys  # used externally
 
 from ynabassistant.utils import utils
-#import settings
-#from ynabassistant import utils
 from ynabassistant import settings
 
 

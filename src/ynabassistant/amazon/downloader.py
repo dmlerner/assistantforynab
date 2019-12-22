@@ -2,9 +2,11 @@ import os
 import time
 import glob
 import csv
+import sys
+import traceback
 
-from ynabassistant.utils import utils
-import settings
+import ynabassistant as ya
+from ynabassistant.utils import utils, gui
 
 from . import Item, Order
 
@@ -12,7 +14,7 @@ from . import Item, Order
 def get_downloaded_csv_filenames():
     utils.log_debug('get_downloaded_csv_filenames')
     return set(
-        glob.glob(os.path.join(settings.downloads_dir, '*.csv')))
+        glob.glob(os.path.join(ya.settings.downloads_dir, '*.csv')))
 
 
 def wait_for_download(timeout=30):
@@ -41,7 +43,7 @@ def parse_orders(order_dicts):
 
 data_parsers = {'items': parse_items, 'orders': parse_orders}
 ' TODO: get refunds, returns '
-csv_paths = {k: os.path.join(settings.data_dir, k + '.csv')
+csv_paths = {k: os.path.join(ya.settings.data_dir, k + '.csv')
              for k in data_parsers}
 
 
@@ -72,8 +74,8 @@ def load(data_type):
     assert data_type in data_parsers
     target_path = csv_paths[data_type]
     try:
-        if settings.force_download_amazon or missing_csv(data_type):
-            d = utils.gui.driver()
+        if ya.settings.force_download_amazon or missing_csv(data_type):
+            d = gui.driver()
             url = 'https://smile.amazon.com/gp/b2b/reports'
             if url not in d.current_url:
                 d.get(url)
@@ -88,6 +90,9 @@ def load(data_type):
 
     except BaseException:
         utils.log_exception_debug()
+        if 'AttributeError' in traceback.format_exc():  # TODO: only retry on missing csv
+            utils.log_info('real error', traceback.format_exc())
+            sys.exit()
         if input('One more try? [Y/n]').lower() != 'n':
             load(data_type)
 

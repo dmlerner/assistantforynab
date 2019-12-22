@@ -66,17 +66,17 @@ class Assistant:
 
     def update_amazon_transactions():
         utils.log_info('Matching Amazon orders to YNAB transactions')
-        potential_amazon_transactions = ya.amazon.get_eligible_transactions(Assistant.transactions)
+        potential_amazon_transactions = ya.amazon.amazon.get_eligible_transactions(Assistant.transactions)
         orders_by_transaction_id = ya.amazon.match.match_all(potential_amazon_transactions, Assistant.orders)
         for t_id, order in orders_by_transaction_id.items():
             order = orders_by_transaction_id[t_id]
             i = Assistant.items[order.id]
             assert i
             t = Assistant.transactions.get(t_id)
-            ya.amazon.annotate(t, order, i)
-            # ynab.queue_update(t, Assistant.payees, Assistant.categories)
-            ya.ynab.queue_update(t)
+            ya.amazon.amazon.annotate(t, order, i)
+            # ya.ynab.ynab.queue_update(t, Assistant.payees, Assistant.categories)
+            ya.ynab.ynab.queue_update(t)
         utils.log_info(utils.separator)
 
     def update_ynab():
-        ya.ynab.do()
+        ya.ynab.ynab.do()

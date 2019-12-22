@@ -18,7 +18,7 @@ class Goal:
             return None
         if self.category.goal_type == 'TB' and not self.category.goal_target_month:
             return None
-        deadline = self.category.goal_target_month or ynab.utils.first_of_coming_month()
+        deadline = self.category.goal_target_month or ynab.first_of_coming_month()
         return utils.day_delta(deadline)
 
     def need(self):  # TODO: custom credit card goal types: net budgeted per month, always pay off
@@ -51,7 +51,7 @@ class Goal:
             'Budgeted': self.category.budgeted,
             'Delta': self.delta,
             'BRR': self.budget_rate_required()
-        }, ynab.utils.format_money)
+        }, ynab.format_money)
         string_fields = utils.formatter.Field.make_fields({
             'Name': self.category.name,
             'Days': utils.maybe_round(self.days_remaining(), 1),

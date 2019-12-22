@@ -14,7 +14,7 @@ def init():
         utils.log_info('WARNING: api token not set. Please call api_client.init() again')
         print('now api token is:', settings.get('api_token'))
         assert settings.get('api_token')
-        configuration.api_key['Authorization'] = settings.get('api_token')
+    configuration.api_key['Authorization'] = settings.get('api_token')
     configuration.api_key_prefix['Authorization'] = 'Bearer'
 
     api_client = ynab_api.api_client.ApiClient(configuration)
@@ -23,6 +23,7 @@ def init():
     categories_api = ynab_api.CategoriesApi(api_client)
     transactions_api = ynab_api.TransactionsApi(api_client)
     payees_api = ynab_api.PayeesApi(api_client)
+init()
 
 
 @ya.backup.local.save

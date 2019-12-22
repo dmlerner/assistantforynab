@@ -1,9 +1,7 @@
 import ynab_api
 
-from ynabassistant import settings, ynab
+import ynabassistant as ya
 from ynabassistant.utils import utils
-from ynabassistant.assistant import Assistant
-#import ynabassistant.assistant.assistant
 
 
 def annotate(t, order, items):
@@ -15,7 +13,7 @@ def annotate(t, order, items):
     else:
         t.memo = order.id
         t.subtransactions = [ynab_api.SubTransaction(
-            local_vars_configuration=ynab.no_check_configuration)
+            local_vars_configuration=ya.ynab.ynab.no_check_configuration)
             for i in items]
         for i, s in zip(items, t.subtransactions):
             annotate_with_item(s, i)
@@ -25,7 +23,7 @@ def annotate(t, order, items):
 
 def annotate_with_item(st, i):
     utils.log_debug('annotate_with_item')
-    ynab.utils.type_assert_st(st)
+    ya.ynab.type_assert_st(st)
 
     # ynab_api will create payee if needed when id is null
     # payee_name doesn't actually exist on subtransaction
@@ -37,17 +35,17 @@ def annotate_with_item(st, i):
     # category_name exists on transaction, but not savetransaction
     # similarly, ignored by rest_client but used by gui_client
     st.category_name = get_category_name(i)
-    category = Assistant.accounts.by_name(st.category_name)
+    category = ya.Assistant.accounts.by_name(st.category_name)
     st.category_id = category.id if category else None
 
     st.memo = i.title
-    st.amount = ynab.utils.to_milliunits(-i.item_total)
+    st.amount = ya.ynab.to_milliunits(-i.item_total)
 
 
 def get_category_name(item):
     # TODO: business logic?
     # TODO: what if category_name exists in multiple category groups
-    name = settings.default_category
+    name = ya.settings.default_category
     return name
 
 
@@ -69,11 +67,11 @@ def has_blank_memo(t):
 
 
 def has_blank_or_WIP_memo(t):
-    return has_blank_memo(t) or ynab.utils.starts_with_id(t.memo)
+    return has_blank_memo(t) or ya.ynab.starts_with_id(t.memo)
 
 
 def matches_account(t):
-    return t.account_name.lower() == settings.account_name.lower()  # TODO: remove explicit dependence on settings
+    return t.account_name.lower() == ya.settings.account_name.lower()  # TODO: remove explicit dependence on ya.settings
 
 
 def newer_than(t, days_ago=30):

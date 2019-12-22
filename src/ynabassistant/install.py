@@ -23,7 +23,6 @@ def clean():
             shutil.rmtree(p)
 
 
-
 # TODO: log, not print
 
 
@@ -81,8 +80,9 @@ def make_dirs():
         if not os.path.exists(p):
             os.mkdir(p)
 
+
 def do(do_clean=False):
-    if do_clean: 
+    if do_clean:
         clean()
     setup_chromedriver()
     make_dirs()
