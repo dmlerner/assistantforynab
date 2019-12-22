@@ -1,0 +1,15 @@
+I agree to the official YNAB OAuth privacy requirements:
+
+	1. A Privacy Policy must be in place for the application that is displayed to users and that includes the following:
+		1. An explanation of how the data obtained through the YNAB API will he handled, stored, and secured.
+		2. A guarantee that the data obtained through the YNAB API will not unknowingly be passed to any third-party.
+	2. The application must not directly request, handle or store any financial account credentials other than an access token obtained directly from a financial institution using OAuth.
+	3. In line with the Attribution & Intellectual Property section of the API Terms of Service above, the application and the web address (DNS name) must not include "YNAB" or "You Need A Budget" unless preceded by the word "for".
+		Acceptable: "Budget Tools", "Transaction Syncer", "Currency Tools for YNAB".
+		Unacceptable: "YNAB Tools", "YNAB Transaction Syncer", "Advanced YNAB".
+
+Available also at https://api.youneedabudget.com/#oauth-requirements
+
+No data is stored except on the machine from which this library is used. Stored data includes everything sent or received to YNAB, to allow backup/restore functionality. 
+No data is transmitted except to YNAB. That data is transmitted via a Python API, ynab_api, which I generated from the official YNAB swagger specs. 
+In short, there are no privacy or security implications of this program beyond those of using the official YNAB or storing your own data locally. 
