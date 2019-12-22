@@ -7,9 +7,12 @@ from ynabassistant.utils import utils
 def init():
     global configuration, api_client, accounts_api, categories_api, transactions_api, payees_api
     configuration = ynab_api.configuration.Configuration()
-    configuration.api_key['Authorization'] = settings.get('api_key')
-    if not settings.get('api_key'):
-        utils.log_info('WARNING: api key not set. Please call api_client.init() again')
+    if not settings.get('api_token'):
+        from ynabassistant import install
+        utils.log_info('WARNING: api token not set. Please call api_client.init() again')
+        print('now api token is:', settings.get('api_token'))
+        assert settings.get('api_token')
+        configuration.api_key['Authorization'] = settings.get('api_token')
     configuration.api_key_prefix['Authorization'] = 'Bearer'
 
     api_client = ynab_api.api_client.ApiClient(configuration)

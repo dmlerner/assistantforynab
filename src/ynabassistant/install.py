@@ -1,4 +1,4 @@
-import settings
+from ynabassistant import settings
 import os
 import time
 import shutil
@@ -7,7 +7,7 @@ import requests
 import re
 
 
-from utils import gui
+from ynabassistant.utils import gui
 
 
 def clean():
@@ -49,8 +49,8 @@ def setup_ynab_auth():
     # TODO: make this use oauth instead of api tokens
     if settings.get('api_token'):
         return
-    api_key_url = 'https://app.youneedabudget.com/settings/developer'
-    gui.driver().get(api_key_url)
+    api_token_url = 'https://app.youneedabudget.com/settings/developer'
+    gui.driver().get(api_token_url)
     print('Log in, then click "New Token"')
     api_token = input('Enter token value:\n')  # TODO: scrape
     settings.set('api_token', api_token)
@@ -85,14 +85,10 @@ def make_dirs():
 
 
 clean()
-print('clean')
 setup_chromedriver()
-print('setup_chromedriver')
 make_dirs()
-print('make_dirs')
 setup_ynab_auth()
-print('setup_ynab_auth')
 setup_ynab_budget_id()
-print('setup_ynab_budget_id')
 print(vars(settings).keys())
+print('at end of install, api_token=', settings.get('api_token'), settings.api_token)
 gui.driver().close()
