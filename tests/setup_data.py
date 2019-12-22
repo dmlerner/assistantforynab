@@ -1,6 +1,6 @@
 from ynabassistant.ynab import ynab
 from ynabassistant import settings
-from ynabassistant.assistant import Assistant
+from ynabassistant.assistant.assistant import Assistant
 
 '''
 Restore state for start of tests:

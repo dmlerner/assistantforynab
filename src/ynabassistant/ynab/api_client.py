@@ -1,15 +1,19 @@
 import ynab_api
-import settings
-import backup
+import ynabassistant as ya
+import ynabassistant.backup.local
+from ynabassistant import settings
 from ynabassistant.utils import utils
 
 
 def init():
     global configuration, api_client, accounts_api, categories_api, transactions_api, payees_api
     configuration = ynab_api.configuration.Configuration()
-    configuration.api_key['Authorization'] = settings.get('api_key')
-    if not settings.get('api_key'):
-        utils.log_info('WARNING: api key not set. Please call api_client.init() again')
+    if not settings.get('api_token'):
+        from ynabassistant import install
+        utils.log_info('WARNING: api token not set. Please call api_client.init() again')
+    print('now api token is:', settings.get('api_token'))
+    assert settings.get('api_token')
+    configuration.api_key['Authorization'] = settings.get('api_token')
     configuration.api_key_prefix['Authorization'] = 'Bearer'
 
     api_client = ynab_api.api_client.ApiClient(configuration)
@@ -20,7 +24,10 @@ def init():
     payees_api = ynab_api.PayeesApi(api_client)
 
 
-@backup.local.save
+init()
+
+
+@ya.backup.local.save
 def get_accounts():
     utils.log_debug('get_accounts')
     response = accounts_api.get_accounts(settings.budget_id)
@@ -30,7 +37,7 @@ def get_accounts():
     return acs
 
 
-@backup.local.save
+@ya.backup.local.save
 def get_transactions():
     utils.log_debug('get_transactions')
     response = transactions_api.get_transactions(settings.budget_id)
@@ -39,8 +46,9 @@ def get_transactions():
     ts.sort(key=lambda t: t.date, reverse=True)
     return ts
 
+
 @utils.listy
-@backup.local.save
+@ya.backup.local.save
 def update_transactions(transactions):
     utils.log_debug('update_transactions')
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in transactions)
@@ -52,7 +60,7 @@ def update_transactions(transactions):
 
 
 @utils.listy
-@backup.local.save
+@ya.backup.local.save
 def create_transactions(transactions):
     utils.log_debug('create_transactions')
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in transactions)
@@ -63,7 +71,7 @@ def create_transactions(transactions):
     return ts
 
 
-@backup.local.save
+@ya.backup.local.save
 def get_category_groups():
     utils.log_debug('get_category_groups')
     response = categories_api.get_categories(settings.budget_id)
@@ -75,7 +83,7 @@ def get_category_groups():
 
 
 @utils.listy
-@backup.local.save
+@ya.backup.local.save
 def update_categories(categories):
     utils.log_debug('update_categories', categories)
     assert all(isinstance(c, ynab_api.Category) for c in categories)
@@ -92,7 +100,7 @@ def update_categories(categories):
     return updated_categories
 
 
-@backup.local.save
+@ya.backup.local.save
 def get_payees():
     utils.log_debug('get_payees')
     response = payees_api.get_payees(settings.budget_id)

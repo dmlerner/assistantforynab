@@ -1,6 +1,6 @@
-#from ynabassistant import settings  # this way breaks running installer
+from ynabassistant import settings  # this way breaks running installer
 #from .. import settings
-import settings
+#import settings
 from copy import copy as cpy
 import collections
 import glob

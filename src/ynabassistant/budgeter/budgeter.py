@@ -1,5 +1,5 @@
 from ynabassistant.utils import utils
-import ynab
+from ynabassistant import ynab
 
 
 class Budgeter:

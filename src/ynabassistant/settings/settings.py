@@ -28,10 +28,11 @@ class Settings:
 
 
 def copy_default_settings(clean=False):
+    print('copy default', clean)
     if clean or not os.path.exists(paths.settings_path):
         shutil.copy(paths.default_settings_path, paths.settings_path)
 
-
+print('settings.py')
 #copy_default_settings(True)
 copy_default_settings()
 _s = Settings()

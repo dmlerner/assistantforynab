@@ -3,10 +3,11 @@ import time
 import glob
 import csv
 
-from ynabassistant.utils import utils
-import settings
+from ynabassistant.utils import utils, gui
+from ynabassistant import settings
 
-from . import Item, Order
+from ynabassistant.amazon.item import Item
+from ynabassistant.amazon.order import Order
 
 
 def get_downloaded_csv_filenames():
@@ -73,7 +74,7 @@ def load(data_type):
     target_path = csv_paths[data_type]
     try:
         if settings.force_download_amazon or missing_csv(data_type):
-            d = utils.gui.driver()
+            d = gui.driver()
             url = 'https://smile.amazon.com/gp/b2b/reports'
             if url not in d.current_url:
                 d.get(url)

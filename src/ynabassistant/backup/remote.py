@@ -1,9 +1,7 @@
 import ynab_api
 from ynabassistant.utils import utils
-import settings
-import backup
+from ynabassistant import settings, backup, ynab
 from ynabassistant.assistant import Assistant
-import ynab
 
 
 def diff_with_backup(predicates, timestamp=settings.start_time, order='first'):

@@ -2,10 +2,10 @@ import time
 import collections
 import ynab_api
 
-import ynab
-from ynabassistant.utils import utils
+from ynabassistant.utils import utils, gui
 from ynabassistant.assistant.assistant import Assistant
-import settings
+from . import api_client, gui_client, ynab
+from ynabassistant import settings
 
 # Needed iff changing subtransactions
 gui_queue = collections.defaultdict(dict)  # mode: { id: TransactionDetail }
@@ -88,10 +88,10 @@ def do_gui():
         for m, t in zip(old_memos, ts.values()):  # simplify out the .values? listy?
             t.memo = m
             add_adjustment_subtransaction(t)
-        ynab.gui_client.enter_all_transactions(ts)
+        gui_client.enter_all_transactions(ts)
         utils.log_info(utils.separator)
     gui_queue.clear()
-    utils.gui.quit()
+    gui.quit()
 
 
 def check_payee(st, payees):
@@ -99,7 +99,7 @@ def check_payee(st, payees):
     utils.type_assert_st(st)
     assert not st.payee_id or st.payee_id in payees
     # Need get because this is a field that isn't on the ynab_api model
-    # I just add it for ynab.gui_client convenience in amazon.amazon
+    # I just add it for gui_client convenience in amazon.amazon
     if st.payee_id and st.__dict__.get('payee_name'):
         assert payees[st.payee_id].name == st.payee_name
     if isinstance(st, ynab_api.TransactionDetail):
@@ -173,7 +173,7 @@ def do_delete_accounts(wait=30, sleep=5):
     if not account_delete_queue:
         return
     utils.log_debug('do_delete_accounts')
-    ynab.gui_client.delete_accounts(account_delete_queue)
+    gui_client.delete_accounts(account_delete_queue)
     start = time.time()
     while time.time() - start < wait:  # TODO: consider fixing this instead or also in ynab.api_client
         Assistant.download_ynab(accounts=True)
@@ -201,7 +201,7 @@ def do_delete_transactions():
         t.memo = delete_key
     ynab.api_client.update_transactions(transaction_delete_queue)
     utils.log_info('delete %s transactions via YNAB webapp' % len(transaction_delete_queue))
-    ynab.gui_client.delete_transactions()
+    gui_client.delete_transactions()
     transaction_delete_queue.clear()
 
 
@@ -211,7 +211,7 @@ def do_delete():
         queue_delete_transactions(Assistant.transactions.by_name(a.name))
     do_delete_transactions()
     do_delete_accounts()
-    utils.gui.quit()
+    gui.quit()
 
 
 @utils.listy
@@ -266,8 +266,8 @@ def queue_clear_account(account):
 
 def add_unlinked_account(account_name, balance=0, account_type='credit'):
     utils.log_debug('add_unlinked_account', account_name, balance, account_type)
-    ynab.gui_client.add_unlinked_account(account_name, balance, account_type)
-    utils.gui.quit()
+    gui_client.add_unlinked_account(account_name, balance, account_type)
+    gui.quit()
     Assistant.download_ynab(accounts=True)
     start = time.time()
     while time.time() - start < 30:  # TODO: generic retrier
@@ -277,8 +277,8 @@ def add_unlinked_account(account_name, balance=0, account_type='credit'):
     assert False
 
 
-rest_modes = {'create': ynab.api_client.create_transactions,
-              'update': ynab.api_client.update_transactions,
+rest_modes = {'create': api_client.create_transactions,
+              'update': api_client.update_transactions,
               }
 
 no_check_configuration = ynab_api.Configuration()

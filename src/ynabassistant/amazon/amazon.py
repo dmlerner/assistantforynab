@@ -1,9 +1,11 @@
 import ynab_api
 
-import settings
 from ynabassistant.utils import utils
-import ynab
-from ynabassistant.assistant import Assistant
+import ynabassistant as ya
+import ynabassistant.assistant.assistant
+import ynabassistant.ynab.utils
+# ynabassistant.assistant.assistant import Assistant
+from ynabassistant import ynab, settings
 
 
 def annotate(t, order, items):
@@ -37,7 +39,7 @@ def annotate_with_item(st, i):
     # category_name exists on transaction, but not savetransaction
     # similarly, ignored by rest_client but used by gui_client
     st.category_name = get_category_name(i)
-    category = Assistant.accounts.by_name(st.category_name)
+    category = ya.assistant.Assistant.accounts.by_name(st.category_name)
     st.category_id = category.id if category else None
 
     st.memo = i.title
@@ -69,7 +71,7 @@ def has_blank_memo(t):
 
 
 def has_blank_or_WIP_memo(t):
-    return has_blank_memo(t) or ynab.utils.starts_with_id(t.memo)
+    return has_blank_memo(t) or ya.ynab.utils.starts_with_id(t.memo)
 
 
 def matches_account(t):

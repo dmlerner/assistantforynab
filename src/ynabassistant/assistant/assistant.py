@@ -1,9 +1,11 @@
 import collections
+from ynabassistant import backup, ynab, amazon
+import ynabassistant.ynab.ynab
+import ynabassistant.amazon.downloader
+import ynabassistant.amazon.match
+import ynabassistant.amazon.amazon
 from ynabassistant.utils.cache import Cache, TransactionCache
 from ynabassistant.utils import utils
-import amazon
-import backup
-import ynab
 
 
 class Assistant:
@@ -65,17 +67,17 @@ class Assistant:
 
     def update_amazon_transactions():
         utils.log_info('Matching Amazon orders to YNAB transactions')
-        potential_amazon_transactions = amazon.get_eligible_transactions(Assistant.transactions)
+        potential_amazon_transactions = amazon.amazon.get_eligible_transactions(Assistant.transactions)
         orders_by_transaction_id = amazon.match.match_all(potential_amazon_transactions, Assistant.orders)
         for t_id, order in orders_by_transaction_id.items():
             order = orders_by_transaction_id[t_id]
             i = Assistant.items[order.id]
             assert i
             t = Assistant.transactions.get(t_id)
-            amazon.annotate(t, order, i)
+            amazon.amazon.annotate(t, order, i)
             # ynab.queue_update(t, Assistant.payees, Assistant.categories)
             ynab.queue_update(t)
         utils.log_info(utils.separator)
 
     def update_ynab():
-        ynab.do()
+        ynabassistant.ynab.ynab.do()

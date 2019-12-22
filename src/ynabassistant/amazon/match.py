@@ -1,6 +1,5 @@
 from ynabassistant.utils import utils
-import settings
-import ynab
+from ynabassistant import settings, ynab
 
 
 def get_order(t, orders):
