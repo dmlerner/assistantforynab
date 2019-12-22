@@ -1,8 +1,8 @@
-import ynabassistant as ya
+import utils
 
 
 def parse_money(price):
-    assert type(price) is str
+    assert isinstance(price, str)
     if not price or price[0] != '$':
         return None
     return float(price[1:])
@@ -12,8 +12,8 @@ date_format = '%m/%d/%y'
 
 
 def parse_date(d):
-    return ya.utils.parse_date(d, date_format)
+    return utils.parse_date(d, date_format)
 
 
 def format_date(d):
-    return ya.utils.format_date(d, date_format)
+    return utils.format_date(d, date_format)

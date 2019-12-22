@@ -1,14 +1,14 @@
-import ynabassistant as ya
+import utils
 
 
 def diff_transactions(ts1, ts2):
     d12, d21 = diff(ts1, ts2, to_tuple)
-    ya.utils.log_debug(*d12)
-    ya.utils.log_debug(*d21)
+    utils.log_debug(*d12)
+    utils.log_debug(*d21)
     ds12, ds21 = diff([s for t in ts1 for s in t.subtransactions],
                       [s for t in ts2 for s in t.subtransactions], sub_to_tuple)
-    ya.utils.log_debug(*ds12)
-    ya.utils.log_debug(*ds21)
+    utils.log_debug(*ds12)
+    utils.log_debug(*ds21)
     return d12, d21, ds12, ds21
 
 

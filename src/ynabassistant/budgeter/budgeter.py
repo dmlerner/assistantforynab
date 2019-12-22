@@ -1,4 +1,5 @@
-import ynabassistant as ya
+import utils
+import ynab
 
 
 class Budgeter:
@@ -11,49 +12,49 @@ class Budgeter:
         unimportant = reversed(self.priorities)
         sink = next(important)
         source = next(unimportant)
-        # ya.utils.debug()
+        # utils.debug()
         while source is not sink:
-            ya.utils.log_info(source, sink)
+            utils.log_info(source, sink)
             need = sink.total_need()
-            ya.utils.log_info('need', need)
-            if ya.utils.equalish(need, 0):
+            utils.log_info('need', need)
+            if utils.equalish(need, 0):
                 sink = next(important)
-                ya.utils.log_info('new sink', sink)
+                utils.log_info('new sink', sink)
             available = source.total_available()
-            ya.utils.log_info('available', available)
+            utils.log_info('available', available)
             if available <= 0:
                 source = next(unimportant)
-                ya.utils.log_info('new source', source)
+                utils.log_info('new source', source)
             use = min(available, need)
-            ya.utils.log_info('use', use)
+            utils.log_info('use', use)
             before = source.total_available() + sink.total_available()
-            ya.utils.log_info('before', before)
-            ya.utils.log_info('source before distribute', source)
+            utils.log_info('before', before)
+            utils.log_info('source before distribute', source)
             source.distribute(-use)
-            ya.utils.log_info('source after distribute', source)
-            ya.utils.log_info('sink before distribute', sink)
+            utils.log_info('source after distribute', source)
+            utils.log_info('sink before distribute', sink)
             sink.distribute(use)
-            ya.utils.log_info('sink after distribute', sink)
+            utils.log_info('sink after distribute', sink)
             after = source.total_available() + sink.total_available()
-            ya.utils.log_info('after', after)
-            assert ya.utils.equalish(after, before, -1)
+            utils.log_info('after', after)
+            assert utils.equalish(after, before, -1)
 
     def budget2(self):
         unimportant = list(reversed(self.priorities))
         for p1, p2 in zip(unimportant, unimportant[1:]):
             before = p1.total_available() + p2.total_available()
             amount = p1.total_available()
-            ya.utils.log_info('moving', amount)
-            ya.utils.log_info(p1, p2)
+            utils.log_info('moving', amount)
+            utils.log_info(p1, p2)
             p1.distribute(-amount)
             p2.distribute(amount)
-            ya.utils.log_info('moved')
-            ya.utils.log_info(p1, p2)
+            utils.log_info('moved')
+            utils.log_info(p1, p2)
             after = p1.total_available() + p2.total_available()
-            assert ya.utils.equalish(after, before, -1)
+            assert utils.equalish(after, before, -1)
 
     def budget3(self):
-        ya.utils.debug()
+        utils.debug()
         avail = sum(p.withdraw_all() for p in self.priorities)
         self.priorities[0].distribute(avail)
         surplus = self.priorities[0].withdraw_surplus()
@@ -68,8 +69,8 @@ class Budgeter:
 
     def update_ynab(self):
         categories = {g.category.name: g.category for p in self.priorities for g in p.goals}
-        ya.utils.log_info("Updating %s categories" % len(categories))
-        ya.ynab.api_client.update_categories(categories)  # TODO: queue via ynab.ynab
+        utils.log_info("Updating %s categories" % len(categories))
+        ynab.api_client.update_categories(categories)  # TODO: queue via ynab.ynab
 
     def __repr__(self):
         out = ['%s:%s\n' % (i, str(self.priorities[i])) for i in range(len(self.priorities))]

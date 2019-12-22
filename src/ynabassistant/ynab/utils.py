@@ -2,8 +2,7 @@ import datetime
 import re
 
 import ynab_api
-
-import ynabassistant as ya
+import utils
 
 
 def parse_money(price):
@@ -35,19 +34,19 @@ gui_date_format = '%m/%d/%Y'
 def parse_date(d):
     if not d:
         return None
-    return ya.utils.parse_date(d, date_format)
+    return utils.parse_date(d, date_format)
 
 
 def format_date(d):
-    return ya.utils.format_date(d, date_format)
+    return utils.format_date(d, date_format)
 
 
 def gui_format_date(d):
-    return ya.utils.format_date(d, gui_date_format)
+    return utils.format_date(d, gui_date_format)
 
 
 def first_of_coming_month():
-    now = ya.utils.now()
+    now = utils.now()
     next_month = now.month + 1
     if next_month == 13:
         next_month = 1
@@ -61,7 +60,7 @@ def starts_with_id(s):
 
 def calculate_adjustment(t):
     subtransaction_total = sum(s.amount for s in t.subtransactions)
-    if ya.utils.equalish(subtransaction_total, t.amount, precision=-1):
+    if utils.equalish(subtransaction_total, t.amount, precision=-1):
         return
     return t.amount - subtransaction_total
 

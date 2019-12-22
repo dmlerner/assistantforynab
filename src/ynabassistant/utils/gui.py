@@ -9,11 +9,12 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.remote.command import Command
 
-import ynabassistant as ya
+import utils
+import settings
 
 
 def get(class_name, count=None, require=True, predicate=None, wait=30, pause=.25):
-    ya.utils.log_debug('get', class_name)
+    utils.log_debug('get', class_name)
     start = time.time()
     predicate = predicate or bool  # bool serves as the identity
     matches = None
@@ -39,7 +40,7 @@ def get_width():
 
 
 def get_height():
-    ya.utils.log_info('height', window_size()['height'])
+    utils.log_info('height', window_size()['height'])
     return window_size()['height']
 
 
@@ -48,14 +49,14 @@ def window_size():
 
 
 def get_by_placeholder(class_name, p, count=None, require=True, wait=30):
-    ya.utils.log_debug('get_by_placeholder', class_name, p)
+    utils.log_debug('get_by_placeholder', class_name, p)
     if isinstance(p, str):
         p = (p,)
     return get(class_name, count, require, lambda e: e.get_attribute('placeholder') in p, wait)
 
 
 def get_by_text(class_name, t, count=None, require=True, wait=30, partial=False):
-    ya.utils.log_debug('get_by_text', class_name, t)
+    utils.log_debug('get_by_text', class_name, t)
     if isinstance(t, str):
         t = (t,)
     if partial:
@@ -64,7 +65,7 @@ def get_by_text(class_name, t, count=None, require=True, wait=30, partial=False)
 
 
 def click(element, n=1, pause=.5):
-    ya.utils.log_debug('click')
+    utils.log_debug('click')
     if type(element) in (tuple, list):
         element = element[0]
     for i in range(n):
@@ -74,7 +75,7 @@ def click(element, n=1, pause=.5):
 
 
 def right_click(element):
-    ya.utils.log_debug('right_click')
+    utils.log_debug('right_click')
     if type(element) in (tuple, list):
         element = element[0]
     actions = ActionChains(driver())
@@ -82,7 +83,7 @@ def right_click(element):
 
 
 def send_keys(keys):
-    ya.utils.log_debug('send_keys', keys)
+    utils.log_debug('send_keys', keys)
     actions = ActionChains(driver())
     actions.send_keys(keys).perform()
 
@@ -90,13 +91,13 @@ def send_keys(keys):
 def close_orphan_drivers():
     return
     # TODO: this doesn't work from WSL
-    ya.utils.log_debug('close_orphan_drivers')
+    utils.log_debug('close_orphan_drivers')
     p = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
     out, err = p.communicate()
     for line in out.splitlines():
         if 'chromedriver.exe' in str(line.lower()):
             pid = int(line.split(None, 1)[0])
-            ya.utils.log_debug('killing', line, pid)
+            utils.log_debug('killing', line, pid)
             os.kill(pid, signal.SIGKILL)
 
 
@@ -104,28 +105,28 @@ _driver = None
 
 
 def driver():
-    ya.utils.log_debug('driver')
+    utils.log_debug('driver')
     global _driver
     try:
         if is_alive(_driver):
             return _driver
         close_orphan_drivers()
         options = Options()
-        options.add_argument('user-data-dir={}'.format(ya.settings.chrome_data_dir))
+        options.add_argument('user-data-dir={}'.format(settings.chrome_data_dir))
         options.add_argument('--disable-extensions')
-        options.add_argument('executable_path={}'.format(ya.settings.chromedriver_path))
+        options.add_argument('executable_path={}'.format(settings.chromedriver_path))
         _driver = webdriver.Chrome(options=options)
     except BaseException:
         quit()
         if 'data directory is already in use' in traceback.format_exc():
-            ya.utils.log_exception_debug()
-            ya.utils.log_error('Must close Selenium-controlled Chrome.')
+            utils.log_exception_debug()
+            utils.log_error('Must close Selenium-controlled Chrome.')
             if input('Try again? [Y/n]\n').lower() != 'n':
-                ya.utils.log_info('Trying again')
+                utils.log_info('Trying again')
                 return driver()
             sys.exit()
         else:
-            ya.utils.log_exception()
+            utils.log_exception()
     return _driver
 
 
@@ -135,12 +136,12 @@ def quit():
 
 
 def is_alive(d):
-    ya.utils.log_debug('is_alive')
+    utils.log_debug('is_alive')
     try:
         d.execute(Command.STATUS)
         return True
     except BaseException:
-        ya.utils.log_exception_debug()
+        utils.log_exception_debug()
         return False
 
 

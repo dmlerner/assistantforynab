@@ -1,5 +1,5 @@
-import ynabassistant as ya
-from ynabassistant.utils import listy_method
+from . import utils
+print(utils)
 
 
 class Cache:
@@ -9,10 +9,10 @@ class Cache:
         self.make_get_by_name()
         self.history = []
 
-    @listy_method
+    @utils.listy_method
     def store(self, xs):  # TODO listy?
         self.xs = self.filter(xs)
-        self.ids = ya.utils.by(self.xs, self.id)
+        self.ids = utils.by(self.xs, self.id)
         self.make_get_by_name()
         self.history.append(self.xs)
 
@@ -20,11 +20,11 @@ class Cache:
         return iter(self.xs)
 
     def make_get_by_name(self):
-        grouped = ya.utils.group_by(self.xs, self.name)
-        self.names = ya.utils.by(map(lambda v: v.pop(), grouped.values()), self.name)
+        grouped = utils.group_by(self.xs, self.name)
+        self.names = utils.by(map(lambda v: v.pop(), grouped.values()), self.name)
         for name, g in grouped.items():
             if g:
-                ya.utils.log_debug('duplicate name, using first', name, self.names[name], *g)
+                utils.log_debug('duplicate name, using first', name, self.names[name], *g)
 
     def filter(self, xs):
         return xs
@@ -58,4 +58,4 @@ class TransactionCache(Cache):
         return x.account_name
 
     def make_get_by_name(self):
-        self.names = ya.utils.group_by(self.xs, self.name)
+        self.names = utils.group_by(self.xs, self.name)

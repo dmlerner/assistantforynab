@@ -1,5 +1,5 @@
-import ynabassistant as ya
-from . import utils
+import utils
+import amazon
 
 
 class Item:
@@ -9,8 +9,8 @@ class Item:
         self._parent_dict = d
         self.id = d['Order ID']
 
-        self.order_date = utils.parse_date(d['Order Date'])
-        self.item_total = utils.parse_money(d['Item Total'])
+        self.order_date = amazon.utils.parse_date(d['Order Date'])
+        self.item_total = amazon.utils.parse_money(d['Item Total'])
         self.title = d['Title']
 
         self.category = d['Category']
@@ -19,5 +19,5 @@ class Item:
 
     def __repr__(self):
         str_fields = utils.format_date(self.order_date), \
-            ya.utils.format_money(self.item_total), self.title
+            utils.format_money(self.item_total), self.title
         return ' | '.join(map(str, str_fields))

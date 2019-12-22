@@ -14,5 +14,6 @@
 
 	"force_download_amazon" : false,
 
-	"credit_card_group_names" : ["Credit Card Payments"]
+	"credit_card_group_names" : ["Credit Card Payments"],
+	"account_name" : "Chase Amazon"
 }

@@ -1,6 +1,7 @@
 import ynab_api
-
-import ynabassistant as ya
+import utils
+import ynab
+import Assistant
 
 
 class Goal:
@@ -8,7 +9,7 @@ class Goal:
     def __init__(self, category):
         assert isinstance(category, ynab_api.Category)
         self.category = category
-        self.credit_card = ya.Assistant.accounts.by_name(category.name)
+        self.credit_card = Assistant.accounts.by_name(category.name)
         self.min_balance = 0  # TODO: credit cards
         self.delta = 0
 
@@ -17,8 +18,8 @@ class Goal:
             return None
         if self.category.goal_type == 'TB' and not self.category.goal_target_month:
             return None
-        deadline = self.category.goal_target_month or ya.ynab.utils.first_of_coming_month()
-        return ya.utils.day_delta(deadline)
+        deadline = self.category.goal_target_month or ynab.utils.first_of_coming_month()
+        return utils.day_delta(deadline)
 
     def need(self):  # TODO: custom credit card goal types: net budgeted per month, always pay off
         if not self.is_goal():
@@ -43,25 +44,25 @@ class Goal:
         return str(vars(self))
 
     def to_record(self):
-        money_fields = ya.utils.formatter.Field.make_fields({
+        money_fields = utils.formatter.Field.make_fields({
             'Need': self.need(),
             'Surplus': self.surplus(),
             'Balance': self.category.balance,
             'Budgeted': self.category.budgeted,
             'Delta': self.delta,
             'BRR': self.budget_rate_required()
-        }, ya.ynab.utils.format_money)
-        string_fields = ya.utils.formatter.Field.make_fields({
+        }, ynab.utils.format_money)
+        string_fields = utils.formatter.Field.make_fields({
             'Name': self.category.name,
-            'Days': ya.utils.maybe_round(self.days_remaining(), 1),
+            'Days': utils.maybe_round(self.days_remaining(), 1),
         })
-        return ya.utils.formatter.Record(string_fields + money_fields)
+        return utils.formatter.Record(string_fields + money_fields)
 
     def __str__(self):
         return str(self.to_record())
 
     def adjust_budget(self, amount, allow_noninteger=False):
-        ya.utils.log_debug('adjust_budget', amount, self)
+        utils.log_debug('adjust_budget', amount, self)
         if not allow_noninteger:
             assert isinstance(amount, int)
         self.delta += amount
@@ -69,8 +70,8 @@ class Goal:
         self.category.budgeted += amount
 
     def fix_fractional_cents(self):
-        assert ya.utils.equalish(self.category.balance, round(self.category.balance, -1), -1)
-        assert ya.utils.equalish(self.category.budgeted, round(self.category.budgeted, -1), -1)
+        assert utils.equalish(self.category.balance, round(self.category.balance, -1), -1)
+        assert utils.equalish(self.category.budgeted, round(self.category.budgeted, -1), -1)
         self.category.budgeted = int(self.category.budgeted)
         self.category.balance = int(self.category.balance)
 

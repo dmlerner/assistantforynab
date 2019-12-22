@@ -1,5 +1,5 @@
-import ynabassistant as ya
 from copy import deepcopy
+import utils
 
 
 class Field:
@@ -57,7 +57,7 @@ class Table:
         return s
 
     def __str__(self):
-        field_groups = ya.utils.group_by(sum((r.fields for r in self.records), []), lambda f: f.name)
+        field_groups = utils.group_by(sum((r.fields for r in self.records), []), lambda f: f.name)
         sum_record = self.sum(field_groups)
         width_by_name = {name: max(map(len, (name,) + tuple(f.formatted for f in fields)))
                          for (name, fields) in field_groups.items()}

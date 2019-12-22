@@ -1,6 +1,5 @@
-import ynabassistant as ya
+import settings
 from copy import copy as cpy
-import ynab_api
 import collections
 import glob
 import datetime
@@ -14,13 +13,13 @@ import functools
 def get_location(n=2):
     stack = inspect.stack()
     s = stack[n]
-    filename = s.filename.replace(ya.settings.root_dir, '')
+    filename = s.filename.replace(settings.root_dir, '')
     return ' '.join(str(x).strip() for x in (filename, s.code_context[0], s.lineno))
 
 
 def get_log_path():
-    log_name = str(ya.settings.start_time) + '-log.txt'
-    return os.path.join(ya.settings.log_dir, log_name)
+    log_name = str(settings.start_time) + '-log.txt'
+    return os.path.join(settings.log_dir, log_name)
 
 
 log_file = open(get_log_path(), 'a+')
@@ -28,29 +27,30 @@ log_file = open(get_log_path(), 'a+')
 
 def log_info(*x, sep=os.linesep, end=os.linesep * 2):
     formatted = []
-    formatters = {ynab_api.TransactionDetail: ya.ynab.utils.format_transaction,
-                  ynab_api.SubTransaction: ya.ynab.utils.format_subtransaction}
+    # formatters = {ynab_api.TransactionDetail: ynab.utils.format_transaction,
+    #              ynab_api.SubTransaction: ynab.utils.format_subtransaction}
+    formatters = {}  # TODO: find a way to restore this functionality without importing ynab here...
     for i in x:
         if type(i) in formatters:
             formatted.append(formatters[type(i)](i))
         else:
             formatted.append(i)
-    _log(*formatted, verbosity=ya.settings.info_verbosity, sep=sep, end=end)
+    _log(*formatted, verbosity=settings.info_verbosity, sep=sep, end=end)
 
 
 def log_debug(*x, sep=os.linesep, end=os.linesep * 2):
-    _log(get_location(), *x, verbosity=ya.settings.debug_verbosity, sep=sep, end=end)
+    _log(get_location(), *x, verbosity=settings.debug_verbosity, sep=sep, end=end)
 
 
 def log_error(*x, sep=os.linesep, end=os.linesep * 2):
-    _log(*x, verbosity=ya.settings.error_verbosity, sep=sep, end=end)
+    _log(*x, verbosity=settings.error_verbosity, sep=sep, end=end)
 
 
 def _log(*x, verbosity=0, sep=' | ', end=os.linesep * 2):
-    if verbosity <= ya.settings.log_verbosity:
+    if verbosity <= settings.log_verbosity:
         print(datetime.datetime.now(), end=os.linesep, file=log_file)
         print(*x, sep=sep, end=end, file=log_file)
-    if verbosity <= ya.settings.print_verbosity:
+    if verbosity <= settings.print_verbosity:
         print(*x, sep=sep, end=end)
 
 
@@ -71,10 +71,10 @@ def newer_than(d, days_ago=30):
 
 def clear_old_logs():
     log_debug('clear_old_logs')
-    for name in glob.glob(ya.settings.log_dir):
-        path = os.path.join(ya.settings.log_dir, name)
+    for name in glob.glob(settings.log_dir):
+        path = os.path.join(settings.log_dir, name)
         modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(path))
-        if not newer_than(modified_time, ya.settings.max_log_age_days):
+        if not newer_than(modified_time, settings.max_log_age_days):
             os.remove(path)
 
 
@@ -85,7 +85,7 @@ def listy(f):
     @functools.wraps(f)
     def flexible_f(xs, *args, **kwargs):
         if xs is None:
-            ya.utils.log_debug('argument to listy is None, returning')
+            log_debug('argument to listy is None, returning')
             return
         if isinstance(xs, dict):
             xs = list(xs.values())
@@ -101,7 +101,7 @@ def listy_method(f):  # TODO: DRY
     @functools.wraps(f)
     def flexible_f(self, xs, *args, **kwargs):
         if xs is None:
-            ya.utils.log_debug('argument to listy is None, returning')
+            log_debug('argument to listy is None, returning')
             return
         if isinstance(xs, dict):
             xs = list(xs.values())
@@ -191,7 +191,7 @@ def day_delta(a, b=None):
 
 def format_money(p):
     if not type(p) in (float, int):
-        ya.utils.log_debug('format_money type error', p, type(p))
+        log_debug('format_money type error', p, type(p))
         return ''
     return ('' if p >= 0 else '-') + '$' + str(abs(round(p, 2)))
 
@@ -228,7 +228,7 @@ def multi_filter(predicates, collection):
 def debug_assert(x):
     if not x:
         log_debug('debug_assert error')
-        ya.utils.debug()
+        debug()
 
 
 def is_myobj(o):
@@ -240,7 +240,7 @@ def is_myobj(o):
 
 def copy(x, depth=0, max_depth=10):
     assert depth <= max_depth
-    ya.utils.log_debug('copy', x, depth, max_depth)
+    log_debug('copy', x, depth, max_depth)
     c = cpy(x)
     if isinstance(c, list):
         for i in range(len(c)):

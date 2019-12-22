@@ -7,7 +7,9 @@ import functools
 
 import ynab_api
 
-import ynabassistant as ya
+import settings
+import utils
+import backup
 
 # Local Backup
 
@@ -15,11 +17,11 @@ versions = collections.defaultdict(lambda: -1)
 
 
 def get_backup_path(t, n):
-    name = '%s-%s-%s.jsonpickle' % (ya.settings.start_time, t, n)  # TODO: DRY
-    return os.path.join(ya.settings.backup_dir, name)
+    name = '%s-%s-%s.jsonpickle' % (settings.start_time, t, n)  # TODO: DRY
+    return os.path.join(settings.backup_dir, name)
 
-
-@ya.utils.listy
+print(utils)
+@utils.listy
 def store(x):
     assert len(set(map(type, x))) == 1
     t = type(x[0])
@@ -30,30 +32,30 @@ def store(x):
     return path
 
 
-def load_before(t, timestamp=ya.settings.start_time):
+def load_before(t, timestamp=settings.start_time):
     ''' Load the newest file made before timestamp '''
     assert isinstance(timestamp, datetime.datetime)
-    paths = glob.glob(ya.settings.backup_dir + '/*-' + str(t) + '-*.jsonpickle')
+    paths = glob.glob(settings.backup_dir + '/*-' + str(t) + '-*.jsonpickle')
     for path in sorted(paths, reverse=True):
-        filename = path.replace(ya.settings.backup_dir + '/', '')
+        filename = path.replace(settings.backup_dir + '/', '')
         file_timestamp = filename[:filename.index('-<')]
         if file_timestamp < str(timestamp):
             break
     else:
         assert False
         # return []
-    ya.utils.log_info('Reloading from %s' % file_timestamp)
+    utils.log_info('Reloading from %s' % file_timestamp)
     return load_path(path)
 
 
 def load(t, n=None, predicates=()):
-    ya.utils.log_debug('load', t, n)
+    utils.log_debug('load', t, n)
     if n is None:
         return sum(map(lambda n: load(t, n), range(versions[t] + 1)), [])
     if n == -1:  # ie, most recent
         n = versions[t]
     loaded = load_path(get_backup_path(t, n))
-    return ya.utils.multi_filter(predicates, loaded)
+    return utils.multi_filter(predicates, loaded)
 
 
 def load_transactions(n=None, predicates=()):
@@ -65,7 +67,7 @@ def load_account_transactions(account_name, n=None, predicates=()):
 
 
 def load_path(path):
-    ya.utils.log_debug('loading', path)
+    utils.log_debug('loading', path)
     if not os.path.exists(path):
         return []
     with open(path, 'r') as f:
@@ -78,13 +80,13 @@ def save(f):
 
     @functools.wraps(f)
     def _f(*args, **kwargs):
-        ya.utils.log_debug(*args, **kwargs)
+        utils.log_debug(*args, **kwargs)
         ret = f(*args, **kwargs)
         if not ret:
-            ya.utils.log_debug('null ret', ret)
+            utils.log_debug('null ret', ret)
             return
-        ya.utils.log_debug(*ret)
-        ya.backup.local.store(ret)
+        utils.log_debug(*ret)
+        backup.local.store(ret)
         return ret
     return _f
 

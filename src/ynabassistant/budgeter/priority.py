@@ -1,10 +1,11 @@
-import ynabassistant as ya
+import utils
+import budgeter
 
 
 class Priority:
 
     def __init__(self, goals, weights=None):
-        assert all(isinstance(g, ya.budgeter.Goal) for g in goals)
+        assert all(isinstance(g, budgeter.Goal) for g in goals)
 
         # inherently, priority of a goal with days remaining is higher, so it makes no sense to mix them
         assert sum(g.days_remaining() is None for g in goals) in (0, len(goals))
@@ -52,11 +53,11 @@ class Priority:
         change = 0
         for i, v in enumerate(vals):
             fractional_cents = v - round(v, -1)
-            ya.utils.log_debug('frac, v', fractional_cents, v)
+            utils.log_debug('frac, v', fractional_cents, v)
             delta = fractional_cents
             change += delta
             vals[i] -= delta
-        ya.utils.log_debug('change, vals, current total', change, vals, sum(vals))
+        utils.log_debug('change, vals, current total', change, vals, sum(vals))
         sorted_vals = sorted(vals, key=abs, reverse=True)
         assert all(v % 10 == 0 for v in vals)
 
@@ -70,19 +71,19 @@ class Priority:
         vals[0] += int(change)
         total = sum(vals)
 
-        ya.utils.log_debug('vals, initial total, total', vals, initial_total, total)
-        assert ya.utils.equalish(total, initial_total, 0)
+        utils.log_debug('vals, initial total, total', vals, initial_total, total)
+        assert utils.equalish(total, initial_total, 0)
         return list(map(int, vals))
 
     def distribute(self, amount=0):
         '''
         Make all goals have equal budget rates required
         '''
-        ya.utils.log_debug('dist', self, amount)
-        ya.utils.log_debug(self, amount)
+        utils.log_debug('dist', self, amount)
+        utils.log_debug(self, amount)
         # if int(amount) == 0:
         #    return
-        ya.utils.log_info(self, self.total_available(), amount)
+        utils.log_info(self, self.total_available(), amount)
         assert self.total_available() + amount >= 0
         self.goals[0].adjust_budget(amount)
 
@@ -93,16 +94,16 @@ class Priority:
             g.adjust_budget(a, True)
 
         wg = list(zip(self.weights, self.goals))
-        assert all(ya.utils.equalish(w1 * g1.budget_rate_required(), w2 * g2.budget_rate_required())
+        assert all(utils.equalish(w1 * g1.budget_rate_required(), w2 * g2.budget_rate_required())
                    for ((w1, g1), (w2, g2)) in zip(wg, wg[1:]))
-        assert ya.utils.equalish(self.total_need(), need, 0)
+        assert utils.equalish(self.total_need(), need, 0)
 
         integer_adjustments = Priority.to_integer_cents(adjustments)
         for a, ia, g in zip(adjustments, integer_adjustments, self.goals):
             g.adjust_budget(a - ia, True)
 
-        ya.utils.log_debug('total_need(), need', self.total_need(), need)
-        assert ya.utils.equalish(self.total_need(), need, 0)
+        utils.log_debug('total_need(), need', self.total_need(), need)
+        assert utils.equalish(self.total_need(), need, 0)
         for g in self.goals:
             g.fix_fractional_cents()
 
@@ -112,7 +113,7 @@ class Priority:
         ''' Want distribute to never make sum of negative balances worse '''
         need_fixing = [g for g in self.goals if g.deficit()]
         assert len(need_fixing) != len(self.goals)
-        ya.utils.log_info(len(need_fixing), len(self.goals))
+        utils.log_info(len(need_fixing), len(self.goals))
         if not need_fixing:
             return
         deficit = sum(g.deficit() for g in need_fixing)
@@ -122,10 +123,10 @@ class Priority:
             g.adjust_budget(-g.available())
         self.distribute(deficit)
         self.goals.extend(need_fixing)
-        ya.utils.log_debug('total_need after, before', self.total_need(), need)
-        assert ya.utils.equalish(self.total_need(), need, -1)
+        utils.log_debug('total_need after, before', self.total_need(), need)
+        assert utils.equalish(self.total_need(), need, -1)
         assert not [g for g in self.goals if g.deficit()]
 
     def __str__(self):
-        table = ya.utils.formatter.Table([g.to_record() for g in self.goals])
+        table = utils.formatter.Table([g.to_record() for g in self.goals])
         return str(table)
