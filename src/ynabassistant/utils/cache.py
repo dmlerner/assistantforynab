@@ -1,5 +1,4 @@
-from . import utils
-print(utils)
+from ynabassistant.utils import utils
 
 
 class Cache:

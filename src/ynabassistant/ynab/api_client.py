@@ -6,12 +6,12 @@ import ynabassistant.install
 from ynabassistant.utils import utils
 
 
-def init(should_clean=False):
+def init():
     global configuration, api_client, accounts_api, categories_api, transactions_api, payees_api
-    utils.log_info('api_client.init, shouldclean=', should_clean)
+    utils.log_info('api_client.init')
     configuration = ynab_api.configuration.Configuration()
-    if should_clean or not settings.get('api_token'):
-        ya.install.do(should_clean)
+    if not settings.get('api_token'):
+        ya.install.install()
         assert settings.get('api_token')
     configuration.api_key['Authorization'] = settings.get('api_token')
     configuration.api_key_prefix['Authorization'] = 'Bearer'
@@ -22,9 +22,6 @@ def init(should_clean=False):
     categories_api = ynab_api.CategoriesApi(api_client)
     transactions_api = ynab_api.TransactionsApi(api_client)
     payees_api = ynab_api.PayeesApi(api_client)
-
-
-init(True)
 
 
 @ya.backup.local.save

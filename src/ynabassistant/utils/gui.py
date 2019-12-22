@@ -132,7 +132,6 @@ def driver():
 
 
 def quit():
-    print('quit')
     if is_alive(_driver):
         _driver.quit()
 

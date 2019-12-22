@@ -19,9 +19,8 @@ def get_backup_path(t, n):
     name = '%s-%s-%s.jsonpickle' % (settings.start_time, t, n)  # TODO: DRY
     return os.path.join(settings.backup_dir, name)
 
-print('backup.local23', utils)
+
 @utils.listy
-#@utils.listy
 def store(x):
     assert len(set(map(type, x))) == 1
     t = type(x[0])
