@@ -5,4 +5,7 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages(where='src'),
     install_requires=['ynab_api', 'jsonpickle', 'selenium'],
+    package_data={
+        'settings': ['default_settings.json'],
+    }
 )
