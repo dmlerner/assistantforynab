@@ -1,7 +1,7 @@
 import time
-import utils
 import settings
 import ynab
+from ynabassistant.utils import utils
 
 
 def load_gui():

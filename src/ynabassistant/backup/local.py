@@ -7,9 +7,8 @@ import functools
 
 import ynab_api
 
-import settings
-import utils
-import backup
+from ynabassistant import settings, backup
+from ynabassistant.utils import utils
 
 # Local Backup
 
@@ -20,8 +19,9 @@ def get_backup_path(t, n):
     name = '%s-%s-%s.jsonpickle' % (settings.start_time, t, n)  # TODO: DRY
     return os.path.join(settings.backup_dir, name)
 
-print(utils)
+print('backup.local23', utils)
 @utils.listy
+#@utils.listy
 def store(x):
     assert len(set(map(type, x))) == 1
     t = type(x[0])

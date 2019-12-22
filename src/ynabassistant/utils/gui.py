@@ -9,8 +9,10 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.remote.command import Command
 
-import utils
-import settings
+from ynabassistant.utils import utils
+#import settings
+#from ynabassistant import utils
+from ynabassistant import settings
 
 
 def get(class_name, count=None, require=True, predicate=None, wait=30, pause=.25):

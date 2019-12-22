@@ -1,4 +1,4 @@
-import utils
+from ynabassistant.utils import utils
 
 
 def diff_transactions(ts1, ts2):

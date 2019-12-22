@@ -32,6 +32,7 @@ def copy_default_settings(clean=False):
         shutil.copy(paths.default_settings_path, paths.settings_path)
 
 
-copy_default_settings(True)
+#copy_default_settings(True)
+copy_default_settings()
 _s = Settings()
 _s.load_json()

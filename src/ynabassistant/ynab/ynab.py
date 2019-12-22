@@ -3,8 +3,8 @@ import collections
 import ynab_api
 
 import ynab
-import utils
-import Assistant
+from ynabassistant.utils import utils
+from ynabassistant.assistant.assistant import Assistant
 import settings
 
 # Needed iff changing subtransactions

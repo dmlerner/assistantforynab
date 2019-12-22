@@ -1,9 +1,9 @@
 import ynab_api
 
 import settings
-import utils
+from ynabassistant.utils import utils
 import ynab
-import Assistant
+from ynabassistant.assistant import Assistant
 
 
 def annotate(t, order, items):

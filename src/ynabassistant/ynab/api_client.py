@@ -1,19 +1,23 @@
 import ynab_api
 import settings
 import backup
-import utils
+from ynabassistant.utils import utils
 
 
-configuration = ynab_api.configuration.Configuration()
-configuration.api_key['Authorization'] = settings.api_key
-configuration.api_key_prefix['Authorization'] = 'Bearer'
+def init():
+    global configuration, api_client, accounts_api, categories_api, transactions_api, payees_api
+    configuration = ynab_api.configuration.Configuration()
+    configuration.api_key['Authorization'] = settings.get('api_key')
+    if not settings.get('api_key'):
+        utils.log_info('WARNING: api key not set. Please call api_client.init() again')
+    configuration.api_key_prefix['Authorization'] = 'Bearer'
 
-api_client = ynab_api.api_client.ApiClient(configuration)
+    api_client = ynab_api.api_client.ApiClient(configuration)
 
-accounts_api = ynab_api.AccountsApi(api_client)
-categories_api = ynab_api.CategoriesApi(api_client)
-transactions_api = ynab_api.TransactionsApi(api_client)
-payees_api = ynab_api.PayeesApi(api_client)
+    accounts_api = ynab_api.AccountsApi(api_client)
+    categories_api = ynab_api.CategoriesApi(api_client)
+    transactions_api = ynab_api.TransactionsApi(api_client)
+    payees_api = ynab_api.PayeesApi(api_client)
 
 
 @backup.local.save
@@ -34,7 +38,6 @@ def get_transactions():
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in ts)
     ts.sort(key=lambda t: t.date, reverse=True)
     return ts
-
 
 @utils.listy
 @backup.local.save
@@ -76,7 +79,7 @@ def get_category_groups():
 def update_categories(categories):
     utils.log_debug('update_categories', categories)
     assert all(isinstance(c, ynab_api.Category) for c in categories)
-    assert all(type(c.budgeted) is int for c in categories)
+    assert all(isinstance(c.budgeted, int) for c in categories)
     updated_categories = []
     for c in categories:
         sc = utils.convert(c, ynab_api.SaveMonthCategory).pop()

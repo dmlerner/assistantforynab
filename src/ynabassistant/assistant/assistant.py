@@ -1,5 +1,6 @@
 import collections
-import utils
+from ynabassistant.utils.cache import Cache, TransactionCache
+from ynabassistant.utils import utils
 import amazon
 import backup
 import ynab
@@ -7,11 +8,11 @@ import ynab
 
 class Assistant:
 
-    accounts = utils.Cache()
-    transactions = utils.TransactionCache(accounts)
-    categories = utils.Cache()
-    category_groups = utils.Cache()
-    payees = utils.Cache()
+    accounts = Cache()
+    transactions = TransactionCache(accounts)
+    categories = Cache()
+    category_groups = Cache()
+    payees = Cache()
 
     orders = collections.defaultdict(list)
     items = {}

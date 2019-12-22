@@ -3,7 +3,7 @@ import time
 import glob
 import csv
 
-import utils
+from ynabassistant.utils import utils
 import settings
 
 from . import Item, Order

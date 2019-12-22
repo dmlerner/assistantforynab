@@ -1,8 +1,8 @@
 import ynab_api
-import utils
+from ynabassistant.utils import utils
 import settings
 import backup
-import Assistant
+from ynabassistant.assistant import Assistant
 import ynab
 
 
