@@ -24,7 +24,7 @@ def init(should_clean=False):
     payees_api = ynab_api.PayeesApi(api_client)
 
 
-init()
+init(True)
 
 
 @ya.backup.local.save

@@ -30,7 +30,7 @@ def download_and_compare(annotated, wait=5, retries=2):
     ya.utils.log_info('downloaded', *downloaded)
     for ts in annotated, downloaded:  # needed?
         ts.sort(key=lambda t: t.date)
-    diffs = ya.backup.utils.diff_transactions(downloaded, annotated)
+    diffs = ya.backup.diff_transactions(downloaded, annotated)
     ya.utils.log_debug(*diffs)
     if all(not x for x in diffs):
         return
@@ -47,8 +47,8 @@ def test():
     ya.ynab.ynab.do()
     # ya.utils.gui.quit()
     annotated = save_and_load_anotated_transactions()
-    new_account = ya.ynab.add_unlinked_account(ya.settings.account_name)
-    ya.ynab.queue_copy_to_account(annotated, new_account)
+    new_account = ya.ynab.ynab.add_unlinked_account(ya.settings.account_name)
+    ya.ynab.ynab.queue_copy_to_account(annotated, new_account)
     ya.ynab.ynab.do()
     download_and_compare(annotated)
 
