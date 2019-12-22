@@ -49,9 +49,16 @@ def setup_ynab_auth():
     if settings.get('api_token'):
         return
     api_token_url = 'https://app.youneedabudget.com/settings/developer'
-    gui.driver().get(api_token_url)
-    print('Log in, then click "New Token"')
-    api_token = input('Enter token value:\n')  # TODO: scrape
+    d = gui.driver()
+    d.get(api_token_url)
+    new_token_button = gui.get_by_text('button', 'New Token')
+    gui.click(new_token_button)
+    password_box = gui.driver().find_element_by_id('user_current_password')
+    gui.click(password_box)
+    print('Enter your password and click "Generate"')
+    while 'New Personal Access Token' not in d.page_source:
+        time.sleep(.5)
+    api_token = re.search('New Personal Access Token: <strong>([^<]*)</strong>', d.page_source).groups()[0]
     settings.set('api_token', api_token)
     print('api_token=', settings.api_token)
     assert settings.api_token
