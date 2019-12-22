@@ -1,5 +1,5 @@
 from ynabassistant.ynab import ynab
-from ynabassistant import settings
+from ynabassistant import settings, install
 from ynabassistant.assistant import Assistant
 
 '''
@@ -19,6 +19,7 @@ def delete_extra_accounts():
 
 
 def main():
+    ynab.api_client.init()
     Assistant.download_ynab(accounts=True, transactions=True)
     test_data, annotated = delete_extra_accounts()
     ynab.do()

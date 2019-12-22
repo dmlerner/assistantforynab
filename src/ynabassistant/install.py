@@ -5,7 +5,6 @@ import shutil
 import zipfile
 import requests
 import re
-import sys
 
 
 from ynabassistant.utils import gui, utils

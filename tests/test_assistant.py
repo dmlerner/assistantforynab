@@ -1,4 +1,3 @@
-#import ynabassistant as ya
 from ynabassistant import Assistant
 import tests
 
