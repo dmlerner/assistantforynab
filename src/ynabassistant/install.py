@@ -22,6 +22,8 @@ def clean():
             print('removing', p)
             shutil.rmtree(p)
 
+    settings.init(use_defaults=True)
+
 
 # TODO: log, not print
 
@@ -69,7 +71,6 @@ def setup_ynab_budget_id():
     while not re.search('youneedabudget.com/([^/]+)/', driver.current_url):
         time.sleep(.5)
     settings.set('budget_id', re.search('youneedabudget.com/([^/]+)/', driver.current_url).groups()[0])
-    #settings.set('budget_id', 'poopbudget')
     print('settings.budget_id=', settings.budget_id)
     assert settings.budget_id
 
@@ -81,13 +82,15 @@ def make_dirs():
             os.mkdir(p)
 
 
-def do(do_clean=False):
-    if do_clean:
+def do(should_clean=False):
+    if should_clean:
         clean()
+    # the remaining steps only ever run if needed regardless of do_clean
     setup_chromedriver()
     make_dirs()
     setup_ynab_auth()
     setup_ynab_budget_id()
+    settings.init()
     print(vars(settings).keys())
     print('at end of install, api_token=', settings.get('api_token'), settings.api_token)
     gui.driver().close()

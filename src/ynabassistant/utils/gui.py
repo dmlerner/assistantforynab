@@ -132,6 +132,7 @@ def driver():
 
 
 def quit():
+    print('quit')
     if is_alive(_driver):
         _driver.quit()
 
@@ -140,6 +141,7 @@ def is_alive(d):
     utils.log_debug('is_alive')
     try:
         d.execute(Command.STATUS)
+        d.current_url
         return True
     except BaseException:
         utils.log_exception_debug()
