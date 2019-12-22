@@ -2,10 +2,12 @@ import time
 import collections
 import ynab_api
 
-import ynab
+from ynabassistant import settings
 from ynabassistant.utils import utils
-from ynabassistant.assistant.assistant import Assistant
-import settings
+import pdb
+#pdb.set_trace()
+from ynabassistant.assistant import Assistant
+from . import calculate_adjustment, api_client, gui_client, ynab
 
 # Needed iff changing subtransactions
 gui_queue = collections.defaultdict(dict)  # mode: { id: TransactionDetail }
@@ -23,14 +25,14 @@ def add_adjustment_subtransaction(t):
     utils.log_debug('add_adjustment_subtransaction', t)
     if not t.subtransactions:
         return
-    amount = ynab.utils.calculate_adjustment(t)
+    amount = calculate_adjustment(t)
     if not amount:
         return
     adjustment = utils.copy(t.subtransactions[0])
     adjustment.memo = 'Split transaction adjustment'
     adjustment.amount = amount
     adjustment.category_name = settings.default_category  # TODO
-    utils.log_info('Warning, adjusting: subtransactions do not add up, by $%s' % -ynab.utils.amount(adjustment))
+    utils.log_info('Warning, adjusting: subtransactions do not add up, by $%s' % -amount(adjustment))
     t.subtransactions.append(adjustment)
     assert utils.equalish(t.amount, sum(s.amount for s in t.subtransactions))
 
@@ -88,7 +90,7 @@ def do_gui():
         for m, t in zip(old_memos, ts.values()):  # simplify out the .values? listy?
             t.memo = m
             add_adjustment_subtransaction(t)
-        ynab.gui_client.enter_all_transactions(ts)
+        gui_client.enter_all_transactions(ts)
         utils.log_info(utils.separator)
     gui_queue.clear()
     utils.gui.quit()
@@ -98,8 +100,8 @@ def check_payee(st, payees):
     utils.log_debug('check_payee', st)
     utils.type_assert_st(st)
     assert not st.payee_id or st.payee_id in payees
-    # Need get because this is a field that isn't on the ynab_api model
-    # I just add it for ynab.gui_client convenience in amazon.amazon
+    # Need get because this is a field that isn't on the api model
+    # I just add it for gui_client convenience in amazon.amazon
     if st.payee_id and st.__dict__.get('payee_name'):
         assert payees[st.payee_id].name == st.payee_name
     if isinstance(st, ynab_api.TransactionDetail):
@@ -173,9 +175,9 @@ def do_delete_accounts(wait=30, sleep=5):
     if not account_delete_queue:
         return
     utils.log_debug('do_delete_accounts')
-    ynab.gui_client.delete_accounts(account_delete_queue)
+    gui_client.delete_accounts(account_delete_queue)
     start = time.time()
-    while time.time() - start < wait:  # TODO: consider fixing this instead or also in ynab.api_client
+    while time.time() - start < wait:  # TODO: consider fixing this instead or also in api_client
         Assistant.download_ynab(accounts=True)
         utils.log_debug(
             'account keys, delete queue keys', set(
@@ -199,9 +201,9 @@ def do_delete_transactions():
     utils.log_info('Set deletion memo on %s transactions via YNAB REST API' % len(transaction_delete_queue))
     for t in transaction_delete_queue.values():
         t.memo = delete_key
-    ynab.api_client.update_transactions(transaction_delete_queue)
+    api_client.update_transactions(transaction_delete_queue)
     utils.log_info('delete %s transactions via YNAB webapp' % len(transaction_delete_queue))
-    ynab.gui_client.delete_transactions()
+    gui_client.delete_transactions()
     transaction_delete_queue.clear()
 
 
@@ -266,7 +268,7 @@ def queue_clear_account(account):
 
 def add_unlinked_account(account_name, balance=0, account_type='credit'):
     utils.log_debug('add_unlinked_account', account_name, balance, account_type)
-    ynab.gui_client.add_unlinked_account(account_name, balance, account_type)
+    gui_client.add_unlinked_account(account_name, balance, account_type)
     utils.gui.quit()
     Assistant.download_ynab(accounts=True)
     start = time.time()
@@ -277,8 +279,8 @@ def add_unlinked_account(account_name, balance=0, account_type='credit'):
     assert False
 
 
-rest_modes = {'create': ynab.api_client.create_transactions,
-              'update': ynab.api_client.update_transactions,
+rest_modes = {'create': api_client.create_transactions,
+              'update': api_client.update_transactions,
               }
 
 no_check_configuration = ynab_api.Configuration()

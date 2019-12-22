@@ -1,7 +1,7 @@
 import time
-import settings
-import ynab
+from ynabassistant import settings
 from ynabassistant.utils import utils
+from . import get_amount, type_assert_st, ynab
 
 
 def load_gui():
@@ -29,7 +29,7 @@ def get_category(st):
     utils.log_debug('get_category', st)
     # TODO/BUG: "Return: Amazon" category is equivalent to "AnythingElse: Amazon"'
     # use cateogory group id?
-    ynab.utils.type_assert_st(st)
+    type_assert_st(st)
     category = st.__dict__.get('category_name')
     if not category or 'Split (Multiple' in category:
         assert settings.default_category
@@ -45,16 +45,16 @@ def get_category(st):
 
 def get_payee(st):
     utils.log_debug('get_payee', st)
-    ynab.utils.type_assert_st(st)
+    type_assert_st(st)
     return st.__dict__.get('payee_name')
 
 
 def enter(st, payee_element, category_element, memo_element, outflow_element, inflow_element):
     utils.log_debug('enter', st)
-    ynab.utils.type_assert_st(st)
+    type_assert_st(st)
     category = get_category(st)
     payee = get_payee(st)
-    amount = ynab.utils.amount(st)
+    amount = get_amount(st)
     outflow = 0 if amount > 0 else abs(amount)
     inflow = 0 if amount < 0 else abs(amount)
     enter_fields((payee_element, category_element, memo_element, outflow_element),
@@ -115,7 +115,7 @@ def enter_transaction(t):
     adjust_subtransaction_rows(t)
     date, payees, categories, memos = map(lambda p: utils.gui.get_by_placeholder('accounts-text-field', p),
                                           ('date', 'payee', 'category', 'memo'))
-    date.send_keys(ynab.utils.gui_format_date(t.date))
+    date.send_keys(gui_format_date(t.date))
     outflows, inflows = map(lambda p: utils.gui.get_by_placeholder(
         'ember-text-field', p), ('outflow', 'inflow'))
     if len(t.subtransactions) == 0:
@@ -177,7 +177,7 @@ def add_unlinked_account(account_name, balance=0, account_type='credit'):
 
 def delete_transactions():
     load_gui()
-    search('Memo: ' + ynab.ynab.delete_key)
+    search('Memo: ' + ynab.delete_key)
     if not isinstance(utils.gui.get('ynab-checkbox-button-square'), list):
         return  # Means no transactions in results to delete, because only one element
     select_all()

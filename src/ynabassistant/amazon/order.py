@@ -1,5 +1,5 @@
 from ynabassistant.utils import utils
-import amazon
+from . import parse_date, parse_money, format_date
 
 
 class Order:
@@ -8,13 +8,13 @@ class Order:
     def __init__(self, d):
         self._parent_dict = d
         utils.log_debug(d)
-        self.order_date = amazon.utils.parse_date(d['Order Date'])
+        self.order_date = parse_date(d['Order Date'])
         self.id = d['Order ID']
-        self.shipment_date = amazon.utils.parse_date(d['Shipment Date'])
-        self.total_charged = amazon.utils.parse_money(d['Total Charged'])
+        self.shipment_date = parse_date(d['Shipment Date'])
+        self.total_charged = parse_money(d['Total Charged'])
 
     def __repr__(self):
-        fields = amazon.utils.format_date(self.order_date),\
+        fields = format_date(self.order_date),\
             utils.format_money(self.total_charged), self.id
         return ' | '.join(map(str, fields))
 
@@ -34,8 +34,8 @@ class Order:
             if other_dict[k] == combined_dict[k]:
                 continue
             if '$' in other_dict[k] and '$' in combined_dict[k]:
-                combined_dict[k] = '$' + str(amazon.utils.parse_money(other_dict[k]) +
-                                             amazon.utils.parse_money(combined_dict[k]))
+                combined_dict[k] = '$' + str(parse_money(other_dict[k]) +
+                                             parse_money(combined_dict[k]))
             else:
                 combined_dict[k] += ', ' + other_dict[k]
         return Order(combined_dict)

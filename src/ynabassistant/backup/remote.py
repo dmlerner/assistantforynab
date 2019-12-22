@@ -1,13 +1,12 @@
 import ynab_api
 from ynabassistant.utils import utils
-import settings
-import backup
+from ynabassistant import settings, ynab
 from ynabassistant.assistant import Assistant
-import ynab
+import local
 
 
 def diff_with_backup(predicates, timestamp=settings.start_time, order='first'):
-    all_backup_transactions = backup.local.load_before(ynab_api.TransactionDetail, timestamp)
+    all_backup_transactions = local.load_before(ynab_api.TransactionDetail, timestamp)
     matching = utils.multi_filter(predicates, all_backup_transactions)
 
     def key(t):

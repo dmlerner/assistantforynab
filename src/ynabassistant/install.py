@@ -23,8 +23,6 @@ def clean():
             shutil.rmtree(p)
 
 
-clean()
-
 
 # TODO: log, not print
 
@@ -83,12 +81,13 @@ def make_dirs():
         if not os.path.exists(p):
             os.mkdir(p)
 
-
-clean()
-setup_chromedriver()
-make_dirs()
-setup_ynab_auth()
-setup_ynab_budget_id()
-print(vars(settings).keys())
-print('at end of install, api_token=', settings.get('api_token'), settings.api_token)
-gui.driver().close()
+def do(do_clean=False):
+    if do_clean: 
+        clean()
+    setup_chromedriver()
+    make_dirs()
+    setup_ynab_auth()
+    setup_ynab_budget_id()
+    print(vars(settings).keys())
+    print('at end of install, api_token=', settings.get('api_token'), settings.api_token)
+    gui.driver().close()

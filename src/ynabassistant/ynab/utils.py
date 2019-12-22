@@ -18,7 +18,7 @@ def format_money(price):
     return str(round(parsed, 2))
 
 
-def amount(st):
+def get_amount(st):
     type_assert_st(st)
     return parse_money(st.amount)
 
@@ -67,14 +67,14 @@ def calculate_adjustment(t):
 
 def format_transaction(t):
     assert isinstance(t, ynab_api.TransactionDetail)
-    t_formatted = ' | '.join(list(map(str, (format_date(t.date), amount(t), t.memo))))
+    t_formatted = ' | '.join(list(map(str, (format_date(t.date), get_amount(t), t.memo))))
     t_formatted += '\n' + '\n'.join(list(map(format_subtransaction, t.subtransactions)))
     return t_formatted.strip()
 
 
 def format_subtransaction(s):
     assert isinstance(s, ynab_api.SubTransaction)
-    return ' | '.join(list(map(str, (amount(s), s.memo))))
+    return ' | '.join(list(map(str, (get_amount(s), s.memo))))
 
 
 def type_assert_st(st):

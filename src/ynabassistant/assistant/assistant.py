@@ -1,9 +1,10 @@
 import collections
 from ynabassistant.utils.cache import Cache, TransactionCache
 from ynabassistant.utils import utils
-import amazon
-import backup
-import ynab
+import ynabassistant as ya
+import ynabassistant.amazon
+import ynabassistant.backup
+import ynabassistant.ynab
 
 
 class Assistant:
@@ -19,13 +20,13 @@ class Assistant:
 
     def load_amazon_data():
         utils.log_info('Loading Amazon')
-        Assistant.orders = amazon.downloader.load('orders')  # by order.id
-        Assistant.items = amazon.downloader.load('items')  # grouped by order.id
+        Assistant.orders = ya.amazon.downloader.load('orders')  # by order.id
+        Assistant.items = ya.amazon.downloader.load('items')  # grouped by order.id
         utils.log_info(utils.separator)
 
     def load_ynab(accounts=False, transactions=False, categories=False, payees=False, local=False):
         assert accounts or transactions or categories or payees
-        source = backup.local if local else ynab.api_client
+        source = ya.backup.local if local else ya.ynab.api_client
 
         # Need accounts to validate transactions pending deleted account bug fix
         if transactions or accounts:
@@ -65,17 +66,17 @@ class Assistant:
 
     def update_amazon_transactions():
         utils.log_info('Matching Amazon orders to YNAB transactions')
-        potential_amazon_transactions = amazon.get_eligible_transactions(Assistant.transactions)
-        orders_by_transaction_id = amazon.match.match_all(potential_amazon_transactions, Assistant.orders)
+        potential_amazon_transactions = ya.amazon.get_eligible_transactions(Assistant.transactions)
+        orders_by_transaction_id = ya.amazon.match.match_all(potential_amazon_transactions, Assistant.orders)
         for t_id, order in orders_by_transaction_id.items():
             order = orders_by_transaction_id[t_id]
             i = Assistant.items[order.id]
             assert i
             t = Assistant.transactions.get(t_id)
-            amazon.annotate(t, order, i)
+            ya.amazon.annotate(t, order, i)
             # ynab.queue_update(t, Assistant.payees, Assistant.categories)
-            ynab.queue_update(t)
+            ya.ynab.queue_update(t)
         utils.log_info(utils.separator)
 
     def update_ynab():
-        ynab.do()
+        ya.ynab.do()

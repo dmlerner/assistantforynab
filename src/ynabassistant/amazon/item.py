@@ -1,5 +1,5 @@
 from ynabassistant.utils import utils
-import amazon
+from . import parse_date, parse_money
 
 
 class Item:
@@ -9,8 +9,8 @@ class Item:
         self._parent_dict = d
         self.id = d['Order ID']
 
-        self.order_date = amazon.utils.parse_date(d['Order Date'])
-        self.item_total = amazon.utils.parse_money(d['Item Total'])
+        self.order_date = parse_date(d['Order Date'])
+        self.item_total = parse_money(d['Item Total'])
         self.title = d['Title']
 
         self.category = d['Category']
