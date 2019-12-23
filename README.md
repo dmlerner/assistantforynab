@@ -52,11 +52,14 @@ For more ideas of what it can do, check out [assistantforynab.assistant.py](http
 
 # FAQ:
 
-1. Does this jeopardize my credentials or YNAB data?
-	 No. It uses the official YNAB API and goes through the same servers as if you use the webapp. I generated [Python binding](https://github.com/dmlerner/ynab-apis) from the official swagger spec using OpenAPI Generator, and made zero modifications. 
-2. Does this store my data?
+1. **Does this jeopardize my credentials or YNAB data?**
+	No. It uses the official YNAB API and goes through the same servers as if you use the webapp. I generated [Python binding](https://github.com/dmlerner/ynab-api) from the official swagger spec using OpenAPI Generator, and made zero modifications. 
+	
+2. **Does this store my data?**
      Yes, but only on whatever computer you use to run it. This is for backup purposes, and easy to disable.
-3. Why does this ask for my API Token? 
+     
+3. **Why does this ask for my API Token?** 
      Because it's an alpha version and I haven't gotten around to making it work with OAuth. The token is sent to YNAB, but not to anywhere else.
-4. What operating systems does this work on?
-     I have developed it on windows with WSL. I like, think it might work on mac/linux/normal windows too. Let me know...
+     
+4. **What operating systems does this work on?**
+     I have developed it on windows with WSL and cmder. I like, think it might work on mac/linux/normal windows too. Let me know...
