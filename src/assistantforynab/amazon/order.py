@@ -13,7 +13,7 @@ class Order:
         self.shipment_date = parse_date(d['Shipment Date'])
         self.total_charged = parse_money(d['Total Charged'])
 
-    def __repr__(self):
+    def __str__(self):
         fields = format_date(self.order_date),\
             utils.format_money(self.total_charged), self.id
         return ' | '.join(map(str, fields))

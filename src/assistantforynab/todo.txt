@@ -1,0 +1,28 @@
+automatic apportioning of to be budgeted
+alerts
+bank2ynab integration
+multi account support
+
+Mostly, the amounts map over and are unique
+first assume they do
+break uniques by date proximity
+    do the dates on one of ynab/amazon
+    tend to be before/after the other consistently?
+napsack the rest
+    optimizing for most dollars matched?
+
+order total may not equal sum of item costs
+because order consider coupons and probably also shipping
+but order does have shipping cost field
+and promotions field
+not clear that I can get per-item promotion breakdowns
+
+backup/restore
+refunds
+
+add some assertions to amazon test
+api client test
+
+some general way around the fact that deleting an account doens't mean it won't be returned by api for O(minutes)
+
+fake backend for testing that just reuses local store

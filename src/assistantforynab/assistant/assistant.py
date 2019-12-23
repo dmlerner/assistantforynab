@@ -80,3 +80,9 @@ class Assistant:
 
     def update_ynab():
         ya.ynab.ynab.do()
+
+    def full_handle_amazon():
+        Assistant.download_all_ynab()
+        Assistant.load_amazon_data()
+        Assistant.update_amazon_transactions()
+        Assistant.update_ynab()

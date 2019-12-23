@@ -17,7 +17,7 @@ class Item:
         self.seller = d['Seller']
         self.quantity = d['Quantity']
 
-    def __repr__(self):
+    def __str__(self):
         str_fields = utils.format_date(self.order_date), \
             utils.format_money(self.item_total), self.title
         return ' | '.join(map(str, str_fields))

@@ -6,17 +6,17 @@
 1) Backup and restore your budget
 2) Split Amazon transactions into individual, labeled items
 3) API for adding/modifying split transactions
+
+WIP:
 4) Automatic distribution of funds to meet category goals
 5) Goals on a specific date
 
 
-![Demo GIF](demo.gif)
-
-See various notes and settings in settings.py
-
 # Installation:
 
 ```
+git clone https://github.com/dmlerner/ynabassistant
+python3 setup.py install
 pip3 install ynabassistant
 mkdir $YOUR_CHOICE_OF_DIRECTORY_NAME  
 cd $YOUR_CHOICE_OF_DIRECTORY_NAME

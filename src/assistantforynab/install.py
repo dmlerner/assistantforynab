@@ -74,6 +74,7 @@ def setup_ynab_auth():
     settings.set('api_token', api_token)
     utils.log_debug('settings.api_token', settings.api_token)
     assert settings.api_token
+    gui.quit()
 
 
 def setup_ynab_budget_id():
@@ -95,6 +96,7 @@ def setup_ynab_budget_id():
     settings.set('budget_id', re.search('youneedabudget.com/([^/]+)/', driver.current_url).groups()[0])
     utils.log_debug('settings.budget_id', settings.budget_id)
     assert settings.budget_id
+    gui.quit()
 
 
 def install():
@@ -104,7 +106,6 @@ def install():
     setup_ynab_auth()
     setup_ynab_budget_id()
     settings.init()
-    gui.quit()
     utils.log_debug('Settings:', settings._s.settings)
     utils.log_info('Installed!')
 
