@@ -30,7 +30,14 @@ def setup_chromedriver():
     if os.path.exists(settings.chromedriver_path):
         return
     utils.log_info('Installing Chromedriver')
-    chromedriver_url = 'https://chromedriver.storage.googleapis.com/79.0.3945.36/chromedriver_win32.zip'
+
+    chromedriver_urls = {
+        'windows': 'https://chromedriver.storage.googleapis.com/79.0.3945.36/chromedriver_win32.zip',
+        'mac': 'https://chromedriver.storage.googleapis.com/79.0.3945.36/chromedriver_mac64.zip',
+        'linux': 'https://chromedriver.storage.googleapis.com/79.0.3945.36/chromedriver_linux64.zip'
+    }
+    chromedriver_url = chromedriver_urls[settings.operating_system]
+
     chromedriver_zip_filename = os.path.basename(chromedriver_url)
     response = requests.get(chromedriver_url)
     with open(chromedriver_zip_filename, 'wb') as f:
