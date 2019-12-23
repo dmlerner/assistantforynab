@@ -1,6 +1,8 @@
 **This is an alpha version. Use at your own risk. I suggest backing up your budget first.**
 # What's this?
-[YNAB](ynab.com) is excellent budgeting software, but is missing some essential features:
+[YNAB](ynab.com) is excellent budgeting software, but is missing some essential features.
+
+This repo aims to provide them, in part by using Selenium to automate interactions with the YNAB webpage as needed.
 
 1) Backup and restore your budget
 2) Split Amazon transactions into individual, labeled items
@@ -12,7 +14,6 @@ Work in progress:
 5) Automatic distribution of funds to meet category goals
 6) Goals on a specific date
 
-This repo aims to provide them, in part by using Selenium to automate interactions with the YNAB webpage as needed.
 
 
 # Installation:
