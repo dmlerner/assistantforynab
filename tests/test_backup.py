@@ -4,52 +4,52 @@ import time
 
 
 def save_and_load_int():
-    ya.utils.log_info('save_and_load_int')
-    ya.backup.local.store(1)
-    ya.backup.local.store(2)
-    assert ya.backup.local.load(int) == [1, 2]
+    afy.utils.log_info('save_and_load_int')
+    afy.backup.local.store(1)
+    afy.backup.local.store(2)
+    assert afy.backup.local.load(int) == [1, 2]
 
 
 def save_and_load_anotated_transactions():
-    ya.utils.log_info('save_and_load_annotated_transactions')
-    ya.Assistant.download_all_ynab()
-    annotated = ya.Assistant.transactions.by_name('Annotated')
-    ya.utils.log_debug(annotated, len(annotated))
-    loaded = ya.backup.local.load_account_transactions('Annotated', -1)
-    ya.utils.log_debug(loaded, len(loaded))
+    afy.utils.log_info('save_and_load_annotated_transactions')
+    afy.Assistant.download_all_ynab()
+    annotated = afy.Assistant.transactions.by_name('Annotated')
+    afy.utils.log_debug(annotated, len(annotated))
+    loaded = afy.backup.local.load_account_transactions('Annotated', -1)
+    afy.utils.log_debug(loaded, len(loaded))
     assert annotated == loaded
     return annotated
 
 
 def download_and_compare(annotated, wait=5, retries=2):
-    ya.utils.log_info('download_and_compare', retries)
-    ya.Assistant.download_ynab(transactions=True)
-    downloaded = ya.Assistant.transactions.by_name(ya.settings.account_name)
+    afy.utils.log_info('download_and_compare', retries)
+    afy.Assistant.download_ynab(transactions=True)
+    downloaded = afy.Assistant.transactions.by_name(afy.settings.account_name)
     downloaded = list(filter(lambda t: t.payee_name != 'Starting Balance', downloaded)
                       )  # TODO maybe this should be removed by clone
-    ya.utils.log_info('downloaded', *downloaded)
+    afy.utils.log_info('downloaded', *downloaded)
     for ts in annotated, downloaded:  # needed?
         ts.sort(key=lambda t: t.date)
-    diffs = ya.backup.diff_transactions(downloaded, annotated)
-    ya.utils.log_debug(*diffs)
+    diffs = afy.backup.diff_transactions(downloaded, annotated)
+    afy.utils.log_debug(*diffs)
     if all(not x for x in diffs):
         return
     assert retries > 0
-    ya.utils.log_info('failed, sleeping %s' % wait)
+    afy.utils.log_info('failed, sleeping %s' % wait)
     time.sleep(wait)
     download_and_compare(annotated, wait, retries - 1)
 
 
 def test():
     save_and_load_int()
-    ya.Assistant.download_all_ynab()  # TODO probably don't need all of that
+    afy.Assistant.download_all_ynab()  # TODO probably don't need all of that
     setup_data.delete_extra_accounts()
-    ya.ynab.ynab.do()
-    # ya.utils.gui.quit()
+    afy.ynab.ynab.do()
+    # afy.utils.gui.quit()
     annotated = save_and_load_anotated_transactions()
-    new_account = ya.ynab.ynab.add_unlinked_account(ya.settings.account_name)
-    ya.ynab.ynab.queue_copy_to_account(annotated, new_account)
-    ya.ynab.ynab.do()
+    new_account = afy.ynab.ynab.add_unlinked_account(afy.settings.account_name)
+    afy.ynab.ynab.queue_copy_to_account(annotated, new_account)
+    afy.ynab.ynab.do()
     download_and_compare(annotated)
 
 

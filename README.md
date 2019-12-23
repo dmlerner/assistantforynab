@@ -16,6 +16,7 @@ WIP:
 
 ```
 git clone https://github.com/dmlerner/assistantforynab
+(optional): python3 -m venv env
 python3 setup.py install
 pip3 install ynabassistant
 mkdir $YOUR_CHOICE_OF_DIRECTORY_NAME  

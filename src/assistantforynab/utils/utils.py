@@ -30,10 +30,10 @@ log_file = open(get_log_path(), 'a+')
 def log_info(*x, sep=os.linesep, end=os.linesep * 2):
     formatted = []
     formatters = {
-        ynab_api.TransactionDetail: ya.ynab.format_transaction,
-        ynab_api.SubTransaction: ya.ynab.format_subtransaction,
-        ya.amazon.Item: lambda x: x,  # TODO
-        ya.amazon.Order: lambda x: x  # TODO
+        ynab_api.TransactionDetail: afy.ynab.format_transaction,
+        ynab_api.SubTransaction: afy.ynab.format_subtransaction,
+        afy.amazon.Item: lambda x: x,  # TODO
+        afy.amazon.Order: lambda x: x  # TODO
     }
     for i in x:
         if type(i) in formatters:

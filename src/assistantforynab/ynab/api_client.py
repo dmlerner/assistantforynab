@@ -13,7 +13,7 @@ def init():
     utils.log_debug('api_client.init')
     configuration = ynab_api.configuration.Configuration()
     if not settings.get('api_token'):
-        ya.install.install()
+        afy.install.install()
         assert settings.get('api_token')
     configuration.api_key['Authorization'] = settings.get('api_token')
     configuration.api_key_prefix['Authorization'] = 'Bearer'
@@ -29,7 +29,7 @@ def init():
     initialized = True
 
 
-@ya.backup.local.save
+@afy.backup.local.save
 def get_accounts():
     utils.log_debug('get_accounts')
     initialized or init()
@@ -40,7 +40,7 @@ def get_accounts():
     return acs
 
 
-@ya.backup.local.save
+@afy.backup.local.save
 def get_transactions():
     utils.log_debug('get_transactions')
     initialized or init()
@@ -52,7 +52,7 @@ def get_transactions():
 
 
 @utils.listy
-@ya.backup.local.save
+@afy.backup.local.save
 def update_transactions(transactions):
     utils.log_debug('update_transactions')
     initialized or init()
@@ -65,7 +65,7 @@ def update_transactions(transactions):
 
 
 @utils.listy
-@ya.backup.local.save
+@afy.backup.local.save
 def create_transactions(transactions):
     utils.log_debug('create_transactions')
     initialized or init()
@@ -77,7 +77,7 @@ def create_transactions(transactions):
     return ts
 
 
-@ya.backup.local.save
+@afy.backup.local.save
 def get_category_groups():
     utils.log_debug('get_category_groups')
     initialized or init()
@@ -90,7 +90,7 @@ def get_category_groups():
 
 
 @utils.listy
-@ya.backup.local.save
+@afy.backup.local.save
 def update_categories(categories):
     utils.log_debug('update_categories', categories)
     initialized or init()
@@ -108,7 +108,7 @@ def update_categories(categories):
     return updated_categories
 
 
-@ya.backup.local.save
+@afy.backup.local.save
 def get_payees():
     utils.log_debug('get_payees')
     initialized or init()

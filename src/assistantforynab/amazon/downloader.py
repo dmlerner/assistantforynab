@@ -16,7 +16,7 @@ from . import Item, Order
 def get_downloaded_csv_filenames():
     utils.log_debug('get_downloaded_csv_filenames')
     return set(
-        glob.glob(os.path.join(ya.settings.downloads_dir, '*.csv')))
+        glob.glob(os.path.join(afy.settings.downloads_dir, '*.csv')))
 
 
 def wait_for_download(timeout=30):
@@ -45,7 +45,7 @@ def parse_orders(order_dicts):
 
 data_parsers = {'items': parse_items, 'orders': parse_orders}
 ' TODO: get refunds, returns '
-csv_paths = {k: os.path.join(ya.settings.data_dir, k + '.csv')
+csv_paths = {k: os.path.join(afy.settings.data_dir, k + '.csv')
              for k in data_parsers}
 
 

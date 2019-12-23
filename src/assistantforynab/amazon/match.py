@@ -8,7 +8,7 @@ def get_order(t, orders):
     possible_orders = []
     for order in orders.values():
         # need negative because YNAB outflows have negative amount
-        if utils.equalish(order.total_charged, -ya.ynab.get_amount(t)):
+        if utils.equalish(order.total_charged, -afy.ynab.get_amount(t)):
             possible_orders.append(order)
     utils.log_debug('possible_orders', possible_orders)
     if len(possible_orders) == 0:
@@ -17,7 +17,7 @@ def get_order(t, orders):
     if len(possible_orders) == 1:
         order = possible_orders[0]
     else:
-        if ya.settings.fail_on_ambiguous_transaction:
+        if afy.settings.fail_on_ambiguous_transaction:
             utils.log_error('Skipping ambiguous transaction', t, possible_orders)
             return None
         else:

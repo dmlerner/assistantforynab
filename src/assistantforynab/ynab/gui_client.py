@@ -6,7 +6,7 @@ from . import get_amount, type_assert_st, gui_format_date
 
 def load_gui():
     utils.log_debug('load_gui')
-    url = 'https://app.youneedabudget.com/%s/accounts' % ya.settings.budget_id
+    url = 'https://app.youneedabudget.com/%s/accounts' % afy.settings.budget_id
     d = gui.driver()
     if url in d.current_url:
         return
@@ -32,14 +32,14 @@ def get_category(st):
     type_assert_st(st)
     category = st.__dict__.get('category_name')
     if not category or 'Split (Multiple' in category:
-        assert ya.settings.default_category
-        utils.log_debug('invalid category %s, using default %s' % (str(category), ya.settings.default_category))
+        assert afy.settings.default_category
+        utils.log_debug('invalid category %s, using default %s' % (str(category), afy.settings.default_category))
         '''
         ynab would fail to download with ynab_api_client if `st` is a split transaction
         even though you can hit save in the ui
         hence using a default
         '''
-        return ya.settings.default_category
+        return afy.settings.default_category
     return category
 
 
@@ -177,7 +177,7 @@ def add_unlinked_account(account_name, balance=0, account_type='credit'):
 
 def delete_transactions():
     load_gui()
-    search('Memo: ' + ya.ynab.ynab.delete_key)
+    search('Memo: ' + afy.ynab.ynab.delete_key)
     if not isinstance(gui.get('ynab-checkbox-button-square'), list):
         return  # Means no transactions in results to delete, because only one element
     select_all()

@@ -3,8 +3,8 @@ from assistantforynab.utils import utils
 import assistantforynab as afy
 
 
-def diff_with_backup(predicates, timestamp=ya.settings.start_time, order='first'):
-    all_backup_transactions = ya.backup.local.load_before(ynab_api.TransactionDetail, timestamp)
+def diff_with_backup(predicates, timestamp=afy.settings.start_time, order='first'):
+    all_backup_transactions = afy.backup.local.load_before(ynab_api.TransactionDetail, timestamp)
     matching = utils.multi_filter(predicates, all_backup_transactions)
 
     def key(t):
@@ -15,11 +15,11 @@ def diff_with_backup(predicates, timestamp=ya.settings.start_time, order='first'
     unique = utils.by(get_unique(matching, key, order), key)
     unique_keys = set(unique.keys())
 
-    ya.Assistant.download_ynab(transactions=True)  # TODO: can I get away with this?
+    afy.Assistant.download_ynab(transactions=True)  # TODO: can I get away with this?
     current_transactions = utils.by(
         utils.multi_filter(
             predicates,
-            ya.Assistant.transactions.values()),
+            afy.Assistant.transactions.values()),
         key)
     current_keys = set(current_transactions.keys())
     modified = unique_keys.intersection(current_keys)
@@ -31,12 +31,12 @@ def diff_with_backup(predicates, timestamp=ya.settings.start_time, order='first'
     return [list(filter(lambda t: t.id in x, matching)) for x in (modified, deleted, added)]
 
 
-def restore_account_transactions(name=ya.settings.account_name):
+def restore_account_transactions(name=afy.settings.account_name):
     # restores only transactions newer than default of 30 days
     restore_transactions((lambda t: utils.newer_than(t.date), lambda t: t.account_name == name))
 
 
-def restore_transactions(predicates, timestamp=ya.settings.start_time, order='first', confirm=True):
+def restore_transactions(predicates, timestamp=afy.settings.start_time, order='first', confirm=True):
     modified, deleted, added = diff_with_backup(predicates, timestamp, order)
     utils.log_debug('before')
     utils.log_debug(modified)
@@ -44,10 +44,10 @@ def restore_transactions(predicates, timestamp=ya.settings.start_time, order='fi
     utils.log_debug(added)
     if confirm and not do_confirm(modified, deleted, added):
         return
-    ya.ynab.ynab.queue_update(modified)
+    afy.ynab.ynab.queue_update(modified)
     # ynab.queue_delete(added) # TODO: is this just an update by setting delete = true?
     # ynab.queue_create(deleted)  # TODO: is this really just an update of deleted = false?
-    ya.ynab.ynab.do()
+    afy.ynab.ynab.do()
     modified, deleted, added = diff_with_backup(predicates, timestamp, order)
     utils.log_debug('after')
     utils.log_debug(modified)
