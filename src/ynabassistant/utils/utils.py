@@ -1,6 +1,6 @@
-from ynabassistant import settings  # this way breaks running installer
-#from . import settings
-#from . import settings
+from ynabassistant import settings
+import ynab_api
+import ynabassistant as ya
 from copy import copy as cpy
 import collections
 import glob
@@ -29,9 +29,8 @@ log_file = open(get_log_path(), 'a+')
 
 def log_info(*x, sep=os.linesep, end=os.linesep * 2):
     formatted = []
-    # formatters = {ynab_api.TransactionDetail: ynab.format_transaction,
-    #              ynab_api.SubTransaction: ynab.format_subtransaction}
-    formatters = {}  # TODO: find a way to restore this functionality without importing ynab here..
+    formatters = {ynab_api.TransactionDetail: ya.ynab.format_transaction,
+                  ynab_api.SubTransaction: ya.ynab.format_subtransaction}
     for i in x:
         if type(i) in formatters:
             formatted.append(formatters[type(i)](i))

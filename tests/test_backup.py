@@ -42,7 +42,6 @@ def download_and_compare(annotated, wait=5, retries=2):
 
 def test():
     save_and_load_int()
-    ya.ynab.api_client.init()
     ya.Assistant.download_all_ynab()  # TODO probably don't need all of that
     setup_data.delete_extra_accounts()
     ya.ynab.ynab.do()
