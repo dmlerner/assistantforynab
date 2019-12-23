@@ -1,7 +1,6 @@
 from assistantforynab.ynab import ynab
-from assistantforynab import settings
+from assistantforynab import settings, utils
 from assistantforynab.assistant import Assistant
-import sys
 
 '''
 Restore state for start of tests:
@@ -13,10 +12,11 @@ Restore state for start of tests:
 
 
 def delete_extra_accounts():
-    if settings.get('budget_id') == '7b027e9b-4ed8-495e-97bd-f0339357adf0':
-        print('IDIOT YOU ALMOST DELETED THE REAL ACCOUNT\n' * 10)
-        sys.exit()
     whitelist = list(map(Assistant.accounts.by_name, ('Test Data', 'Annotated')))
+    utils.log_info('WARNING: THIS WILL DELETE ALL ACCOUNTS EXCEPT %s!!!' % whitelist)
+    confirm = input('Type "confirm" to confirm') == 'confirm'
+    if not confirm:
+        return
     to_delete = filter(lambda a: a not in whitelist, Assistant.accounts)
     ynab.queue_delete_accounts(to_delete)
     return whitelist
