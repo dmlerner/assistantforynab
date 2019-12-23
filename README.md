@@ -48,7 +48,7 @@ python3
 ```
 `deactivate`
 
-For more ideas of what it can do, check out [assistantforynab.assistant.py](https://github.com/dmlerner/assistantforynab/blob/dev/src/assistantforynab/assistant/assistant.py)
+For more ideas of what it can do, check out [assistantforynab.assistant.py](https://github.com/dmlerner/assistantforynab/blob/master/src/assistantforynab/assistant/assistant.py) or the [tests directory](https://github.com/dmlerner/assistantforynab/blob/master/tests)
 
 # FAQ:
 
@@ -58,3 +58,5 @@ For more ideas of what it can do, check out [assistantforynab.assistant.py](http
      Yes, but only on whatever computer you use to run it. This is for backup purposes, and easy to disable.
 3. Why does this ask for my API Token? 
      Because it's an alpha version and I haven't gotten around to making it work with OAuth. The token is sent to YNAB, but not to anywhere else.
+4. What operating systems does this work on?
+     I have developed it on windows with WSL. I like, think it might work on mac/linux/normal windows too. Let me know...
