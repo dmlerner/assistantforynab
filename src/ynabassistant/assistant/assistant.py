@@ -19,6 +19,7 @@ class Assistant:
     items = {}
 
     def load_amazon_data():
+        # TODO: check that chromedriver is installed
         utils.log_info('Loading Amazon')
         Assistant.orders = ya.amazon.downloader.load('orders')  # by order.id
         Assistant.items = ya.amazon.downloader.load('items')  # grouped by order.id

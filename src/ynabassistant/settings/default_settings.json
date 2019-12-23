@@ -7,12 +7,12 @@
 	"print_verbosity" : 1,
 
 	"max_log_age_days" : 90,
+	"max_amazon_eligible_days" : 90,
+	"max_amazon_staleness_days" : 0,
 
 
 	"fail_on_ambiguous_transaction" : false,
 	"default_category" : "ynabassistant",
-
-	"force_download_amazon" : false,
 
 	"account_name" : "Chase Amazon"
 }

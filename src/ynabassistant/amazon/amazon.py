@@ -2,6 +2,7 @@ import ynab_api
 
 import ynabassistant as ya
 from ynabassistant.utils import utils
+from ynabassistant import settings
 
 
 def annotate(t, order, items):
@@ -74,5 +75,6 @@ def matches_account(t):
     return t.account_name.lower() == ya.settings.account_name.lower()  # TODO: remove explicit dependence on ya.settings
 
 
-def newer_than(t, days_ago=30):
+def newer_than(t, days_ago=None):
+    days_ago = days_ago or settings.max_amazon_eligible_days
     return utils.newer_than(t.date, days_ago)

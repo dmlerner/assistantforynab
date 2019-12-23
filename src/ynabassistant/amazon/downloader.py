@@ -1,4 +1,5 @@
 import os
+import datetime
 import time
 import glob
 import csv
@@ -7,6 +8,7 @@ import traceback
 
 import ynabassistant as ya
 from ynabassistant.utils import utils, gui
+from ynabassistant import settings
 
 from . import Item, Order
 
@@ -47,10 +49,6 @@ csv_paths = {k: os.path.join(ya.settings.data_dir, k + '.csv')
              for k in data_parsers}
 
 
-def missing_csv(data_type):
-    return not os.path.exists(csv_paths[data_type])
-
-
 def read(p):
     with open(p, newline='\n') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
@@ -69,18 +67,37 @@ def combine_orders(orders):
     return combined
 
 
+def stale(path):
+    mtime = os.path.getmtime(path)
+    return datetime.datetime.now() - mtime > settings.max_amazon_staleness_days * utils.one_day
+
+
+def enter_start_date():
+    today = datetime.datetime.now()
+    start_date = today - utils.one_day * settings.max_amazon_eligible_days
+    month, day, year = start_date.strftime('%B %d %Y').split()
+    d = gui.driver()
+    d.find_element_by_id('report-month-start').click()
+    d.find_element_by_id('report-month-start').send_keys(month)
+    d.find_element_by_id('report-day-start').click()
+    d.find_element_by_id('report-day-start').send_keys(day)
+    d.find_element_by_id('report-year-start').click()
+    d.find_element_by_id('report-year-start').send_keys(year)
+
+
 def load(data_type):
     utils.log_debug('load', data_type)
     assert data_type in data_parsers
     target_path = csv_paths[data_type]
     try:
-        if ya.settings.force_download_amazon or missing_csv(data_type):
+        if not os.path.exists(target_path) or stale(target_path):
             d = gui.driver()
             url = 'https://smile.amazon.com/gp/b2b/reports'
             if url not in d.current_url:
                 d.get(url)
 
-            d.find_element_by_id('report-last30Days').click()
+            d.find_element_by_id('report-use-today').click()
+            enter_start_date()
             d.find_element_by_id('report-type').click()
             d.find_element_by_id('report-type').send_keys(data_type)
             d.find_element_by_id('report-confirm').click()
