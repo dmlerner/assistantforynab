@@ -68,7 +68,7 @@ def combine_orders(orders):
 
 
 def stale(path):
-    mtime = os.path.getmtime(path)
+    mtime = datetime.datetime.fromtimestamp(os.path.getmtime(path))
     return datetime.datetime.now() - mtime > settings.max_amazon_staleness_days * utils.one_day
 
 

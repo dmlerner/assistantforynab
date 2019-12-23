@@ -26,7 +26,6 @@ def restore_defaults():
 
 
 def setup_chromedriver():
-    utils.log_info('Checking for Chromedriver')
     if os.path.exists(settings.chromedriver_path):
         return
     utils.log_info('Installing Chromedriver')

@@ -12,6 +12,10 @@ date_format = '%m/%d/%y'
 
 
 def parse_date(d):
+    # TODO: less hacky solution
+    # if multiple shipment dates in one order, order.__add__ will trigger this
+    d = d.split(',')[0]
+
     return utils.parse_date(d, date_format)
 
 

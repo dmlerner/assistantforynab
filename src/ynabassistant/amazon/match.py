@@ -23,10 +23,9 @@ def get_order(t, orders):
         else:
             utils.log_debug('Skipping ambiguous transaction', t, possible_orders)
         unused_orders = [o for o in possible_orders if o.id not in assigned_ids]
-        # TODO want shipment_date change parser property
         if not unused_orders:
             return None
-        unused_orders.sort(key=lambda o: utils.day_delta(t.date, o.order_date))
+        unused_orders.sort(key=lambda o: utils.day_delta(t.date, o.shipment_date))
         order = unused_orders[0]
     assigned_ids.add(order.id)
     utils.log_info('Matched transaction with order', t, order)

@@ -8,7 +8,7 @@
 
 	"max_log_age_days" : 90,
 	"max_amazon_eligible_days" : 90,
-	"max_amazon_staleness_days" : 0,
+	"max_amazon_staleness_days" : 1,
 
 
 	"fail_on_ambiguous_transaction" : false,
