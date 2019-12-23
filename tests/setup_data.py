@@ -1,5 +1,5 @@
 from ynabassistant.ynab import ynab
-from ynabassistant import settings, install
+from ynabassistant import settings
 from ynabassistant.assistant import Assistant
 
 '''

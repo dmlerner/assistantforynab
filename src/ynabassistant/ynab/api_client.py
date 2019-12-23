@@ -5,10 +5,12 @@ import ynabassistant.backup
 import ynabassistant.install
 from ynabassistant.utils import utils
 
+initialized = False
+
 
 def init():
     global configuration, api_client, accounts_api, categories_api, transactions_api, payees_api
-    utils.log_info('api_client.init')
+    utils.log_debug('api_client.init')
     configuration = ynab_api.configuration.Configuration()
     if not settings.get('api_token'):
         ya.install.install()
@@ -23,10 +25,14 @@ def init():
     transactions_api = ynab_api.TransactionsApi(api_client)
     payees_api = ynab_api.PayeesApi(api_client)
 
+    global initialized
+    initialized = True
+
 
 @ya.backup.local.save
 def get_accounts():
     utils.log_debug('get_accounts')
+    initialized or init()
     response = accounts_api.get_accounts(settings.budget_id)
     acs = response.data.accounts
     assert all(isinstance(ac, ynab_api.Account) for ac in acs)
@@ -37,6 +43,7 @@ def get_accounts():
 @ya.backup.local.save
 def get_transactions():
     utils.log_debug('get_transactions')
+    initialized or init()
     response = transactions_api.get_transactions(settings.budget_id)
     ts = response.data.transactions
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in ts)
@@ -48,6 +55,7 @@ def get_transactions():
 @ya.backup.local.save
 def update_transactions(transactions):
     utils.log_debug('update_transactions')
+    initialized or init()
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in transactions)
     ut = utils.convert(transactions, ynab_api.UpdateTransaction)
     utw = ynab_api.UpdateTransactionsWrapper(transactions=ut)
@@ -60,6 +68,7 @@ def update_transactions(transactions):
 @ya.backup.local.save
 def create_transactions(transactions):
     utils.log_debug('create_transactions')
+    initialized or init()
     assert all(isinstance(t, ynab_api.TransactionDetail) for t in transactions)
     st = utils.convert(transactions, ynab_api.SaveTransaction)
     stw = ynab_api.SaveTransactionsWrapper(transactions=st)
@@ -71,6 +80,7 @@ def create_transactions(transactions):
 @ya.backup.local.save
 def get_category_groups():
     utils.log_debug('get_category_groups')
+    initialized or init()
     response = categories_api.get_categories(settings.budget_id)
     groups = response.data.category_groups
     assert all(isinstance(g, ynab_api.CategoryGroupWithCategories) for g in groups)
@@ -83,6 +93,7 @@ def get_category_groups():
 @ya.backup.local.save
 def update_categories(categories):
     utils.log_debug('update_categories', categories)
+    initialized or init()
     assert all(isinstance(c, ynab_api.Category) for c in categories)
     assert all(isinstance(c.budgeted, int) for c in categories)
     updated_categories = []
@@ -100,6 +111,7 @@ def update_categories(categories):
 @ya.backup.local.save
 def get_payees():
     utils.log_debug('get_payees')
+    initialized or init()
     response = payees_api.get_payees(settings.budget_id)
     ps = response.data.payees
     assert all(isinstance(p, ynab_api.Payee) for p in ps)
