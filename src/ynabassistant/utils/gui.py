@@ -1,4 +1,5 @@
 import traceback
+import os
 import sys
 import time
 import subprocess
@@ -113,10 +114,11 @@ def driver():
             return _driver
         close_orphan_drivers()
         options = Options()
+        assert os.path.exists(settings.chrome_data_dir)
         options.add_argument('user-data-dir={}'.format(settings.chrome_data_dir))
         options.add_argument('--disable-extensions')
-        options.add_argument('executable_path={}'.format(settings.chromedriver_path))
-        _driver = webdriver.Chrome(options=options)
+        assert os.path.exists(settings.chromedriver_path)
+        _driver = webdriver.Chrome(options=options, executable_path=settings.chromedriver_path)
     except BaseException:
         quit()
         if 'data directory is already in use' in traceback.format_exc():
@@ -128,6 +130,7 @@ def driver():
             sys.exit()
         else:
             utils.log_exception()
+    assert _driver
     return _driver
 
 

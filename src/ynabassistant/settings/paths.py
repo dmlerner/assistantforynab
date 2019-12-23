@@ -1,5 +1,6 @@
 # contains non user facing settings
 import os
+import sys
 import datetime
 import platform
 

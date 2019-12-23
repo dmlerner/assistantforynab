@@ -19,3 +19,5 @@ dist
 **/settings.json
 chromedriver.exe
 **/backupsettings.json
+/build
+/env
