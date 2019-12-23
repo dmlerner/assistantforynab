@@ -1,4 +1,4 @@
-from ynabassistant.utils import utils
+from assistantforynab.utils import utils
 from . import parse_date, parse_money
 
 

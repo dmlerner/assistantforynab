@@ -1,4 +1,3 @@
-
 **This is an alpha version. Use at your own risk. I suggest backing up your budget first.**
 # What's this?
 [YNAB](ynab.com) is excellent budgeting software, but is missing some essential features:
@@ -6,16 +5,17 @@
 1) Backup and restore your budget
 2) Split Amazon transactions into individual, labeled items
 3) API for adding/modifying split transactions
+4) Delete transactions
 
 WIP:
-4) Automatic distribution of funds to meet category goals
-5) Goals on a specific date
+5) Automatic distribution of funds to meet category goals
+6) Goals on a specific date
 
 
 # Installation:
 
 ```
-git clone https://github.com/dmlerner/ynabassistant
+git clone https://github.com/dmlerner/assistantforynab
 python3 setup.py install
 pip3 install ynabassistant
 mkdir $YOUR_CHOICE_OF_DIRECTORY_NAME  

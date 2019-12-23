@@ -1,4 +1,4 @@
-import ynabassistant as ya
+import assistantforynab as afy
 
 
 def test():

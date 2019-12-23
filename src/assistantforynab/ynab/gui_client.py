@@ -1,6 +1,6 @@
 import time
-import ynabassistant as ya
-from ynabassistant.utils import utils, gui
+import assistantforynab as afy
+from assistantforynab.utils import utils, gui
 from . import get_amount, type_assert_st, gui_format_date
 
 

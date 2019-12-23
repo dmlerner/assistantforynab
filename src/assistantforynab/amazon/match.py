@@ -1,5 +1,5 @@
-from ynabassistant.utils import utils
-import ynabassistant as ya
+from assistantforynab.utils import utils
+import assistantforynab as afy
 
 
 def get_order(t, orders):

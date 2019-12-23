@@ -1,6 +1,6 @@
-from ynabassistant.ynab import ynab
-from ynabassistant import settings
-from ynabassistant.assistant import Assistant
+from assistantforynab.ynab import ynab
+from assistantforynab import settings
+from assistantforynab.assistant import Assistant
 import sys
 
 '''

@@ -1,4 +1,4 @@
-from ynabassistant import Assistant
+from assistantforynab import Assistant
 import tests
 
 

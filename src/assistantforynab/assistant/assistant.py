@@ -1,10 +1,10 @@
 import collections
-from ynabassistant.utils.cache import Cache, TransactionCache
-from ynabassistant.utils import utils
-import ynabassistant as ya
-import ynabassistant.amazon
-import ynabassistant.backup
-import ynabassistant.ynab
+from assistantforynab.utils.cache import Cache, TransactionCache
+from assistantforynab.utils import utils
+import assistantforynab as afy
+import assistantforynab.amazon
+import assistantforynab.backup
+import assistantforynab.ynab
 
 
 class Assistant:

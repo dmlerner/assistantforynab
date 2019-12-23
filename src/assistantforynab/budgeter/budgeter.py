@@ -1,4 +1,4 @@
-from ynabassistant.utils import utils
+from assistantforynab.utils import utils
 import ynab
 
 

@@ -11,8 +11,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.remote.command import Command
 from selenium.webdriver.common.keys import Keys  # used externally
 
-from ynabassistant.utils import utils
-from ynabassistant import settings, install
+from assistantforynab.utils import utils
+from assistantforynab import settings, install
 
 
 def get(class_name, count=None, require=True, predicate=None, wait=30, pause=.25):

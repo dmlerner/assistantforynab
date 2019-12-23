@@ -2,7 +2,7 @@ import datetime
 import re
 
 import ynab_api
-from ynabassistant.utils import utils
+from assistantforynab.utils import utils
 
 
 def parse_money(price):

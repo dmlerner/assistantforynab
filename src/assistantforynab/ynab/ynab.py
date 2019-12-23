@@ -2,8 +2,8 @@ import time
 import collections
 import ynab_api
 
-import ynabassistant as ya
-from ynabassistant.utils import utils, gui
+import assistantforynab as afy
+from assistantforynab.utils import utils, gui
 from . import api_client, gui_client
 from .utils import calculate_adjustment, get_amount
 

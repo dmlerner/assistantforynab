@@ -1,6 +1,6 @@
 import ynab_api
-from ynabassistant.utils import utils
-import ynabassistant as ya
+from assistantforynab.utils import utils
+import assistantforynab as afy
 
 
 def diff_with_backup(predicates, timestamp=ya.settings.start_time, order='first'):

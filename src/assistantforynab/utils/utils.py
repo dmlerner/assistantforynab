@@ -1,6 +1,6 @@
-from ynabassistant import settings
+from assistantforynab import settings
 import ynab_api
-import ynabassistant as ya
+import assistantforynab as afy
 from copy import copy as cpy
 import collections
 import glob
@@ -238,7 +238,7 @@ def debug_assert(x):
 
 def is_myobj(o):
     try:
-        return 'ynab_api' in o.__module__ or 'ynabassistant' in o.__module__
+        return 'ynab_api' in o.__module__ or 'assistantforynab' in o.__module__
     except BaseException:
         return False
 

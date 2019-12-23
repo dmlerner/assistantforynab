@@ -1,9 +1,9 @@
-import ynabassistant
+import assistantforynab
 import tests
 
 
 def test():
-    a = ynabassistant.Assistant
+    a = assistantforynab.Assistant
     a.load_amazon_data()
     tests.setup_data.main()
     a.download_all_ynab()

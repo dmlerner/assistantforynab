@@ -1,9 +1,9 @@
 import ynab_api
-import ynabassistant as ya
-from ynabassistant import settings
-import ynabassistant.backup
-import ynabassistant.install
-from ynabassistant.utils import utils
+import assistantforynab as afy
+from assistantforynab import settings
+import assistantforynab.backup
+import assistantforynab.install
+from assistantforynab.utils import utils
 
 initialized = False
 

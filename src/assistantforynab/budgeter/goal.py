@@ -1,7 +1,7 @@
 import ynab_api
-from ynabassistant.utils import utils
+from assistantforynab.utils import utils
 import ynab
-from ynabassistant.assistant import Assistant
+from assistantforynab.assistant import Assistant
 
 
 class Goal:

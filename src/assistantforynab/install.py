@@ -1,4 +1,4 @@
-from ynabassistant import settings
+from assistantforynab import settings
 import os
 import time
 import shutil
@@ -7,7 +7,7 @@ import requests
 import re
 
 
-from ynabassistant.utils import gui, utils
+from assistantforynab.utils import gui, utils
 
 
 def restore_defaults():

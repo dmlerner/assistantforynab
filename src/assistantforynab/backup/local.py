@@ -7,8 +7,8 @@ import functools
 
 import ynab_api
 
-from ynabassistant import settings, backup
-from ynabassistant.utils import utils
+from assistantforynab import settings, backup
+from assistantforynab.utils import utils
 
 # Local Backup
 

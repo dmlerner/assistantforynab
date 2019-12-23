@@ -6,9 +6,9 @@ import csv
 import sys
 import traceback
 
-import ynabassistant as ya
-from ynabassistant.utils import utils, gui
-from ynabassistant import settings
+import assistantforynab as afy
+from assistantforynab.utils import utils, gui
+from assistantforynab import settings
 
 from . import Item, Order
 

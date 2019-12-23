@@ -1,5 +1,5 @@
 from copy import deepcopy
-from ynabassistant.utils import utils
+from assistantforynab.utils import utils
 
 
 class Field:
