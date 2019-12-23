@@ -24,3 +24,8 @@ def init(use_defaults=False):
         assistantforynab.settings.settings.copy_default_settings()
     _s.load_json()
     globals().update(_s.settings)
+
+
+def show():
+    for k, v in _s.settings.items():
+        print(k, ' = ', v)

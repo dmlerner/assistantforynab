@@ -12,6 +12,8 @@ Work in progress:
 5) Automatic distribution of funds to meet category goals
 6) Goals on a specific date
 
+This repo aims to provide them, in part by using Selenium to automate interactions with the YNAB webpage as needed.
+
 
 # Installation:
 Clone the repo:
@@ -39,8 +41,10 @@ source $YOUR_CHOICE_OF_DIRECTORY_NAME/env/bin/activate
 python3
 ```
 ```
->>> from assistantforynab import Assistant
->>> Assistant.full_handle_amazon()
+>>> import assistantforynab as afy
+>>> afy.settings.set('account_name', 'Chase Amazon')
+>>> afy.Assistant.full_handle_amazon()
+>>> afy.settings.show()
 ```
 `deactivate`
 
@@ -48,7 +52,7 @@ For more ideas of what it can do, check out [assistantforynab.assistant.py](http
 
 # FAQ:
 
- 1. Does this jeopardize my credentials or YNAB data?
+1. Does this jeopardize my credentials or YNAB data?
 	 No. It uses the official YNAB API and goes through the same servers as if you use the webapp. I generated [Python binding](https://github.com/dmlerner/ynab-apis) from the official swagger spec using OpenAPI Generator, and made zero modifications. 
 2. Does this store my data?
      Yes, but only on whatever computer you use to run it. This is for backup purposes, and easy to disable.
