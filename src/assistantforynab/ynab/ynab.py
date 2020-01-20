@@ -7,7 +7,7 @@ from assistantforynab.utils import utils, gui
 from . import api_client, gui_client
 from .utils import calculate_adjustment, get_amount
 
-# Needed iff changing subtransactions
+# Needed if changing subtransactions
 gui_queue = collections.defaultdict(dict)  # mode: { id: TransactionDetail }
 
 # Any changes to subtransactions are ignored

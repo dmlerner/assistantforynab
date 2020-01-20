@@ -2,10 +2,9 @@ from assistantforynab import settings
 import os
 import time
 import shutil
-import zipfile
-import requests
 import re
 
+from webdriver_manager.chrome import ChromeDriverManager
 
 from assistantforynab.utils import gui, utils
 
@@ -30,20 +29,9 @@ def setup_chromedriver():
         return
     utils.log_info('Installing Chromedriver')
 
-    chromedriver_urls = {
-        'windows': 'https://chromedriver.storage.googleapis.com/79.0.3945.36/chromedriver_win32.zip',
-        'mac': 'https://chromedriver.storage.googleapis.com/79.0.3945.36/chromedriver_mac64.zip',
-        'linux': 'https://chromedriver.storage.googleapis.com/79.0.3945.36/chromedriver_linux64.zip'
-    }
-    chromedriver_url = chromedriver_urls[settings.operating_system]
-
-    chromedriver_zip_filename = os.path.basename(chromedriver_url)
-    response = requests.get(chromedriver_url)
-    with open(chromedriver_zip_filename, 'wb') as f:
-        f.write(response.content)
-    with zipfile.ZipFile(chromedriver_zip_filename, 'r') as f:
-        f.extractall(settings.chromedriver_dir)
-    os.remove(chromedriver_zip_filename)
+    downloadPath = ChromeDriverManager(path = settings.chromedriver_dir).install()
+    shutil.move(downloadPath, settings.chromedriver_path)
+    shutil.rmtree(settings.chromedriver_dir + "/drivers")
     assert os.path.exists(settings.chromedriver_path)
 
 
