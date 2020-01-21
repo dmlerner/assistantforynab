@@ -58,7 +58,7 @@ def enter(st, payee_element, category_element, memo_element, outflow_element, in
     outflow = 0 if amount > 0 else abs(amount)
     inflow = 0 if amount < 0 else abs(amount)
     enter_fields((payee_element, category_element, memo_element, outflow_element),
-                 (payee, category, st.memo, outflow, inflow))
+                 (payee, category, st.memo[:200], outflow, inflow))
 
 
 def locate_transaction(t):

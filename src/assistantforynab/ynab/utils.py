@@ -74,7 +74,7 @@ def format_transaction(t):
 
 def format_subtransaction(s):
     assert isinstance(s, ynab_api.SubTransaction)
-    return ' | '.join(list(map(str, (get_amount(s), s.memo))))
+    return ' | '.join(list(map(str, (get_amount(s), s.memo[:200]))))
 
 
 def type_assert_st(st):

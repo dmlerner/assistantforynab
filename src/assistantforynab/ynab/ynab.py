@@ -116,6 +116,16 @@ def check_category(st, categories):
         [check_category(s, categories) for s in st.subtransactions]
 
 
+def trim_memo_length(t):
+    utils.log_debug('trim_memo_length', t)
+    type_assert_st(t)
+    if t.memo is not None:
+        t.memo = t.memo[:200]
+        if isinstance(t, ynab_api.TransactionDetail):
+            [trim_memo_length(st) for st in t.subtransactions]
+    return t
+
+
 @utils.listy
 def queue(ts, mode, payees, categories):
     utils.log_debug('queue', ts, mode)
@@ -126,6 +136,7 @@ def queue(ts, mode, payees, categories):
             check_payee(t, payees)
         if categories is not None:
             check_category(t, categories)
+        t = trim_memo_length(t)
         enqueue(t, (gui_queue if t.subtransactions else rest_queue)[mode])
 
 

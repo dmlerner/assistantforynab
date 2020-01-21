@@ -11,6 +11,7 @@ def annotate(t, order, items):
     if len(items) == 1:
         annotate_with_item(t, items[0])
         t.memo += ' ' + order.id
+        t.memo = t.memo[:200]
     else:
         t.memo = order.id
         t.subtransactions = [ynab_api.SubTransaction(
@@ -39,7 +40,7 @@ def annotate_with_item(st, i):
     category = afy.Assistant.accounts.by_name(st.category_name)
     st.category_id = category.id if category else None
 
-    st.memo = i.title
+    st.memo = i.title[:200]
     st.amount = afy.ynab.to_milliunits(-i.item_total)
 
 
