@@ -5,7 +5,7 @@ import ynab_api
 import assistantforynab as afy
 from assistantforynab.utils import utils, gui
 from . import api_client, gui_client
-from .utils import calculate_adjustment, get_amount
+from .utils import calculate_adjustment, get_amount, type_assert_st
 
 # Needed if changing subtransactions
 gui_queue = collections.defaultdict(dict)  # mode: { id: TransactionDetail }
@@ -96,7 +96,7 @@ def do_gui():
 
 def check_payee(st, payees):
     utils.log_debug('check_payee', st)
-    utils.type_assert_st(st)
+    type_assert_st(st)
     assert not st.payee_id or st.payee_id in payees
     # Need get because this is a field that isn't on the api model
     # I just add it for gui_client convenience in amazon.amazon
@@ -108,7 +108,7 @@ def check_payee(st, payees):
 
 def check_category(st, categories):
     utils.log_debug('check_category', st)
-    utils.type_assert_st(st)
+    type_assert_st(st)
     assert not st.category_id or st.category_id in categories
     if st.category_id and st.__dict__.get('category_name'):
         assert categories[st.category_id].name == st.category_name
