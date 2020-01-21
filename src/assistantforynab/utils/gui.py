@@ -97,7 +97,7 @@ def close_orphan_drivers():
     p = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
     out, err = p.communicate()
     for line in out.splitlines():
-        if 'chromedriver.exe' in str(line.lower()):
+        if settings.chromedriver_filename in str(line.lower()):
             pid = int(line.split(None, 1)[0])
             utils.log_debug('killing', line, pid)
             os.kill(pid, signal.SIGKILL)
