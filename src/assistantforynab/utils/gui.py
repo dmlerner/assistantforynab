@@ -142,6 +142,8 @@ def quit():
 
 def is_alive(d):
     utils.log_debug('is_alive')
+    if d is None:
+        return False
     try:
         d.execute(Command.STATUS)
         d.current_url
