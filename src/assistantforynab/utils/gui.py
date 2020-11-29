@@ -137,6 +137,7 @@ def driver():
 
 def quit():
     if is_alive(_driver):
+        utils.log_debug('attempting to quit')
         _driver.quit()
 
 

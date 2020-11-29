@@ -28,7 +28,7 @@ def enter_fields(fields, values):
 def get_category(st):
     utils.log_debug('get_category', st)
     # TODO/BUG: "Return: Amazon" category is equivalent to "AnythingElse: Amazon"'
-    # use cateogory group id?
+    # use category group id?
     type_assert_st(st)
     category = st.__dict__.get('category_name')
     if not category or 'Split (Multiple' in category:
@@ -139,7 +139,7 @@ def enter_all_transactions(transactions):
         utils.log_info(t)
         if len(t.subtransactions) > 5:
             utils.log_info(
-                '''Skipping puchase with %s items for speed reasons during alpha test.
+                '''Skipping purchase with %s items for speed reasons during alpha test.
                    Feel free to remove this check.''' % len(t.subtransactions)
             )
             continue
