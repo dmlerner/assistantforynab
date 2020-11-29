@@ -35,7 +35,8 @@ chromedriver_filenames = {
     'mac': 'chromedriver',
     'linux': 'chromedriver',
 }
-chromedriver_path = os.path.join(chromedriver_dir, chromedriver_filenames[operating_system])
+chromedriver_filename = chromedriver_filenames[operating_system]
+chromedriver_path = os.path.join(chromedriver_dir, chromedriver_filename)
 
 
 chrome_data_dirs = {

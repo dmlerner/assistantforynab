@@ -28,7 +28,7 @@ def enter_fields(fields, values):
 def get_category(st):
     utils.log_debug('get_category', st)
     # TODO/BUG: "Return: Amazon" category is equivalent to "AnythingElse: Amazon"'
-    # use cateogory group id?
+    # use category group id?
     type_assert_st(st)
     category = st.__dict__.get('category_name')
     if not category or 'Split (Multiple' in category:
@@ -58,7 +58,7 @@ def enter(st, payee_element, category_element, memo_element, outflow_element, in
     outflow = 0 if amount > 0 else abs(amount)
     inflow = 0 if amount < 0 else abs(amount)
     enter_fields((payee_element, category_element, memo_element, outflow_element),
-                 (payee, category, st.memo, outflow, inflow))
+                 (payee, category, st.memo[:200], outflow, inflow))
 
 
 def locate_transaction(t):
@@ -139,7 +139,7 @@ def enter_all_transactions(transactions):
         utils.log_info(t)
         if len(t.subtransactions) > 5:
             utils.log_info(
-                '''Skipping puchase with %s items for speed reasons during alpha test.
+                '''Skipping purchase with %s items for speed reasons during alpha test.
                    Feel free to remove this check.''' % len(t.subtransactions)
             )
             continue

@@ -57,7 +57,7 @@ def restore_transactions(predicates, timestamp=afy.settings.start_time, order='f
 
 
 def do_confirm(modified, deleted, added):
-    utils.log_info("Nah, fuck confirming")
+    utils.log_info("Nah, we won't confirm")
     return True
 
 

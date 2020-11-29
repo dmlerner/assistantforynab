@@ -21,7 +21,7 @@ def get_order(t, orders):
             utils.log_error('Skipping ambiguous transaction', t, possible_orders)
             return None
         else:
-            utils.log_debug('Skipping ambiguous transaction', t, possible_orders)
+            utils.log_info('Skipping ambiguous transaction', t, possible_orders)
         unused_orders = [o for o in possible_orders if o.id not in assigned_ids]
         if not unused_orders:
             return None

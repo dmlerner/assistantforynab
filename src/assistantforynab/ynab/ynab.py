@@ -5,9 +5,9 @@ import ynab_api
 import assistantforynab as afy
 from assistantforynab.utils import utils, gui
 from . import api_client, gui_client
-from .utils import calculate_adjustment, get_amount
+from .utils import calculate_adjustment, get_amount, type_assert_st
 
-# Needed iff changing subtransactions
+# Needed if changing subtransactions
 gui_queue = collections.defaultdict(dict)  # mode: { id: TransactionDetail }
 
 # Any changes to subtransactions are ignored
@@ -96,7 +96,7 @@ def do_gui():
 
 def check_payee(st, payees):
     utils.log_debug('check_payee', st)
-    utils.type_assert_st(st)
+    type_assert_st(st)
     assert not st.payee_id or st.payee_id in payees
     # Need get because this is a field that isn't on the api model
     # I just add it for gui_client convenience in amazon.amazon
@@ -108,12 +108,22 @@ def check_payee(st, payees):
 
 def check_category(st, categories):
     utils.log_debug('check_category', st)
-    utils.type_assert_st(st)
+    type_assert_st(st)
     assert not st.category_id or st.category_id in categories
     if st.category_id and st.__dict__.get('category_name'):
         assert categories[st.category_id].name == st.category_name
     if isinstance(st, ynab_api.TransactionDetail):
         [check_category(s, categories) for s in st.subtransactions]
+
+
+def trim_memo_length(t):
+    utils.log_debug('trim_memo_length', t)
+    type_assert_st(t)
+    if t.memo is not None:
+        t.memo = t.memo[:200]
+        if isinstance(t, ynab_api.TransactionDetail):
+            [trim_memo_length(st) for st in t.subtransactions]
+    return t
 
 
 @utils.listy
@@ -126,6 +136,7 @@ def queue(ts, mode, payees, categories):
             check_payee(t, payees)
         if categories is not None:
             check_category(t, categories)
+        t = trim_memo_length(t)
         enqueue(t, (gui_queue if t.subtransactions else rest_queue)[mode])
 
 
